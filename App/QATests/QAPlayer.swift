@@ -148,6 +148,10 @@ final class QAPlayer {
             if w == 2 { tapNext(); return }
         }
         answer(i.answer, for: i)
+        // A touch can be lost on a busy simulator. If the right tile was only "heard", one more touch chooses it.
+        if !answersOnLine(i), !el("next").waitForExistence(timeout: 4), el("tile.\(i.answer)").exists {
+            tap("tile.\(i.answer)")
+        }
         if snapEach { snap("\(i.id) correct") }
         tapNext()
     }

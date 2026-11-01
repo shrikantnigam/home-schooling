@@ -1,5 +1,6 @@
 import KingdomCore
 import SwiftUI
+import UIKit
 
 // Paper theatre pieces (charter v1.2): every place is a stage set of layered cut paper.
 
@@ -31,23 +32,28 @@ struct HillShape: Shape {
     }
 }
 
-/// A fine paper grain over the whole screen. Drawn once, never touchable.
+/// A fine paper grain over the whole screen. One small noise tile is drawn once and repeated, so the grain
+/// costs nothing when a screen redraws. Never touchable.
 struct PaperGrain: View {
-    var body: some View {
-        Canvas { ctx, size in
+    static let tile: UIImage = {
+        let size = CGSize(width: 180, height: 180)
+        return UIGraphicsImageRenderer(size: size).image { ctx in
             var g = SeededDots(seed: 11)
-            let n = Int(size.width * size.height / 260)
-            for _ in 0..<n {
+            for _ in 0..<520 {
                 let x = g.next() * size.width, y = g.next() * size.height
                 let dark = g.next() < 0.5
-                ctx.fill(Path(CGRect(x: x, y: y, width: 1.4, height: 1.4)),
-                         with: .color(dark ? Theme.shadow.opacity(0.07) : Color.white.opacity(0.08)))
+                (dark ? UIColor(red: 0.35, green: 0.23, blue: 0.13, alpha: 0.07) : UIColor(white: 1, alpha: 0.08)).setFill()
+                ctx.fill(CGRect(x: x, y: y, width: 1.4, height: 1.4))
             }
         }
-        .drawingGroup()
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-        .ignoresSafeArea()
+    }()
+
+    var body: some View {
+        Image(uiImage: PaperGrain.tile)
+            .resizable(resizingMode: .tile)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .ignoresSafeArea()
     }
 }
 

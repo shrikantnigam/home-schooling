@@ -203,7 +203,8 @@ final class SceneController: ObservableObject {
         model.speech.say(intro + [catalog.spoken("quickLook.ready")]) { [weak self] in
             guard let self, token == self.itemToken else { return }
             withAnimation(.easeOut(duration: 0.25)) { self.ui.hidden = false }
-            let look = self.model.env.uiTesting ? 1.0 : 2.0
+            // A short look so she sees the group at once. QA gets a little longer to photograph it.
+            let look = self.model.env.uiTesting ? 3.0 : 2.0
             DispatchQueue.main.asyncAfter(deadline: .now() + look) { [weak self] in
                 guard let self, token == self.itemToken, !self.revealedOrDone else { return }
                 withAnimation(.easeInOut(duration: 0.4)) { self.ui.hidden = true }
