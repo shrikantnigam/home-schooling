@@ -1,3 +1,4 @@
+import KingdomCore
 import SwiftUI
 
 // Placeholder art drawn with SwiftUI shapes, following mocks/Sparkle, Siara and Style.
