@@ -119,6 +119,42 @@
    "chapter": "ball",
    "name": "Multiply with numbers",
    "homeTip": "Ask \"3 groups of 4?\" in the car and let her draw dots to check."
+  },
+  {
+   "id": "fairShare",
+   "chapter": "feast",
+   "name": "Share fairly",
+   "homeTip": "Deal 12 grapes onto 3 plates, one at a time, round and round. How many on each plate?"
+  },
+  {
+   "id": "grouping",
+   "chapter": "feast",
+   "name": "Put into equal groups",
+   "homeTip": "Put 10 socks into pairs. How many pairs?"
+  },
+  {
+   "id": "divide",
+   "chapter": "feast",
+   "name": "Divide with numbers",
+   "homeTip": "Ask \"8 cookies shared by 2 people?\" and let her share real cookies to check."
+  },
+  {
+   "id": "equalParts",
+   "chapter": "moon",
+   "name": "Equal parts (halves, thirds, quarters)",
+   "homeTip": "Fold a paper in half, then in half again. How many equal parts now?"
+  },
+  {
+   "id": "fractionOfSet",
+   "chapter": "moon",
+   "name": "Half and a quarter of a group",
+   "homeTip": "Share 8 raisins into 2 equal piles. One pile is half. How many is half?"
+  },
+  {
+   "id": "fractionLine",
+   "chapter": "moon",
+   "name": "Fractions on a line from 0 to 1",
+   "homeTip": "Cut a ribbon into 4 equal parts and lay it out. Point to one quarter, two quarters, three quarters."
   }
  ],
  "chapters": [
@@ -178,6 +214,28 @@
     "R2",
     "R3",
     "R4"
+   ]
+  },
+  {
+   "id": "feast",
+   "title": "The Fair Feast",
+   "place": "Fair Feast",
+   "scenes": [
+    "F1",
+    "F2",
+    "F3",
+    "F4"
+   ]
+  },
+  {
+   "id": "moon",
+   "title": "The Moon Crystal",
+   "place": "Moon Crystal",
+   "scenes": [
+    "M1",
+    "M2",
+    "M3",
+    "M4"
    ]
   }
  ],
@@ -1626,6 +1684,521 @@
     "r4.payoff2"
    ],
    "goodbye": "r4.goodbye"
+  },
+  {
+   "id": "F1",
+   "chapter": "feast",
+   "title": "Sharing Cupcakes",
+   "open": [
+    "f1.open1",
+    "f1.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "f1-6/2",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 6,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "f1-8/2",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 8,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "f1-9/3",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 9,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "f1-12/3",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 12,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "f1-8/4",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 8,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "f1-10/2",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 10,
+     "b": 2,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "f1.payoff"
+   ],
+   "goodbye": "f1.goodbye"
+  },
+  {
+   "id": "F2",
+   "chapter": "feast",
+   "title": "Baskets of Berries",
+   "open": [
+    "f2.open1",
+    "f2.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "f2-6/2",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 6,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "f2-10/5",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 10,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "f2-12/3",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 12,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "f2-8/2",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 8,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "f2-15/5",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 15,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "f2-12/4",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 12,
+     "b": 4,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "f2.payoff"
+   ],
+   "goodbye": "f2.goodbye"
+  },
+  {
+   "id": "F3",
+   "chapter": "feast",
+   "title": "The Big Table",
+   "open": [
+    "f3.open1",
+    "f3.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "f3-15/3",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 15,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "f3-16/4",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 16,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "f3-20/5",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 20,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "f3-18/3",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 18,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "f3-14/2",
+     "skill": "fairShare",
+     "kind": "share",
+     "a": 14,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "f3-20/4",
+     "skill": "grouping",
+     "kind": "groupInto",
+     "a": 20,
+     "b": 4,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "f3.payoff"
+   ],
+   "goodbye": "f3.goodbye"
+  },
+  {
+   "id": "F4",
+   "chapter": "feast",
+   "title": "Enough for Everyone",
+   "open": [
+    "f4.open1",
+    "f4.open2"
+   ],
+   "warmupCount": 3,
+   "items": [
+    {
+     "id": "f4-8/2",
+     "skill": "divide",
+     "kind": "divide",
+     "a": 8,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "f4-12/3",
+     "skill": "divide",
+     "kind": "divide",
+     "a": 12,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "f4-10/5",
+     "skill": "divide",
+     "kind": "divide",
+     "a": 10,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "f4-16/4",
+     "skill": "divide",
+     "kind": "divide",
+     "a": 16,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "f4-15/3",
+     "skill": "divide",
+     "kind": "divide",
+     "a": 15,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "f4-18/2",
+     "skill": "divide",
+     "kind": "divide",
+     "a": 18,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "f4-20/5",
+     "skill": "divide",
+     "kind": "divide",
+     "a": 20,
+     "b": 5,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "f4.payoff1",
+    "f4.payoff2"
+   ],
+   "goodbye": "f4.goodbye"
+  },
+  {
+   "id": "M1",
+   "chapter": "moon",
+   "title": "The Broken Crystal",
+   "open": [
+    "m1.open1",
+    "m1.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "m1-2",
+     "skill": "equalParts",
+     "kind": "parts",
+     "a": 0,
+     "b": 2
+    },
+    {
+     "id": "m1-4",
+     "skill": "equalParts",
+     "kind": "parts",
+     "a": 0,
+     "b": 4
+    },
+    {
+     "id": "m1-3",
+     "skill": "equalParts",
+     "kind": "parts",
+     "a": 0,
+     "b": 3
+    },
+    {
+     "id": "m1-2b",
+     "skill": "equalParts",
+     "kind": "parts",
+     "a": 0,
+     "b": 2
+    },
+    {
+     "id": "m1-4b",
+     "skill": "equalParts",
+     "kind": "parts",
+     "a": 0,
+     "b": 4
+    },
+    {
+     "id": "m1-3b",
+     "skill": "equalParts",
+     "kind": "parts",
+     "a": 0,
+     "b": 3
+    }
+   ],
+   "payoff": [
+    "m1.payoff"
+   ],
+   "goodbye": "m1.goodbye"
+  },
+  {
+   "id": "M2",
+   "chapter": "moon",
+   "title": "Half the Moonstones",
+   "open": [
+    "m2.open1",
+    "m2.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "m2-8/2",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 8,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "m2-6/2",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 6,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "m2-8/4",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 8,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "m2-10/2",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 10,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "m2-12/4",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 12,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "m2-12/2",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 12,
+     "b": 2,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "m2.payoff"
+   ],
+   "goodbye": "m2.goodbye"
+  },
+  {
+   "id": "M3",
+   "chapter": "moon",
+   "title": "The Moonbeam Path",
+   "open": [
+    "m3.open1",
+    "m3.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "m3-1/2",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 1,
+     "b": 2,
+     "max": 2
+    },
+    {
+     "id": "m3-1/4",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 1,
+     "b": 4,
+     "max": 4
+    },
+    {
+     "id": "m3-3/4",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 3,
+     "b": 4,
+     "max": 4
+    },
+    {
+     "id": "m3-1/3",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 1,
+     "b": 3,
+     "max": 3
+    },
+    {
+     "id": "m3-2/4",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 2,
+     "b": 4,
+     "max": 4
+    },
+    {
+     "id": "m3-2/3",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 2,
+     "b": 3,
+     "max": 3
+    }
+   ],
+   "payoff": [
+    "m3.payoff"
+   ],
+   "goodbye": "m3.goodbye"
+  },
+  {
+   "id": "M4",
+   "chapter": "moon",
+   "title": "Mend the Moon",
+   "open": [
+    "m4.open1",
+    "m4.open2"
+   ],
+   "warmupCount": 3,
+   "items": [
+    {
+     "id": "m4-16/4",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 16,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "m4-1/4",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 1,
+     "b": 4,
+     "max": 4
+    },
+    {
+     "id": "m4-14/2",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 14,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "m4-3",
+     "skill": "equalParts",
+     "kind": "parts",
+     "a": 0,
+     "b": 3
+    },
+    {
+     "id": "m4-3/4",
+     "skill": "fractionLine",
+     "kind": "fractionLine",
+     "a": 3,
+     "b": 4,
+     "max": 4
+    },
+    {
+     "id": "m4-20/4",
+     "skill": "fractionOfSet",
+     "kind": "fractionOf",
+     "a": 20,
+     "b": 4,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "m4.payoff1",
+    "m4.payoff2"
+   ],
+   "goodbye": "m4.goodbye"
   }
  ],
  "lines": {
@@ -2672,6 +3245,286 @@
   "praise.multiply": {
    "speaker": "sparkle",
    "text": "Yes! {a} times {b} is {answer}."
+  },
+  "f1.open1": {
+   "speaker": "narrator",
+   "text": "After the dancing, everyone was hungry. The royal cooks had made a feast!"
+  },
+  "f1.open2": {
+   "speaker": "sparkle",
+   "text": "The Queen says every plate must get the same. Let's share fairly, one at a time!"
+  },
+  "f1.payoff": {
+   "speaker": "sparkle",
+   "text": "Every plate has the same! That's what fair means."
+  },
+  "f1.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you shared things fairly. Goodnight, Siara!"
+  },
+  "f2.open1": {
+   "speaker": "narrator",
+   "text": "The berry pickers came back with heaps of berries, and baskets that hold the same amount."
+  },
+  "f2.open2": {
+   "speaker": "sparkle",
+   "text": "Let's fill each basket until it's full, then start the next one."
+  },
+  "f2.payoff": {
+   "speaker": "sparkle",
+   "text": "All the berries are in baskets! Making equal groups tells us how many groups."
+  },
+  "f2.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you made equal groups. Goodnight, Siara!"
+  },
+  "f3.open1": {
+   "speaker": "narrator",
+   "text": "More guests came to the big table, and the cooks brought more treats."
+  },
+  "f3.open2": {
+   "speaker": "sparkle",
+   "text": "Bigger numbers, same idea. Fair shares for everyone!"
+  },
+  "f3.payoff": {
+   "speaker": "sparkle",
+   "text": "Everyone at the big table is smiling. Sharing works for big numbers too."
+  },
+  "f3.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you shared even bigger piles. Goodnight, Siara!"
+  },
+  "f4.open1": {
+   "speaker": "narrator",
+   "text": "The feast is nearly over, and the last treats wait on the table."
+  },
+  "f4.open2": {
+   "speaker": "sparkle",
+   "text": "You can use numbers now, Siara. Divide means share fairly!"
+  },
+  "f4.payoff1": {
+   "speaker": "sparkle",
+   "text": "Everyone had enough! Today you learned that dividing means sharing fairly into equal groups."
+  },
+  "f4.payoff2": {
+   "speaker": "sparkle",
+   "text": "Oh! Look up at the sky. The moon has a crack in it. Someone needs to mend the Moon Crystal."
+  },
+  "f4.goodbye": {
+   "speaker": "sparkle",
+   "text": "Goodnight, Siara! The moon is waiting for us."
+  },
+  "prompt.share.concrete": {
+   "speaker": "sparkle",
+   "text": "We have {a} cupcakes and {b} plates. Tap the pile to put one on each plate, round and round."
+  },
+  "prompt.share.pictorial": {
+   "speaker": "sparkle",
+   "text": "{a} treats shared fairly onto {b} plates. How many on each plate?"
+  },
+  "prompt.share": {
+   "speaker": "sparkle",
+   "text": "{a} shared by {b}. How many each?"
+  },
+  "ask.share": {
+   "speaker": "sparkle",
+   "text": "How many treats are on each plate?"
+  },
+  "hint.model.share": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look at just one plate and count what is on it."
+  },
+  "hint.worked.share": {
+   "speaker": "sparkle",
+   "text": "Let's count the treats on one plate, together."
+  },
+  "praise.share": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} shared by {b} is {answer} each. That's fair!"
+  },
+  "prompt.groupInto.concrete": {
+   "speaker": "sparkle",
+   "text": "We have {a} berries. Each basket holds {b}. Tap the pile to fill the baskets."
+  },
+  "prompt.groupInto.pictorial": {
+   "speaker": "sparkle",
+   "text": "{a} berries, {b} in each basket. How many baskets?"
+  },
+  "prompt.groupInto": {
+   "speaker": "sparkle",
+   "text": "{a} in groups of {b}. How many groups?"
+  },
+  "ask.groupInto": {
+   "speaker": "sparkle",
+   "text": "How many baskets did we fill?"
+  },
+  "hint.model.groupInto": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Count the baskets, not the berries."
+  },
+  "hint.worked.groupInto": {
+   "speaker": "sparkle",
+   "text": "Let's count the full baskets together."
+  },
+  "praise.groupInto": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} makes {answer} groups of {b}."
+  },
+  "prompt.divide": {
+   "speaker": "sparkle",
+   "text": "{a} divided by {b}. If you want help, tap the plates."
+  },
+  "hint.model.divide": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Think of {a} treats shared onto {b} plates."
+  },
+  "hint.worked.divide": {
+   "speaker": "sparkle",
+   "text": "Let's share them one at a time and count one plate."
+  },
+  "praise.divide": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} divided by {b} is {answer}."
+  },
+  "m1.open1": {
+   "speaker": "narrator",
+   "text": "High above the kingdom, the Moon Crystal had cracked into pieces."
+  },
+  "m1.open2": {
+   "speaker": "sparkle",
+   "text": "To mend it, every piece must be the same size. Let's count the equal parts!"
+  },
+  "m1.payoff": {
+   "speaker": "sparkle",
+   "text": "The pieces fit! Equal parts means every part is the same size."
+  },
+  "m1.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned about halves, thirds and quarters. Goodnight, Siara!"
+  },
+  "m2.open1": {
+   "speaker": "narrator",
+   "text": "Moonstones lay scattered on the hill. Half must go to the left of the moon, half to the right."
+  },
+  "m2.open2": {
+   "speaker": "sparkle",
+   "text": "Let's share the moonstones into equal piles. One pile is one part."
+  },
+  "m2.payoff": {
+   "speaker": "sparkle",
+   "text": "The moon is glowing on both sides! Half means one of two equal parts."
+  },
+  "m2.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you found half and a quarter of a group. Goodnight, Siara!"
+  },
+  "m3.open1": {
+   "speaker": "narrator",
+   "text": "A moonbeam stretches from the ground, at zero, all the way up to the moon, at one."
+  },
+  "m3.open2": {
+   "speaker": "sparkle",
+   "text": "The moonbeam has equal steps. Help me find the right step!"
+  },
+  "m3.payoff": {
+   "speaker": "sparkle",
+   "text": "We walked the whole moonbeam! Fractions live between zero and one."
+  },
+  "m3.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you found fractions on a line. Goodnight, Siara!"
+  },
+  "m4.open1": {
+   "speaker": "narrator",
+   "text": "The last piece of the Moon Crystal is waiting."
+  },
+  "m4.open2": {
+   "speaker": "sparkle",
+   "text": "Use everything you know, Siara. Let's mend the moon!"
+  },
+  "m4.payoff1": {
+   "speaker": "sparkle",
+   "text": "You mended the Moon Crystal! The whole kingdom is shining. You learned so much, Siara."
+  },
+  "m4.payoff2": {
+   "speaker": "sparkle",
+   "text": "Stars, flowers, a bridge, gems, a ball, a feast, and now the moon. Thank you for saving the Kingdom of Numbers!"
+  },
+  "m4.goodbye": {
+   "speaker": "sparkle",
+   "text": "Goodnight, Siara. I'll always be here when you want to play."
+  },
+  "prompt.parts.concrete": {
+   "speaker": "sparkle",
+   "text": "The crystal broke into equal parts. Tap each part to count them."
+  },
+  "prompt.parts.pictorial": {
+   "speaker": "sparkle",
+   "text": "The crystal broke into equal parts. How many parts are there?"
+  },
+  "prompt.parts": {
+   "speaker": "sparkle",
+   "text": "How many equal parts make the whole crystal?"
+  },
+  "ask.parts": {
+   "speaker": "sparkle",
+   "text": "How many equal parts are there?"
+  },
+  "hint.model.parts": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Touch each part once, and count."
+  },
+  "hint.worked.parts": {
+   "speaker": "sparkle",
+   "text": "Let's count the parts together."
+  },
+  "praise.parts": {
+   "speaker": "sparkle",
+   "text": "Yes! {answer} equal parts. Each part is one {answer}th... we say one half, one third or one quarter!"
+  },
+  "prompt.fractionOf.concrete": {
+   "speaker": "sparkle",
+   "text": "We have {a} moonstones. Share them into {b} equal piles. Tap the pile to share."
+  },
+  "prompt.fractionOf.pictorial": {
+   "speaker": "sparkle",
+   "text": "{a} moonstones in {b} equal piles. How many are in one pile?"
+  },
+  "prompt.fractionOf": {
+   "speaker": "sparkle",
+   "text": "One part out of {b} equal parts of {a}. How many is that?"
+  },
+  "ask.fractionOf": {
+   "speaker": "sparkle",
+   "text": "How many moonstones are in one pile?"
+  },
+  "hint.model.fractionOf": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look at just one pile."
+  },
+  "hint.worked.fractionOf": {
+   "speaker": "sparkle",
+   "text": "Let's count one pile together."
+  },
+  "praise.fractionOf": {
+   "speaker": "sparkle",
+   "text": "Yes! One part of {a} in {b} equal parts is {answer}."
+  },
+  "prompt.fractionLine": {
+   "speaker": "sparkle",
+   "text": "The moonbeam has {b} equal steps. Tap the step for {a} out of {b}."
+  },
+  "hint.model.fractionLine": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Count the steps from zero."
+  },
+  "hint.worked.fractionLine": {
+   "speaker": "sparkle",
+   "text": "Let's count the steps from zero together, up to {a}."
+  },
+  "praise.fractionLine": {
+   "speaker": "sparkle",
+   "text": "Yes! That's {a} out of {b} steps along the moonbeam."
   }
  }
 }

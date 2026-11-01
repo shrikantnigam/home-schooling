@@ -6,6 +6,8 @@ def add(skills, chapters, scenes, l, it, sc, N, S):
     chapter_2(skills, chapters, scenes, l, it, sc, N, S)
     chapter_3(skills, chapters, scenes, l, it, sc, N, S)
     chapter_4(skills, chapters, scenes, l, it, sc, N, S)
+    chapter_5(skills, chapters, scenes, l, it, sc, N, S)
+    chapter_6(skills, chapters, scenes, l, it, sc, N, S)
 
 
 def skill(skills, id, chapter, name, tip):
@@ -250,3 +252,136 @@ def chapter_4(skills, chapters, scenes, l, it, sc, N, S):
     l("hint.model.multiply", S, "Hmm, not quite. Think of {a} groups with {b} in each.")
     l("hint.worked.multiply", S, "Let's count by {b}s, {a} times.")
     l("praise.multiply", S, "Yes! {a} times {b} is {answer}.")
+
+
+def chapter_5(skills, chapters, scenes, l, it, sc, N, S):
+    """The Fair Feast: division as fair sharing and as grouping. Totals up to 20, always exact."""
+    ch = "feast"
+    skill(skills, "fairShare", ch, "Share fairly",
+          "Deal 12 grapes onto 3 plates, one at a time, round and round. How many on each plate?")
+    skill(skills, "grouping", ch, "Put into equal groups",
+          "Put 10 socks into pairs. How many pairs?")
+    skill(skills, "divide", ch, "Divide with numbers",
+          "Ask \"8 cookies shared by 2 people?\" and let her share real cookies to check.")
+    chapters.append(dict(id=ch, title="The Fair Feast", place="Fair Feast", scenes=["F1", "F2", "F3", "F4"]))
+    T = 20
+    scenes += [
+        sc("F1", ch, "Sharing Cupcakes", 2, [
+            it("f1-6/2", "fairShare", "share", 6, 2, T), it("f1-8/2", "fairShare", "share", 8, 2, T),
+            it("f1-9/3", "fairShare", "share", 9, 3, T), it("f1-12/3", "fairShare", "share", 12, 3, T),
+            it("f1-8/4", "fairShare", "share", 8, 4, T), it("f1-10/2", "fairShare", "share", 10, 2, T)], ["f1.payoff"]),
+        sc("F2", ch, "Baskets of Berries", 2, [
+            it("f2-6/2", "grouping", "groupInto", 6, 2, T), it("f2-10/5", "grouping", "groupInto", 10, 5, T),
+            it("f2-12/3", "grouping", "groupInto", 12, 3, T), it("f2-8/2", "grouping", "groupInto", 8, 2, T),
+            it("f2-15/5", "grouping", "groupInto", 15, 5, T), it("f2-12/4", "grouping", "groupInto", 12, 4, T)], ["f2.payoff"]),
+        sc("F3", ch, "The Big Table", 2, [
+            it("f3-15/3", "fairShare", "share", 15, 3, T), it("f3-16/4", "fairShare", "share", 16, 4, T),
+            it("f3-20/5", "fairShare", "share", 20, 5, T), it("f3-18/3", "grouping", "groupInto", 18, 3, T),
+            it("f3-14/2", "fairShare", "share", 14, 2, T), it("f3-20/4", "grouping", "groupInto", 20, 4, T)], ["f3.payoff"]),
+        sc("F4", ch, "Enough for Everyone", 3, [
+            it("f4-8/2", "divide", "divide", 8, 2, T), it("f4-12/3", "divide", "divide", 12, 3, T),
+            it("f4-10/5", "divide", "divide", 10, 5, T), it("f4-16/4", "divide", "divide", 16, 4, T),
+            it("f4-15/3", "divide", "divide", 15, 3, T), it("f4-18/2", "divide", "divide", 18, 2, T),
+            it("f4-20/5", "divide", "divide", 20, 5, T)], ["f4.payoff1", "f4.payoff2"]),
+    ]
+    l("f1.open1", N, "After the dancing, everyone was hungry. The royal cooks had made a feast!")
+    l("f1.open2", S, "The Queen says every plate must get the same. Let's share fairly, one at a time!")
+    l("f1.payoff", S, "Every plate has the same! That's what fair means.")
+    l("f1.goodbye", S, "Today you shared things fairly. Goodnight, Siara!")
+    l("f2.open1", N, "The berry pickers came back with heaps of berries, and baskets that hold the same amount.")
+    l("f2.open2", S, "Let's fill each basket until it's full, then start the next one.")
+    l("f2.payoff", S, "All the berries are in baskets! Making equal groups tells us how many groups.")
+    l("f2.goodbye", S, "Today you made equal groups. Goodnight, Siara!")
+    l("f3.open1", N, "More guests came to the big table, and the cooks brought more treats.")
+    l("f3.open2", S, "Bigger numbers, same idea. Fair shares for everyone!")
+    l("f3.payoff", S, "Everyone at the big table is smiling. Sharing works for big numbers too.")
+    l("f3.goodbye", S, "Today you shared even bigger piles. Goodnight, Siara!")
+    l("f4.open1", N, "The feast is nearly over, and the last treats wait on the table.")
+    l("f4.open2", S, "You can use numbers now, Siara. Divide means share fairly!")
+    l("f4.payoff1", S, "Everyone had enough! Today you learned that dividing means sharing fairly into equal groups.")
+    l("f4.payoff2", S, "Oh! Look up at the sky. The moon has a crack in it. Someone needs to mend the Moon Crystal.")
+    l("f4.goodbye", S, "Goodnight, Siara! The moon is waiting for us.")
+    l("prompt.share.concrete", S, "We have {a} cupcakes and {b} plates. Tap the pile to put one on each plate, round and round.")
+    l("prompt.share.pictorial", S, "{a} treats shared fairly onto {b} plates. How many on each plate?")
+    l("prompt.share", S, "{a} shared by {b}. How many each?")
+    l("ask.share", S, "How many treats are on each plate?")
+    l("hint.model.share", S, "Hmm, not quite. Look at just one plate and count what is on it.")
+    l("hint.worked.share", S, "Let's count the treats on one plate, together.")
+    l("praise.share", S, "Yes! {a} shared by {b} is {answer} each. That's fair!")
+    l("prompt.groupInto.concrete", S, "We have {a} berries. Each basket holds {b}. Tap the pile to fill the baskets.")
+    l("prompt.groupInto.pictorial", S, "{a} berries, {b} in each basket. How many baskets?")
+    l("prompt.groupInto", S, "{a} in groups of {b}. How many groups?")
+    l("ask.groupInto", S, "How many baskets did we fill?")
+    l("hint.model.groupInto", S, "Hmm, not quite. Count the baskets, not the berries.")
+    l("hint.worked.groupInto", S, "Let's count the full baskets together.")
+    l("praise.groupInto", S, "Yes! {a} makes {answer} groups of {b}.")
+    l("prompt.divide", S, "{a} divided by {b}. If you want help, tap the plates.")
+    l("hint.model.divide", S, "Hmm, not quite. Think of {a} treats shared onto {b} plates.")
+    l("hint.worked.divide", S, "Let's share them one at a time and count one plate.")
+    l("praise.divide", S, "Yes! {a} divided by {b} is {answer}.")
+
+
+def chapter_6(skills, chapters, scenes, l, it, sc, N, S):
+    """The Moon Crystal: unit fractions as equal parts of a whole, of a set, and on a line from 0 to 1."""
+    ch = "moon"
+    skill(skills, "equalParts", ch, "Equal parts (halves, thirds, quarters)",
+          "Fold a paper in half, then in half again. How many equal parts now?")
+    skill(skills, "fractionOfSet", ch, "Half and a quarter of a group",
+          "Share 8 raisins into 2 equal piles. One pile is half. How many is half?")
+    skill(skills, "fractionLine", ch, "Fractions on a line from 0 to 1",
+          "Cut a ribbon into 4 equal parts and lay it out. Point to one quarter, two quarters, three quarters.")
+    chapters.append(dict(id=ch, title="The Moon Crystal", place="Moon Crystal", scenes=["M1", "M2", "M3", "M4"]))
+    scenes += [
+        sc("M1", ch, "The Broken Crystal", 2, [
+            it("m1-2", "equalParts", "parts", 0, 2), it("m1-4", "equalParts", "parts", 0, 4),
+            it("m1-3", "equalParts", "parts", 0, 3), it("m1-2b", "equalParts", "parts", 0, 2),
+            it("m1-4b", "equalParts", "parts", 0, 4), it("m1-3b", "equalParts", "parts", 0, 3)], ["m1.payoff"]),
+        sc("M2", ch, "Half the Moonstones", 2, [
+            it("m2-8/2", "fractionOfSet", "fractionOf", 8, 2, 20), it("m2-6/2", "fractionOfSet", "fractionOf", 6, 2, 20),
+            it("m2-8/4", "fractionOfSet", "fractionOf", 8, 4, 20), it("m2-10/2", "fractionOfSet", "fractionOf", 10, 2, 20),
+            it("m2-12/4", "fractionOfSet", "fractionOf", 12, 4, 20), it("m2-12/2", "fractionOfSet", "fractionOf", 12, 2, 20)], ["m2.payoff"]),
+        sc("M3", ch, "The Moonbeam Path", 2, [
+            it("m3-1/2", "fractionLine", "fractionLine", 1, 2, 2), it("m3-1/4", "fractionLine", "fractionLine", 1, 4, 4),
+            it("m3-3/4", "fractionLine", "fractionLine", 3, 4, 4), it("m3-1/3", "fractionLine", "fractionLine", 1, 3, 3),
+            it("m3-2/4", "fractionLine", "fractionLine", 2, 4, 4), it("m3-2/3", "fractionLine", "fractionLine", 2, 3, 3)], ["m3.payoff"]),
+        sc("M4", ch, "Mend the Moon", 3, [
+            it("m4-16/4", "fractionOfSet", "fractionOf", 16, 4, 20), it("m4-1/4", "fractionLine", "fractionLine", 1, 4, 4),
+            it("m4-14/2", "fractionOfSet", "fractionOf", 14, 2, 20), it("m4-3", "equalParts", "parts", 0, 3),
+            it("m4-3/4", "fractionLine", "fractionLine", 3, 4, 4), it("m4-20/4", "fractionOfSet", "fractionOf", 20, 4, 20)],
+           ["m4.payoff1", "m4.payoff2"]),
+    ]
+    l("m1.open1", N, "High above the kingdom, the Moon Crystal had cracked into pieces.")
+    l("m1.open2", S, "To mend it, every piece must be the same size. Let's count the equal parts!")
+    l("m1.payoff", S, "The pieces fit! Equal parts means every part is the same size.")
+    l("m1.goodbye", S, "Today you learned about halves, thirds and quarters. Goodnight, Siara!")
+    l("m2.open1", N, "Moonstones lay scattered on the hill. Half must go to the left of the moon, half to the right.")
+    l("m2.open2", S, "Let's share the moonstones into equal piles. One pile is one part.")
+    l("m2.payoff", S, "The moon is glowing on both sides! Half means one of two equal parts.")
+    l("m2.goodbye", S, "Today you found half and a quarter of a group. Goodnight, Siara!")
+    l("m3.open1", N, "A moonbeam stretches from the ground, at zero, all the way up to the moon, at one.")
+    l("m3.open2", S, "The moonbeam has equal steps. Help me find the right step!")
+    l("m3.payoff", S, "We walked the whole moonbeam! Fractions live between zero and one.")
+    l("m3.goodbye", S, "Today you found fractions on a line. Goodnight, Siara!")
+    l("m4.open1", N, "The last piece of the Moon Crystal is waiting.")
+    l("m4.open2", S, "Use everything you know, Siara. Let's mend the moon!")
+    l("m4.payoff1", S, "You mended the Moon Crystal! The whole kingdom is shining. You learned so much, Siara.")
+    l("m4.payoff2", S, "Stars, flowers, a bridge, gems, a ball, a feast, and now the moon. Thank you for saving the Kingdom of Numbers!")
+    l("m4.goodbye", S, "Goodnight, Siara. I'll always be here when you want to play.")
+    l("prompt.parts.concrete", S, "The crystal broke into equal parts. Tap each part to count them.")
+    l("prompt.parts.pictorial", S, "The crystal broke into equal parts. How many parts are there?")
+    l("prompt.parts", S, "How many equal parts make the whole crystal?")
+    l("ask.parts", S, "How many equal parts are there?")
+    l("hint.model.parts", S, "Hmm, not quite. Touch each part once, and count.")
+    l("hint.worked.parts", S, "Let's count the parts together.")
+    l("praise.parts", S, "Yes! {answer} equal parts. Each part is one {answer}th... we say one half, one third or one quarter!")
+    l("prompt.fractionOf.concrete", S, "We have {a} moonstones. Share them into {b} equal piles. Tap the pile to share.")
+    l("prompt.fractionOf.pictorial", S, "{a} moonstones in {b} equal piles. How many are in one pile?")
+    l("prompt.fractionOf", S, "One part out of {b} equal parts of {a}. How many is that?")
+    l("ask.fractionOf", S, "How many moonstones are in one pile?")
+    l("hint.model.fractionOf", S, "Hmm, not quite. Look at just one pile.")
+    l("hint.worked.fractionOf", S, "Let's count one pile together.")
+    l("praise.fractionOf", S, "Yes! One part of {a} in {b} equal parts is {answer}.")
+    l("prompt.fractionLine", S, "The moonbeam has {b} equal steps. Tap the step for {a} out of {b}.")
+    l("hint.model.fractionLine", S, "Hmm, not quite. Count the steps from zero.")
+    l("hint.worked.fractionLine", S, "Let's count the steps from zero together, up to {a}.")
+    l("praise.fractionLine", S, "Yes! That's {a} out of {b} steps along the moonbeam.")
