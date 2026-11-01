@@ -80,6 +80,22 @@ public struct LineCatalog: Sendable {
         LineCatalog.promptID(for: item.kind, level: level, lines: lines).flatMap { spoken($0, item: item) }
     }
 
+    /// The short how-to, said once she has heard the full one twice in a scene (change list item 8).
+    /// Picks `prompt.kind.level.short`, then `prompt.kind.short`, else the full prompt.
+    public static func shortPromptID(for kind: ActivityKind, level: CPALevel, lines: [LineID: Line]) -> LineID? {
+        let levelName = String(describing: level)
+        for id in ["prompt.\(kind.rawValue).\(levelName).short", "prompt.\(kind.rawValue).short"] where lines[id] != nil {
+            return id
+        }
+        return promptID(for: kind, level: level, lines: lines)
+    }
+
+    /// The prompt for the `n`th time (from 0) this kind and level is asked in a scene: full twice, then short.
+    public func prompt(for item: Item, level: CPALevel, timesAsked n: Int) -> SpokenLine? {
+        guard n >= 2 else { return prompt(for: item, level: level) }
+        return LineCatalog.shortPromptID(for: item.kind, level: level, lines: lines).flatMap { spoken($0, item: item) }
+    }
+
     public func hint(_ stage: HintStage, for item: Item, level: CPALevel) -> SpokenLine? {
         let base: String
         switch stage {

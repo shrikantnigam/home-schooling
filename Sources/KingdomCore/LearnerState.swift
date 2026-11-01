@@ -10,7 +10,7 @@ public struct ResumePoint: Codable, Equatable, Sendable {
 
 /// What opens the next chapter (decided with Shrikant after the Chapter 1 retro).
 public enum ChapterGate: String, Codable, CaseIterable, Sendable {
-    /// Every skill at the Numbers level with 4 of the last 5 right, across 2 days. Default.
+    /// Every skill at the Numbers level with 4 of the last 5 right (or tested out). Default.
     case secure
     /// The spec's full mastery rule: 80% of the last 10 Numbers items over 2 days.
     case mastered
@@ -53,12 +53,14 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public var sound = SoundSettings()
     public var hasMetSparkle = false
     public var chapterGate: ChapterGate = .secure
+    /// Skills she showed she already knows in a test-out challenge (L12). They count as secure.
+    public var testedOutSkills: Set<SkillID> = []
 
     public init() {}
 
     enum CodingKeys: String, CodingKey {
         case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
-             timeSettings, sound, hasMetSparkle, chapterGate
+             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills
     }
 
     public init(from decoder: Decoder) throws {
@@ -75,6 +77,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
         sound = try c.decodeIfPresent(SoundSettings.self, forKey: .sound) ?? SoundSettings()
         hasMetSparkle = try c.decodeIfPresent(Bool.self, forKey: .hasMetSparkle) ?? false
         chapterGate = try c.decodeIfPresent(ChapterGate.self, forKey: .chapterGate) ?? .secure
+        testedOutSkills = try c.decodeIfPresent(Set<SkillID>.self, forKey: .testedOutSkills) ?? []
     }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }
@@ -99,6 +102,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
     /// AC-P6: reset one skill to a fresh state.
     public mutating func resetSkill(_ skill: SkillID, content: Content) {
         skills[skill] = nil
+        testedOutSkills.remove(skill)
         let ids = Set(content.scenes.flatMap(\.items).filter { $0.skill == skill }.map(\.id))
         needsPractice.subtract(ids)
     }

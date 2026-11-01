@@ -115,6 +115,25 @@ public struct SceneRun: Equatable, Sendable {
 
     /// True when the wrap-up skipped items, so the scene is not marked complete.
     public private(set) var cutShort = false
+    /// Where to pick up tomorrow when the daily limit cut the scene short (change list item 11).
+    public private(set) var resumeIndex: Int?
+    /// True when she got enough right in a row at the top level that the scene ended early (L13).
+    public private(set) var endedEarly = false
+    /// First-try results by item id, for the test-out challenge (L12).
+    public private(set) var firstTry: [String: Bool] = [:]
+    /// Core items right on the first try in a row.
+    public private(set) var streak = 0
+    /// L13: after this many right in a row at the Numbers level, the scene ends early with its payoff.
+    public static let stepUpStreak = 4
+
+    /// Records how the current item ended. `atTopLevel` is true when the skill is now at the Numbers level.
+    public mutating func noteResult(firstTry ok: Bool, atTopLevel: Bool) {
+        guard let item = currentItem else { return }
+        firstTry[item.id] = ok
+        guard case .core = phase, !scene.isChallenge else { return }
+        streak = ok ? streak + 1 : 0
+        if streak >= SceneRun.stepUpStreak && atTopLevel { endedEarly = true }
+    }
 
     /// Moves to the next phase. Call after the open lines, after each finished item,
     /// after the payoff and after the goodbye.
@@ -125,23 +144,37 @@ public struct SceneRun: Equatable, Sendable {
             else if !scene.items.isEmpty { phase = .core(index: 0) }
             else { phase = .payoff }
         case .warmup(let i):
-            if wrappingUp { cutShort = true; phase = .payoff }
+            if wrappingUp { pause(at: i + 1) }
             else if i + 1 < warmups.count { phase = .warmup(index: i + 1) }
             else if !scene.items.isEmpty { phase = .core(index: 0) }
             else { phase = .payoff }
         case .core(let i):
-            if i + 1 >= scene.items.count { phase = .payoff }
-            else if wrappingUp { cutShort = true; phase = .payoff }
+            if i + 1 >= scene.items.count || endedEarly { phase = .payoff }
+            else if wrappingUp { pause(at: warmups.count + i + 1) }
             else { phase = .core(index: i + 1) }
         case .payoff:
-            phase = .goodbye
+            // A scene cut short by the daily limit says "we'll finish tomorrow" and ends there.
+            phase = cutShort ? .finished : .goodbye
         case .goodbye, .finished:
             phase = .finished
         }
     }
 
-    /// A scene counts as completed only when every item was attempted (spec: scene unlock).
+    private mutating func pause(at index: Int) {
+        cutShort = true
+        resumeIndex = index
+        phase = .payoff
+    }
+
+    /// A scene counts as completed only when every item was attempted, or she ended early by
+    /// getting enough right in a row (spec: scene unlock, L13).
     public var completedAllItems: Bool { phase == .finished && !cutShort }
+
+    /// The point to resume tomorrow after the daily limit cut the scene short.
+    public func pausePoint() -> ResumePoint? {
+        guard cutShort, let idx = resumeIndex, idx < allItems.count else { return nil }
+        return ResumePoint(sceneID: scene.id, itemIDs: allItems.map(\.id), warmupCount: warmups.count, index: idx)
+    }
 
     public func resumePoint() -> ResumePoint? {
         guard let idx = itemIndex else { return nil }

@@ -147,6 +147,9 @@ final class AppModel: ObservableObject {
         begin(scene: s, warmups: warm, resumeAt: nil)
     }
 
+    /// A finished place played again (item 15): a fresh mix of its items, least recently seen first.
+    func replay(_ chapter: ChapterID) { startPractice(chapter) }
+
     func startPractice(_ chapter: ChapterID) {
         guard block == nil else { return }
         begin(scene: progression.practiceScene(for: chapter, state: state), warmups: [], resumeAt: nil)
@@ -161,9 +164,7 @@ final class AppModel: ObservableObject {
             scene = s
         } else if r.sceneID.hasPrefix("practice-") {
             let ch = String(r.sceneID.dropFirst("practice-".count))
-            scene = StoryScene(id: r.sceneID, chapter: ch, title: "Practice", open: ["practice.open1", "practice.open2"],
-                               warmupCount: 0, items: Array(items.dropFirst(r.warmupCount)),
-                               payoff: ["practice.payoff"], goodbye: "practice.goodbye")
+            scene = progression.practiceScene(chapter: ch, items: Array(items.dropFirst(r.warmupCount)))
         } else {
             state.resume = nil
             return false
@@ -184,14 +185,21 @@ final class AppModel: ObservableObject {
     /// Called by the scene after its goodbye (AC-S3: back to the castle, nothing starts by itself).
     func sceneFinished(_ run: SceneRun) {
         if run.completedAllItems {
+            if run.scene.isChallenge {
+                lastTestOut = progression.applyChallenge(run.scene, firstTry: run.firstTry, state: &state)
+            }
             progression.complete(run.scene, state: &state, at: now)
         } else {
-            state.resume = nil
+            // Cut short by the daily limit: pick up tomorrow at the next item (item 11).
+            state.resume = run.pausePoint()
         }
         scene = nil
         route = .castle
         save()
     }
+
+    /// Skills the last challenge showed she knows, for QA and the parent area.
+    private(set) var lastTestOut: Set<SkillID> = []
 
     func record(_ result: ItemResult) {
         state.apply(result, engine: engine)
@@ -240,6 +248,10 @@ final class AppModel: ObservableObject {
                 for s in content.chapter(ch)?.scenes ?? [] { state.completedScenes.insert(s) }
             }
             masterChapter("prologue")
+            state.hasMetSparkle = true
+        case "nearLimit":
+            // A few seconds of play left: the limit runs out during the first scene (item 11).
+            state.time.addPlay(seconds: state.timeSettings.dailyLimitMinutes * 60 - 3, at: now, calendar: calendar)
             state.hasMetSparkle = true
         case "limitReached":
             state.time.addPlay(seconds: state.timeSettings.dailyLimitMinutes * 60, at: now, calendar: calendar)

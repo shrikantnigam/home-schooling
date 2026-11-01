@@ -14,7 +14,12 @@ final class SpeechPlayer: NSObject, ObservableObject {
     var volume: Float = 1
 
     private let synth = AVSpeechSynthesizer()
-    private var queue: [SpokenLine] = []
+    /// Sentences still to speak, with the index of the line each came from.
+    private var queue: [(line: SpokenLine, index: Int)] = []
+    /// Called as each line starts, with its index in the lines passed to `say`. Drives visuals in step
+    /// with the voice (count-along lights), never a fixed timer (operating model 5E).
+    private var onLine: ((Int) -> Void)?
+    private var lastStartedIndex = -1
     private var completion: (() -> Void)?
     private let instant: Bool
     private var token = 0
@@ -44,10 +49,12 @@ final class SpeechPlayer: NSObject, ObservableObject {
     }
 
     /// Speaks lines in order, then calls `then`. Stops anything already playing.
-    func say(_ lines: [SpokenLine?], then: (() -> Void)? = nil) {
+    func say(_ lines: [SpokenLine?], each: ((Int) -> Void)? = nil, then: (() -> Void)? = nil) {
         stop()
         // One utterance per sentence, so each can end with a natural pause (see playNext).
-        queue = lines.compactMap { $0 }.flatMap(\.sentences)
+        queue = lines.enumerated().flatMap { i, line in (line?.sentences ?? []).map { (line: $0, index: i) } }
+        onLine = each
+        lastStartedIndex = -1
         completion = then
         token += 1
         playNext(token: token)
@@ -58,6 +65,7 @@ final class SpeechPlayer: NSObject, ObservableObject {
     func stop() {
         queue = []
         completion = nil
+        onLine = nil
         currentUtterance = nil
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         isSpeaking = false
@@ -72,9 +80,14 @@ final class SpeechPlayer: NSObject, ObservableObject {
             done?()
             return
         }
-        let line = queue.removeFirst()
+        let next = queue.removeFirst()
+        let line = next.line
         current = line
         isSpeaking = true
+        if next.index != lastStartedIndex {
+            lastStartedIndex = next.index
+            onLine?(next.index)
+        }
         if instant {
             DispatchQueue.main.async { [weak self] in self?.playNext(token: t) }
             return
@@ -95,7 +108,7 @@ final class SpeechPlayer: NSObject, ObservableObject {
             // Higher and brighter so Sparkle sounds different even with one default voice.
             u.pitchMultiplier = 1.3 * pitchLift
         }
-        let lastInLine = queue.first.map { $0.id != line.id } ?? true
+        let lastInLine = queue.first.map { $0.index != next.index } ?? true
         switch last {
         case "?": u.postUtteranceDelay = 0.7
         case "!": u.postUtteranceDelay = lastInLine ? 0.55 : 0.4

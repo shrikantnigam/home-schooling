@@ -44,9 +44,10 @@ struct ScenePlayerView: View {
     }
 
     private var skyLit: Double {
-        let done = Double(model.state.completedScenes.filter { $0.hasPrefix("P") }.count)
-        let payoff = controller.run.phase == .payoff || controller.run.phase == .goodbye ? 1.0 : 0
-        return min(1, (done + payoff) / 4)
+        let scenes = model.content.chapter("prologue")?.scenes ?? []
+        let done = Double(scenes.filter { model.state.completedScenes.contains($0) }.count)
+        let payoff = (controller.run.phase == .payoff && !controller.run.cutShort) || controller.run.phase == .goodbye ? 1.0 : 0
+        return min(1, (done + payoff) / Double(max(1, scenes.count)))
     }
 
     private var gardenBloom: Double {
@@ -73,7 +74,10 @@ struct StoryPanel: View {
             Spacer()
             HStack(alignment: .bottom, spacing: 40) {
                 SiaraView(size: 190, waving: kind != .open)
-                if kind == .payoff, scene.id == "G5" {
+                if paused {
+                    // Cut short by the daily limit: no success picture, Sparkle is getting sleepy (item 11).
+                    EmptyView()
+                } else if kind == .payoff, scene.id == "G5" {
                     BridgeTeaser()
                 } else if kind == .payoff, scene.chapter == "prologue" {
                     HStack { ForEach(0..<5, id: \.self) { _ in StarSprite(lit: true, size: 60) } }
@@ -81,13 +85,16 @@ struct StoryPanel: View {
                     HStack { ForEach(0..<6, id: \.self) { _ in ChapterLook.icon(scene.chapter, lit: true, size: 60) } }
                         .accessibilityIdentifier("payoffArt")
                 }
-                SparkleView(mood: kind == .goodbye ? .happy : .happy, size: 260)
+                SparkleView(mood: paused ? .sleeping : .happy, size: 260)
             }
             .padding(.bottom, 120)
         }
     }
 
+    private var paused: Bool { kind == .payoff && controller.run.cutShort }
+
     private var kindName: String {
+        if paused { return "pause" }
         switch kind {
         case .open: return "open"
         case .payoff: return "payoff"

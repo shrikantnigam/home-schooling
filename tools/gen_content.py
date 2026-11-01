@@ -23,18 +23,26 @@ skills = [
  ("makeTen","garden","Make 10","Fill an egg carton cut to 10 cups with 7 pebbles. How many more fill it?"),
 ]
 skills = [dict(id=a, chapter=b, name=c, homeTip=d) for a,b,c,d in skills]
+# The kingdom is open after the Prologue (charter S11, docs/chapters/skill-map.md). `requires` names the places
+# (or single scenes) a place needs; scenes can also name `needs`. The Prologue counts as done once its scenes
+# are finished (or she tests out of them), because it only checks what she already knows.
 chapters = [
- dict(id="prologue", title="Counting Stars", place="Night Sky", scenes=["P1","P2","P3","P4"]),
- dict(id="garden", title="The Flower Garden", place="Flower Garden", scenes=["G1","G2","G3","G4","G5"]),
+ dict(id="prologue", title="Counting Stars", place="Night Sky", scenes=["P0","P1","P2"], requires=[], gate="scenes"),
+ dict(id="garden", title="The Flower Garden", place="Flower Garden", scenes=["G1","G2","G3","G4","G5"], requires=["prologue"]),
 ]
-def sc(id, ch, title, warm, items, payoff):
-    return dict(id=id, chapter=ch, title=title, open=[f"{id.lower()}.open1", f"{id.lower()}.open2"], warmupCount=warm,
-                items=items, payoff=payoff, goodbye=f"{id.lower()}.goodbye")
+def sc(id, ch, title, warm, items, payoff, needs=None, challenge=False):
+    d = dict(id=id, chapter=ch, title=title, open=[f"{id.lower()}.open1", f"{id.lower()}.open2"], warmupCount=warm,
+             items=items, payoff=payoff, goodbye=f"{id.lower()}.goodbye")
+    if needs: d["needs"] = needs
+    if challenge: d["challenge"] = True
+    return d
+# Prologue (change list item 18, charter L12/L13): she already counts and subitizes, so it opens with a short
+# challenge across all four skills, harder ones included. Skills she gets right first try are skipped, and the
+# scenes that only teach them are marked done. The two scenes left mix kinds and spread numbers up to 12.
 scenes = [
- sc("P1","prologue","Meet Sparkle",0,[it("p1-3","count","countTap",3),it("p1-4","count","countTap",4),it("p1-5","count","countTap",5),it("p1-2","count","countTap",2),it("p1-5b","count","countTap",5)],["p1.payoff"]),
- sc("P2","prologue","How many?",2,[it("p2-4","cardinality","howMany",4),it("p2-6","cardinality","howMany",6),it("p2-3","cardinality","howMany",3),it("p2-7c","count","countTap",7),it("p2-7","cardinality","howMany",7),it("p2-5","cardinality","howMany",5),it("p2-9c","count","countTap",9),it("p2-8","cardinality","howMany",8)],["p2.payoff"]),
- sc("P3","prologue","Star Path",2,[it("p3-4","lineFind","findOnLine",4),it("p3-2","lineFind","findOnLine",2),it("p3-7","lineFind","findOnLine",7),it("p3-5","lineFind","findOnLine",5),it("p3-9","lineFind","findOnLine",9),it("p3-6","lineFind","findOnLine",6),it("p3-10","lineFind","findOnLine",10)],["p3.payoff"]),
- sc("P4","prologue","Quick Look",2,[it("p4-3","subitize","quickLook",3),it("p4-2","subitize","quickLook",2),it("p4-5","subitize","quickLook",5),it("p4-1","subitize","quickLook",1),it("p4-4","subitize","quickLook",4),it("p4-3b","subitize","quickLook",3)],["p4.payoff1","p4.payoff2"]),
+ sc("P0","prologue","Star Challenge",0,[it("p0-c9","count","countTap",9),it("p0-h7","cardinality","howMany",7),it("p0-l8","lineFind","findOnLine",8),it("p0-q5","subitize","quickLook",5),it("p0-h12","cardinality","howMany",12,0,20)],["p0.payoff"],challenge=True),
+ sc("P1","prologue","Wake the Stars",0,[it("p1-4","count","countTap",4),it("p1-7","cardinality","howMany",7),it("p1-9","count","countTap",9),it("p1-3","cardinality","howMany",3),it("p1-10","cardinality","howMany",10),it("p1-6","count","countTap",6),it("p1-12","cardinality","howMany",12,0,20)],["p1.payoff"]),
+ sc("P2","prologue","Star Path",2,[it("p2-l3","lineFind","findOnLine",3),it("p2-q3","subitize","quickLook",3),it("p2-l8","lineFind","findOnLine",8),it("p2-q5","subitize","quickLook",5),it("p2-l6","lineFind","findOnLine",6),it("p2-q4","subitize","quickLook",4),it("p2-l10","lineFind","findOnLine",10)],["p2.payoff1","p2.payoff2"]),
  sc("G1","garden","More Flowers",2,[it("g1-3+2","add","addMore",3,2),it("g1-2+2","add","addMore",2,2),it("g1-4+1","add","addMore",4,1),it("g1-3+3","add","addMore",3,3),it("g1-5+2","add","addMore",5,2),it("g1-1+3","add","addMore",1,3)],["g1.payoff"]),
  sc("G2","garden","Flower Pairs",2,[it("g2-5-1","bonds","numberBond",5,1),it("g2-5-2","bonds","numberBond",5,2),it("g2-5-3","bonds","numberBond",5,3),it("g2-5-4","bonds","numberBond",5,4),it("g2-4-1","bonds","numberBond",4,1),it("g2-4-2","bonds","numberBond",4,2)],["g2.payoff"]),
  sc("G3","garden","Hopping Path",2,[it("g3-4+3","lineAdd","hop",4,3),it("g3-2+3","lineAdd","hop",2,3),it("g3-5+2","lineAdd","hop",5,2),it("g3-1+4","lineAdd","hop",1,4),it("g3-6+3","lineAdd","hop",6,3),it("g3-3+2","lineAdd","hop",3,2)],["g3.payoff"]),
@@ -52,32 +60,45 @@ l("castle.first",S,"Hi Siara! The stars need our help. Tap the big glowing butto
 l("castle.back",S,"Welcome back, Siara! Tap the big glowing button!")
 l("map.pick",S,"Tap the place that is glowing.")
 l("map.locked",S,"Not yet. We'll get there together.")
-l("map.gardenAwake",S,"The garden is awake now! Let's plant flowers.")
-l("map.practice",S,"The garden wants a little more practice. Tap the glowing flowers!")
-l("map.done",S,"You helped the whole kingdom so far! Want to visit a place again?")
+l("map.awakeMany",S,"Look, new places are awake! Which one shall we visit?")
+l("map.awake.garden",S,"The garden is awake now! Let's plant flowers.")
+l("map.awake.bridge",S,"The Bridge of Tens is awake now! Let's fix the bridge.")
+l("map.awake.goblin",S,"Grub's cave is awake now! Let's find the gems.")
+l("map.awake.ball",S,"The Royal Ball is awake now! Let's get ready to dance.")
+l("map.awake.feast",S,"The Fair Feast is awake now! Let's share the treats.")
+l("map.awake.moon",S,"The Moon Crystal is awake now! Let's mend the moon.")
+l("map.waiting",S,"This place needs help from another place first. Look for a glowing one!")
+l("map.waiting.garden",S,"First we need to help the garden. Then we can come back here!")
+l("map.waiting.bridge",S,"First we need to fix the Bridge of Tens. Then we can come back here!")
+l("map.waiting.ball",S,"First we need to dance at the Royal Ball. Then we can come back here!")
+l("map.waiting.feast",S,"First we need to share at the Fair Feast. Then we can come back here!")
+l("map.waiting.goblin",S,"First we need to help Grub. Then we can come back here!")
+l("map.waiting.moon",S,"First we need to visit the moon. Then we can come back here!")
+l("map.practice",S,"One place wants a little more practice. Tap the glowing place!")
+l("map.done",S,"You helped this place already! Let's play here again.")
 l("sleeping",N,"Sparkle is sleeping. She'll be ready to play tomorrow.")
 l("quiet",N,"Sparkle is resting now. Let's play together another time.")
 l("warmup.intro",S,"Let's warm up with something we did before!")
 l("core.intro",S,"Now let's help the kingdom!")
 l("wrapup",S,"That was a lot of great thinking. Let's finish our story for today.")
+l("wrapup.pause",S,"Sparkle is getting sleepy. We'll finish this story tomorrow!")
+l("stepup",S,"Wow, you got four right in a row! Let's skip ahead.")
+l("quickLook.ready",S,"Ready? Look quickly!")
+l("ask.quickLook",S,"How many stars did you see?")
 # scenes
-l("p1.open1",N,"Once upon a time, in the Kingdom of Numbers, the night sky went dark.")
-l("p1.open2",S,"Hi, I'm Sparkle! Oh no, the stars fell asleep. Will you help me wake them up?")
-l("p1.payoff",S,"Five stars! The last number tells how many. Look, the sky is starting to glow!")
-l("p1.goodbye",S,"Today you learned to count each star just once. Goodnight!")
-l("p2.open1",N,"The stars are waking up, but some are hiding in the clouds.")
-l("p2.open2",S,"Let's find out how many stars are in each cloud!")
-l("p2.payoff",S,"You found every star in the clouds! The sky is getting brighter.")
-l("p2.goodbye",S,"Today you learned that the last number you say tells how many. Goodnight!")
-l("p3.open1",N,"Sparkle wants to walk across the sky on a path of star stones.")
-l("p3.open2",S,"Every stone has a number. Will you show me where to hop?")
-l("p3.payoff",S,"We crossed the whole star path! Every number has its own place.")
-l("p3.goodbye",S,"Today you learned where numbers live on the line. Goodnight!")
-l("p4.open1",N,"The last stars are very shy. They only peek out for a moment.")
-l("p4.open2",S,"Look quickly, and tell me how many stars you see!")
-l("p4.payoff1",S,"You counted every star back into the sky!")
-l("p4.payoff2",S,"Look, the kingdom map is glowing. Today you learned that the last number you say tells how many.")
-l("p4.goodbye",S,"Goodnight! Tomorrow we can visit the garden.")
+l("p0.open1",N,"Once upon a time, the night sky went dark.")
+l("p0.open2",S,"Hi, I'm Sparkle! The stars fell asleep. Let's see what you already know!")
+l("p0.payoff",S,"You know so much already! Look, some stars are waking up.")
+l("p0.goodbye",S,"What a great start! Tap the big button to keep going.")
+l("p1.open1",N,"Some stars are still asleep, hiding in the clouds.")
+l("p1.open2",S,"Let's count them to wake them up!")
+l("p1.payoff",S,"Look, the sky is starting to glow!")
+l("p1.goodbye",S,"Goodnight! The stars will be waiting for us.")
+l("p2.open1",N,"Sparkle wants to cross the sky on star stones.")
+l("p2.open2",S,"Some stars are shy, so look quickly! Will you help me?")
+l("p2.payoff1",S,"We crossed the star path! Every number has its own place.")
+l("p2.payoff2",S,"Look, the kingdom map is glowing. New places are waking up!")
+l("p2.goodbye",S,"Goodnight! Next time, you choose where we go.")
 l("g1.open1",N,"Morning came to the kingdom, but the flower garden was still asleep.")
 l("g1.open2",S,"I can't find the path through the garden. Can we plant some flowers?")
 l("g1.payoff",S,"Look at all the flowers! I can see the start of the path.")
@@ -85,7 +106,7 @@ l("g1.goodbye",S,"Today you learned that adding means putting more together. Goo
 l("g2.open1",N,"The garden bees have two flower beds, and they want flowers in both.")
 l("g2.open2",S,"Let's share the flowers between the beds in different ways!")
 l("g2.payoff",S,"The bees are buzzing happily in both beds!")
-l("g2.goodbye",S,"Today you learned that a number can be split into two parts in many ways. Goodnight!")
+l("g2.goodbye",S,"Today you learned a number can split in many ways. Goodnight!")
 l("g3.open1",N,"Stepping stones lead deeper into the garden.")
 l("g3.open2",S,"I love hopping! Count my hops with me.")
 l("g3.payoff",S,"We hopped all the way along the path! Hopping forward is adding.")
@@ -99,18 +120,46 @@ l("g5.open2",S,"Let's add the festival flowers together. You can use numbers now
 l("g5.payoff1",S,"You made the whole garden bloom! Today you learned that adding means putting together.")
 l("g5.payoff2",S,"And look... a bridge! I wonder what's across it.")
 l("g5.goodbye",S,"Goodnight! I can't wait to see you again.")
-l("practice.open1",N,"Sparkle wants to play in the garden a little more.")
+# Practice and replay lines (change list item 10): each place has its own, with plain fallbacks.
+l("practice.open1",N,"Sparkle wants to play here a little more.")
 l("practice.open2",S,"Let's practice together. Practice makes our brains strong!")
 l("practice.short",S,"Let's practice!")
-l("practice.payoff",S,"You worked so hard! The flowers are standing up tall.")
+l("practice.payoff",S,"You worked so hard!")
+for ch, open1, payoff, mapline in [
+ ("prologue","Sparkle wants to look at the stars a little more.","You worked so hard! The stars are twinkling brighter.","The night sky wants a little more practice. Tap the glowing stars!"),
+ ("garden","Sparkle wants to play in the garden a little more.","You worked so hard! The flowers are standing up tall.","The garden wants a little more practice. Tap the glowing flowers!"),
+ ("bridge","Sparkle wants to walk on the bridge a little more.","You worked so hard! The bridge feels strong now.","The bridge wants a little more practice. Tap the glowing bridge!"),
+ ("goblin","Sparkle wants to count gems with Grub a little more.","You worked so hard! Grub's gems are sparkling.","Grub's cave wants a little more practice. Tap the glowing gem!"),
+ ("ball","Sparkle wants to dance at the ball a little more.","You worked so hard! The dancers are twirling.","The ball wants a little more practice. Tap the glowing ballroom!"),
+ ("feast","Sparkle wants to help at the feast a little more.","You worked so hard! Every plate is fair.","The feast wants a little more practice. Tap the glowing treats!"),
+ ("moon","Sparkle wants to look at the moon a little more.","You worked so hard! The moon is shining.","The moon wants a little more practice. Tap the glowing crystal!"),
+]:
+    l(f"practice.open1.{ch}",N,open1)
+    l(f"practice.payoff.{ch}",S,payoff)
+    l(f"map.practice.{ch}",S,mapline)
 l("practice.goodbye",S,"Thank you for practicing with me. Goodnight!")
 # prompts
 l("prompt.countTap.concrete",S,"Tap each star to wake it up. Let's count together.")
 l("prompt.countTap",S,"How many stars are there? Touch a number to hear it. Touch it again to choose.")
 l("prompt.howMany.concrete",S,"How many stars are in the cloud? Tap each star to count it, then touch a number. Touch it again to choose.")
-l("prompt.howMany",S,"How many stars are in the cloud? Touch a number to hear it. Touch it again to choose.")
+l("prompt.howMany",S,"How many stars are in the cloud?")
 l("prompt.findOnLine",S,"Can you help me hop to {a}? Tap the stone where {a} lives.")
 l("prompt.quickLook",S,"Look quickly! How many stars did you see? Touch a number, then touch it again to choose.")
+# Short how-to forms (change list item 8): the full prompt is said twice in a scene, then these.
+l("prompt.countTap.concrete.short",S,"Tap each star.")
+l("prompt.countTap.short",S,"How many stars?")
+l("prompt.howMany.concrete.short",S,"Count the stars, then pick a number.")
+l("prompt.howMany.short",S,"How many stars?")
+l("prompt.findOnLine.short",S,"Hop to {a}!")
+l("prompt.findOnLine.concrete.short",S,"Hop to {a}!")
+l("prompt.addMore.concrete.short",S,"{a} flowers. Plant {b} more.")
+l("prompt.addMore.pictorial.short",S,"{a} and {b} more. How many?")
+l("prompt.numberBond.short",S,"{a} flowers, {b} here. How many there?")
+l("prompt.numberBond.concrete.short",S,"{a} flowers. This bed has {b}. Move the rest.")
+l("prompt.hop.short",S,"On {a}, hop {b}!")
+l("prompt.makeTen.short",S,"We have {a}. How many more?")
+l("prompt.makeTen.concrete.short",S,"We have {a}. Fill it up!")
+l("prompt.equation.short",S,"{a} plus {b}.")
 l("prompt.addMore.concrete",S,"{a} flowers are awake. Let's plant {b} more seeds so I can find the path. Drag a seed into the flower box.")
 l("ask.addMore",S,"How many flowers are there now?")
 l("ask.makeTen",S,"The box is full! How many seeds did we plant to make ten?")
@@ -118,8 +167,11 @@ l("ask.numberBond",S,"How many flowers are in the other bed now?")
 l("prompt.addMore.pictorial",S,"{a} flowers are awake, and {b} more just bloomed. How many flowers are there now?")
 l("prompt.addMore",S,"{a} flowers and {b} more. How many flowers?")
 l("prompt.numberBond",S,"The bees want flowers in both beds. We have {a} flowers, and this bed has {b}. How many go in the other bed?")
+# Concrete G2 and G4 ask nothing until the hands-on step is done, so the question is asked once (item 17).
+l("prompt.numberBond.concrete",S,"The bees want flowers in both beds. We have {a} flowers, and this bed has {b}. Move the other flowers to the second bed.")
 l("prompt.hop",S,"I'm on {a}. I'll hop {b} times. Count my hops with me! Where will I land?")
 l("prompt.makeTen",S,"The fountain wakes up when the box has ten flowers. We have {a}. How many more do we need?")
+l("prompt.makeTen.concrete",S,"The fountain wakes up when the box has ten flowers. We have {a}. Plant seeds until the box is full!")
 l("prompt.equation",S,"{a} plus {b}. If you want help, tap the flower box or the hopping path.")
 # hints
 l("hint.model",S,"Hmm, not quite. Let's look again. Touch each one and count.")
@@ -127,6 +179,7 @@ l("hint.model.addMore",S,"Hmm, not quite. Let's count them together. Touch each 
 l("hint.model.makeTen",S,"Hmm, not quite. Look at the empty spots in the box. Each empty spot needs a flower.")
 l("hint.model.hop",S,"Hmm, not quite. Let's hop again, one stone for each horseshoe.")
 l("hint.model.findOnLine",S,"Hmm, not quite. Let's start at zero and count the stones.")
+l("hint.model.quickLook",S,"Hmm, not quite. Let's peek one more time!")
 l("hint.model.numberBond",S,"Hmm, not quite. Count the flowers that still need a bed.")
 l("hint.worked",S,"Let's count on together. Start at {a}, and count {b} more.")
 l("hint.worked.countTap",S,"Let's count together slowly. Watch each star light up.")
@@ -148,6 +201,47 @@ l("praise.equation",S,"Yes! {a} plus {b} is {answer}.")
 l("tryAgain",S,"Try again. You can do it.")
 import chapters_2_to_6
 chapters_2_to_6.add(skills, chapters, scenes, l, it, sc, N, S)
+# Short how-to forms for chapters 2 to 6 (change list item 8).
+for lid, t in [
+ ("prompt.tensOnes.concrete.short","Tap each plank."),
+ ("prompt.tensOnes.pictorial.short","Ten and {b} more. How many?"),
+ ("prompt.bridgeAdd.concrete.short","{a} planks. Add {b} more."),
+ ("prompt.bridgeAdd.pictorial.short","{a} and {b} more. How many?"),
+ ("prompt.bridgeAdd.short","{a} plus {b}."),
+ ("prompt.takeAway.concrete.short","{a} gems. Give Grub {b}."),
+ ("prompt.takeAway.short","{a} take away {b}. How many left?"),
+ ("prompt.hopBack.concrete.short","On {a}. Hop back {b} times!"),
+ ("prompt.hopBack.short","On {a}, back {b}. Tap the stone."),
+ ("prompt.compare.concrete.short","{a} and {b}. Tap the extras."),
+ ("prompt.compare.short","{a} and {b}. How many more?"),
+ ("prompt.subtraction.short","{a} minus {b}."),
+ ("prompt.groups.concrete.short","{a} tables, {b} at each. Tap each guest."),
+ ("prompt.groups.short","{a} groups of {b}. How many?"),
+ ("prompt.array.concrete.short","{a} rows of {b}. Tap each row."),
+ ("prompt.skipHop.concrete.short","{b} tiles each hop. Hop {a} times!"),
+ ("prompt.skipHop.short","{a} hops of {b}. Tap the tile."),
+ ("prompt.multiply.short","{a} times {b}."),
+ ("prompt.share.concrete.short","{a} cupcakes, {b} plates. Share them out!"),
+ ("prompt.share.short","{a} treats, {b} plates. How many each?"),
+ ("prompt.groupInto.concrete.short","{a} berries, {b} in each basket. Fill them!"),
+ ("prompt.groupInto.short","{a} berries, {b} in each. How many baskets?"),
+ ("prompt.divide.short","{a} divided by {b}."),
+ ("prompt.parts.concrete.short","Tap each part."),
+ ("prompt.parts.short","How many parts?"),
+ ("prompt.fractionOf.concrete.short","{a} moonstones, {b} equal piles. Share them!"),
+ ("prompt.fractionOf.short","{a} in {b} equal piles. How many each?"),
+ ("prompt.fractionLine.short","Tap {a} out of {b}."),
+ ("prompt.tensOnes.short","Ten and {b} more."),
+ ("prompt.array.short","{a} rows of {b}. How many?"),
+ # The question after a hands-on step, short after the first two (item 8).
+ ("ask.addMore.short","How many now?"), ("ask.numberBond.short","How many there?"), ("ask.makeTen.short","Full! How many seeds?"),
+ ("ask.tensOnes.short","How many planks?"), ("ask.bridgeAdd.short","How many planks?"), ("ask.takeAway.short","How many left?"),
+ ("ask.hopBack.short","Where am I?"), ("ask.skipHop.short","Where am I?"), ("ask.compare.short","How many extra?"),
+ ("ask.groups.short","How many guests?"), ("ask.array.short","How many chairs?"), ("ask.share.short","How many each?"),
+ ("ask.groupInto.short","How many baskets?"), ("ask.parts.short","How many parts?"), ("ask.fractionOf.short","How many each?"),
+ ("ask.quickLook.short","How many stars?"),
+]:
+    l(lid, S, t)
 content = dict(skills=skills, chapters=chapters, scenes=scenes, lines=L)
 json.dump(content, open(os.path.join(ROOT, "Sources/KingdomCore/Resources/content.json"), "w"), indent=1)
 print(len(skills), "skills,", len(scenes), "scenes,", sum(len(x["items"]) for x in scenes), "items,", len(L), "lines")

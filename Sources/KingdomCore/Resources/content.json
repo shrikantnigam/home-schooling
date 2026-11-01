@@ -100,7 +100,7 @@
    "id": "equalGroups",
    "chapter": "ball",
    "name": "Equal groups",
-   "homeTip": "Make 3 plates with 2 crackers each. How many crackers altogether?"
+   "homeTip": "Make 3 plates with 2 crackers each. How many crackers in all?"
   },
   {
    "id": "arrays",
@@ -163,11 +163,12 @@
    "title": "Counting Stars",
    "place": "Night Sky",
    "scenes": [
+    "P0",
     "P1",
-    "P2",
-    "P3",
-    "P4"
-   ]
+    "P2"
+   ],
+   "requires": [],
+   "gate": "scenes"
   },
   {
    "id": "garden",
@@ -179,6 +180,9 @@
     "G3",
     "G4",
     "G5"
+   ],
+   "requires": [
+    "prologue"
    ]
   },
   {
@@ -191,6 +195,9 @@
     "B3",
     "B4",
     "B5"
+   ],
+   "requires": [
+    "garden"
    ]
   },
   {
@@ -203,6 +210,9 @@
     "K3",
     "K4",
     "K5"
+   ],
+   "requires": [
+    "garden"
    ]
   },
   {
@@ -214,6 +224,9 @@
     "R2",
     "R3",
     "R4"
+   ],
+   "requires": [
+    "prologue"
    ]
   },
   {
@@ -225,6 +238,9 @@
     "F2",
     "F3",
     "F4"
+   ],
+   "requires": [
+    "prologue"
    ]
   },
   {
@@ -236,14 +252,65 @@
     "M2",
     "M3",
     "M4"
+   ],
+   "requires": [
+    "F1"
    ]
   }
  ],
  "scenes": [
   {
+   "id": "P0",
+   "chapter": "prologue",
+   "title": "Star Challenge",
+   "open": [
+    "p0.open1",
+    "p0.open2"
+   ],
+   "warmupCount": 0,
+   "items": [
+    {
+     "id": "p0-c9",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 9
+    },
+    {
+     "id": "p0-h7",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 7
+    },
+    {
+     "id": "p0-l8",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 8
+    },
+    {
+     "id": "p0-q5",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 5
+    },
+    {
+     "id": "p0-h12",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 12,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "p0.payoff"
+   ],
+   "goodbye": "p0.goodbye",
+   "challenge": true
+  },
+  {
    "id": "P1",
    "chapter": "prologue",
-   "title": "Meet Sparkle",
+   "title": "Wake the Stars",
    "open": [
     "p1.open1",
     "p1.open2"
@@ -251,34 +318,47 @@
    "warmupCount": 0,
    "items": [
     {
-     "id": "p1-3",
-     "skill": "count",
-     "kind": "countTap",
-     "a": 3
-    },
-    {
      "id": "p1-4",
      "skill": "count",
      "kind": "countTap",
      "a": 4
     },
     {
-     "id": "p1-5",
-     "skill": "count",
-     "kind": "countTap",
-     "a": 5
+     "id": "p1-7",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 7
     },
     {
-     "id": "p1-2",
+     "id": "p1-9",
      "skill": "count",
      "kind": "countTap",
-     "a": 2
+     "a": 9
     },
     {
-     "id": "p1-5b",
+     "id": "p1-3",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 3
+    },
+    {
+     "id": "p1-10",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 10
+    },
+    {
+     "id": "p1-6",
      "skill": "count",
      "kind": "countTap",
-     "a": 5
+     "a": 6
+    },
+    {
+     "id": "p1-12",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 12,
+     "max": 20
     }
    ],
    "payoff": [
@@ -289,7 +369,7 @@
   {
    "id": "P2",
    "chapter": "prologue",
-   "title": "How many?",
+   "title": "Star Path",
    "open": [
     "p2.open1",
     "p2.open2"
@@ -297,169 +377,53 @@
    "warmupCount": 2,
    "items": [
     {
-     "id": "p2-4",
-     "skill": "cardinality",
-     "kind": "howMany",
-     "a": 4
-    },
-    {
-     "id": "p2-6",
-     "skill": "cardinality",
-     "kind": "howMany",
-     "a": 6
-    },
-    {
-     "id": "p2-3",
-     "skill": "cardinality",
-     "kind": "howMany",
+     "id": "p2-l3",
+     "skill": "lineFind",
+     "kind": "findOnLine",
      "a": 3
     },
     {
-     "id": "p2-7c",
-     "skill": "count",
-     "kind": "countTap",
-     "a": 7
+     "id": "p2-q3",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 3
     },
     {
-     "id": "p2-7",
-     "skill": "cardinality",
-     "kind": "howMany",
-     "a": 7
-    },
-    {
-     "id": "p2-5",
-     "skill": "cardinality",
-     "kind": "howMany",
-     "a": 5
-    },
-    {
-     "id": "p2-9c",
-     "skill": "count",
-     "kind": "countTap",
-     "a": 9
-    },
-    {
-     "id": "p2-8",
-     "skill": "cardinality",
-     "kind": "howMany",
+     "id": "p2-l8",
+     "skill": "lineFind",
+     "kind": "findOnLine",
      "a": 8
-    }
-   ],
-   "payoff": [
-    "p2.payoff"
-   ],
-   "goodbye": "p2.goodbye"
-  },
-  {
-   "id": "P3",
-   "chapter": "prologue",
-   "title": "Star Path",
-   "open": [
-    "p3.open1",
-    "p3.open2"
-   ],
-   "warmupCount": 2,
-   "items": [
-    {
-     "id": "p3-4",
-     "skill": "lineFind",
-     "kind": "findOnLine",
-     "a": 4
     },
     {
-     "id": "p3-2",
-     "skill": "lineFind",
-     "kind": "findOnLine",
-     "a": 2
-    },
-    {
-     "id": "p3-7",
-     "skill": "lineFind",
-     "kind": "findOnLine",
-     "a": 7
-    },
-    {
-     "id": "p3-5",
-     "skill": "lineFind",
-     "kind": "findOnLine",
+     "id": "p2-q5",
+     "skill": "subitize",
+     "kind": "quickLook",
      "a": 5
     },
     {
-     "id": "p3-9",
-     "skill": "lineFind",
-     "kind": "findOnLine",
-     "a": 9
-    },
-    {
-     "id": "p3-6",
+     "id": "p2-l6",
      "skill": "lineFind",
      "kind": "findOnLine",
      "a": 6
     },
     {
-     "id": "p3-10",
+     "id": "p2-q4",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 4
+    },
+    {
+     "id": "p2-l10",
      "skill": "lineFind",
      "kind": "findOnLine",
      "a": 10
     }
    ],
    "payoff": [
-    "p3.payoff"
+    "p2.payoff1",
+    "p2.payoff2"
    ],
-   "goodbye": "p3.goodbye"
-  },
-  {
-   "id": "P4",
-   "chapter": "prologue",
-   "title": "Quick Look",
-   "open": [
-    "p4.open1",
-    "p4.open2"
-   ],
-   "warmupCount": 2,
-   "items": [
-    {
-     "id": "p4-3",
-     "skill": "subitize",
-     "kind": "quickLook",
-     "a": 3
-    },
-    {
-     "id": "p4-2",
-     "skill": "subitize",
-     "kind": "quickLook",
-     "a": 2
-    },
-    {
-     "id": "p4-5",
-     "skill": "subitize",
-     "kind": "quickLook",
-     "a": 5
-    },
-    {
-     "id": "p4-1",
-     "skill": "subitize",
-     "kind": "quickLook",
-     "a": 1
-    },
-    {
-     "id": "p4-4",
-     "skill": "subitize",
-     "kind": "quickLook",
-     "a": 4
-    },
-    {
-     "id": "p4-3b",
-     "skill": "subitize",
-     "kind": "quickLook",
-     "a": 3
-    }
-   ],
-   "payoff": [
-    "p4.payoff1",
-    "p4.payoff2"
-   ],
-   "goodbye": "p4.goodbye"
+   "goodbye": "p2.goodbye"
   },
   {
    "id": "G1",
@@ -1345,7 +1309,10 @@
    "payoff": [
     "k4.payoff"
    ],
-   "goodbye": "k4.goodbye"
+   "goodbye": "k4.goodbye",
+   "needs": [
+    "bridge"
+   ]
   },
   {
    "id": "K5",
@@ -1418,7 +1385,10 @@
     "k5.payoff1",
     "k5.payoff2"
    ],
-   "goodbye": "k5.goodbye"
+   "goodbye": "k5.goodbye",
+   "needs": [
+    "bridge"
+   ]
   },
   {
    "id": "R1",
@@ -1683,7 +1653,10 @@
     "r4.payoff1",
     "r4.payoff2"
    ],
-   "goodbye": "r4.goodbye"
+   "goodbye": "r4.goodbye",
+   "needs": [
+    "garden"
+   ]
   },
   {
    "id": "F1",
@@ -1948,7 +1921,10 @@
     "f4.payoff1",
     "f4.payoff2"
    ],
-   "goodbye": "f4.goodbye"
+   "goodbye": "f4.goodbye",
+   "needs": [
+    "ball"
+   ]
   },
   {
    "id": "M1",
@@ -2198,7 +2174,15 @@
     "m4.payoff1",
     "m4.payoff2"
    ],
-   "goodbye": "m4.goodbye"
+   "goodbye": "m4.goodbye",
+   "needs": [
+    "prologue",
+    "garden",
+    "bridge",
+    "goblin",
+    "ball",
+    "feast"
+   ]
   }
  ],
  "lines": {
@@ -2386,17 +2370,69 @@
    "speaker": "sparkle",
    "text": "Not yet. We'll get there together."
   },
-  "map.gardenAwake": {
+  "map.awakeMany": {
+   "speaker": "sparkle",
+   "text": "Look, new places are awake! Which one shall we visit?"
+  },
+  "map.awake.garden": {
    "speaker": "sparkle",
    "text": "The garden is awake now! Let's plant flowers."
   },
+  "map.awake.bridge": {
+   "speaker": "sparkle",
+   "text": "The Bridge of Tens is awake now! Let's fix the bridge."
+  },
+  "map.awake.goblin": {
+   "speaker": "sparkle",
+   "text": "Grub's cave is awake now! Let's find the gems."
+  },
+  "map.awake.ball": {
+   "speaker": "sparkle",
+   "text": "The Royal Ball is awake now! Let's get ready to dance."
+  },
+  "map.awake.feast": {
+   "speaker": "sparkle",
+   "text": "The Fair Feast is awake now! Let's share the treats."
+  },
+  "map.awake.moon": {
+   "speaker": "sparkle",
+   "text": "The Moon Crystal is awake now! Let's mend the moon."
+  },
+  "map.waiting": {
+   "speaker": "sparkle",
+   "text": "This place needs help from another place first. Look for a glowing one!"
+  },
+  "map.waiting.garden": {
+   "speaker": "sparkle",
+   "text": "First we need to help the garden. Then we can come back here!"
+  },
+  "map.waiting.bridge": {
+   "speaker": "sparkle",
+   "text": "First we need to fix the Bridge of Tens. Then we can come back here!"
+  },
+  "map.waiting.ball": {
+   "speaker": "sparkle",
+   "text": "First we need to dance at the Royal Ball. Then we can come back here!"
+  },
+  "map.waiting.feast": {
+   "speaker": "sparkle",
+   "text": "First we need to share at the Fair Feast. Then we can come back here!"
+  },
+  "map.waiting.goblin": {
+   "speaker": "sparkle",
+   "text": "First we need to help Grub. Then we can come back here!"
+  },
+  "map.waiting.moon": {
+   "speaker": "sparkle",
+   "text": "First we need to visit the moon. Then we can come back here!"
+  },
   "map.practice": {
    "speaker": "sparkle",
-   "text": "The garden wants a little more practice. Tap the glowing flowers!"
+   "text": "One place wants a little more practice. Tap the glowing place!"
   },
   "map.done": {
    "speaker": "sparkle",
-   "text": "You helped the whole kingdom so far! Want to visit a place again?"
+   "text": "You helped this place already! Let's play here again."
   },
   "sleeping": {
    "speaker": "narrator",
@@ -2418,73 +2454,73 @@
    "speaker": "sparkle",
    "text": "That was a lot of great thinking. Let's finish our story for today."
   },
+  "wrapup.pause": {
+   "speaker": "sparkle",
+   "text": "Sparkle is getting sleepy. We'll finish this story tomorrow!"
+  },
+  "stepup": {
+   "speaker": "sparkle",
+   "text": "Wow, you got four right in a row! Let's skip ahead."
+  },
+  "quickLook.ready": {
+   "speaker": "sparkle",
+   "text": "Ready? Look quickly!"
+  },
+  "ask.quickLook": {
+   "speaker": "sparkle",
+   "text": "How many stars did you see?"
+  },
+  "p0.open1": {
+   "speaker": "narrator",
+   "text": "Once upon a time, the night sky went dark."
+  },
+  "p0.open2": {
+   "speaker": "sparkle",
+   "text": "Hi, I'm Sparkle! The stars fell asleep. Let's see what you already know!"
+  },
+  "p0.payoff": {
+   "speaker": "sparkle",
+   "text": "You know so much already! Look, some stars are waking up."
+  },
+  "p0.goodbye": {
+   "speaker": "sparkle",
+   "text": "What a great start! Tap the big button to keep going."
+  },
   "p1.open1": {
    "speaker": "narrator",
-   "text": "Once upon a time, in the Kingdom of Numbers, the night sky went dark."
+   "text": "Some stars are still asleep, hiding in the clouds."
   },
   "p1.open2": {
    "speaker": "sparkle",
-   "text": "Hi, I'm Sparkle! Oh no, the stars fell asleep. Will you help me wake them up?"
+   "text": "Let's count them to wake them up!"
   },
   "p1.payoff": {
    "speaker": "sparkle",
-   "text": "Five stars! The last number tells how many. Look, the sky is starting to glow!"
+   "text": "Look, the sky is starting to glow!"
   },
   "p1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned to count each star just once. Goodnight!"
+   "text": "Goodnight! The stars will be waiting for us."
   },
   "p2.open1": {
    "speaker": "narrator",
-   "text": "The stars are waking up, but some are hiding in the clouds."
+   "text": "Sparkle wants to cross the sky on star stones."
   },
   "p2.open2": {
    "speaker": "sparkle",
-   "text": "Let's find out how many stars are in each cloud!"
+   "text": "Some stars are shy, so look quickly! Will you help me?"
   },
-  "p2.payoff": {
+  "p2.payoff1": {
    "speaker": "sparkle",
-   "text": "You found every star in the clouds! The sky is getting brighter."
+   "text": "We crossed the star path! Every number has its own place."
+  },
+  "p2.payoff2": {
+   "speaker": "sparkle",
+   "text": "Look, the kingdom map is glowing. New places are waking up!"
   },
   "p2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned that the last number you say tells how many. Goodnight!"
-  },
-  "p3.open1": {
-   "speaker": "narrator",
-   "text": "Sparkle wants to walk across the sky on a path of star stones."
-  },
-  "p3.open2": {
-   "speaker": "sparkle",
-   "text": "Every stone has a number. Will you show me where to hop?"
-  },
-  "p3.payoff": {
-   "speaker": "sparkle",
-   "text": "We crossed the whole star path! Every number has its own place."
-  },
-  "p3.goodbye": {
-   "speaker": "sparkle",
-   "text": "Today you learned where numbers live on the line. Goodnight!"
-  },
-  "p4.open1": {
-   "speaker": "narrator",
-   "text": "The last stars are very shy. They only peek out for a moment."
-  },
-  "p4.open2": {
-   "speaker": "sparkle",
-   "text": "Look quickly, and tell me how many stars you see!"
-  },
-  "p4.payoff1": {
-   "speaker": "sparkle",
-   "text": "You counted every star back into the sky!"
-  },
-  "p4.payoff2": {
-   "speaker": "sparkle",
-   "text": "Look, the kingdom map is glowing. Today you learned that the last number you say tells how many."
-  },
-  "p4.goodbye": {
-   "speaker": "sparkle",
-   "text": "Goodnight! Tomorrow we can visit the garden."
+   "text": "Goodnight! Next time, you choose where we go."
   },
   "g1.open1": {
    "speaker": "narrator",
@@ -2516,7 +2552,7 @@
   },
   "g2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned that a number can be split into two parts in many ways. Goodnight!"
+   "text": "Today you learned a number can split in many ways. Goodnight!"
   },
   "g3.open1": {
    "speaker": "narrator",
@@ -2572,7 +2608,7 @@
   },
   "practice.open1": {
    "speaker": "narrator",
-   "text": "Sparkle wants to play in the garden a little more."
+   "text": "Sparkle wants to play here a little more."
   },
   "practice.open2": {
    "speaker": "sparkle",
@@ -2584,7 +2620,91 @@
   },
   "practice.payoff": {
    "speaker": "sparkle",
+   "text": "You worked so hard!"
+  },
+  "practice.open1.prologue": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to look at the stars a little more."
+  },
+  "practice.payoff.prologue": {
+   "speaker": "sparkle",
+   "text": "You worked so hard! The stars are twinkling brighter."
+  },
+  "map.practice.prologue": {
+   "speaker": "sparkle",
+   "text": "The night sky wants a little more practice. Tap the glowing stars!"
+  },
+  "practice.open1.garden": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to play in the garden a little more."
+  },
+  "practice.payoff.garden": {
+   "speaker": "sparkle",
    "text": "You worked so hard! The flowers are standing up tall."
+  },
+  "map.practice.garden": {
+   "speaker": "sparkle",
+   "text": "The garden wants a little more practice. Tap the glowing flowers!"
+  },
+  "practice.open1.bridge": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to walk on the bridge a little more."
+  },
+  "practice.payoff.bridge": {
+   "speaker": "sparkle",
+   "text": "You worked so hard! The bridge feels strong now."
+  },
+  "map.practice.bridge": {
+   "speaker": "sparkle",
+   "text": "The bridge wants a little more practice. Tap the glowing bridge!"
+  },
+  "practice.open1.goblin": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to count gems with Grub a little more."
+  },
+  "practice.payoff.goblin": {
+   "speaker": "sparkle",
+   "text": "You worked so hard! Grub's gems are sparkling."
+  },
+  "map.practice.goblin": {
+   "speaker": "sparkle",
+   "text": "Grub's cave wants a little more practice. Tap the glowing gem!"
+  },
+  "practice.open1.ball": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to dance at the ball a little more."
+  },
+  "practice.payoff.ball": {
+   "speaker": "sparkle",
+   "text": "You worked so hard! The dancers are twirling."
+  },
+  "map.practice.ball": {
+   "speaker": "sparkle",
+   "text": "The ball wants a little more practice. Tap the glowing ballroom!"
+  },
+  "practice.open1.feast": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to help at the feast a little more."
+  },
+  "practice.payoff.feast": {
+   "speaker": "sparkle",
+   "text": "You worked so hard! Every plate is fair."
+  },
+  "map.practice.feast": {
+   "speaker": "sparkle",
+   "text": "The feast wants a little more practice. Tap the glowing treats!"
+  },
+  "practice.open1.moon": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to look at the moon a little more."
+  },
+  "practice.payoff.moon": {
+   "speaker": "sparkle",
+   "text": "You worked so hard! The moon is shining."
+  },
+  "map.practice.moon": {
+   "speaker": "sparkle",
+   "text": "The moon wants a little more practice. Tap the glowing crystal!"
   },
   "practice.goodbye": {
    "speaker": "sparkle",
@@ -2604,7 +2724,7 @@
   },
   "prompt.howMany": {
    "speaker": "sparkle",
-   "text": "How many stars are in the cloud? Touch a number to hear it. Touch it again to choose."
+   "text": "How many stars are in the cloud?"
   },
   "prompt.findOnLine": {
    "speaker": "sparkle",
@@ -2613,6 +2733,62 @@
   "prompt.quickLook": {
    "speaker": "sparkle",
    "text": "Look quickly! How many stars did you see? Touch a number, then touch it again to choose."
+  },
+  "prompt.countTap.concrete.short": {
+   "speaker": "sparkle",
+   "text": "Tap each star."
+  },
+  "prompt.countTap.short": {
+   "speaker": "sparkle",
+   "text": "How many stars?"
+  },
+  "prompt.howMany.concrete.short": {
+   "speaker": "sparkle",
+   "text": "Count the stars, then pick a number."
+  },
+  "prompt.howMany.short": {
+   "speaker": "sparkle",
+   "text": "How many stars?"
+  },
+  "prompt.findOnLine.short": {
+   "speaker": "sparkle",
+   "text": "Hop to {a}!"
+  },
+  "prompt.findOnLine.concrete.short": {
+   "speaker": "sparkle",
+   "text": "Hop to {a}!"
+  },
+  "prompt.addMore.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} flowers. Plant {b} more."
+  },
+  "prompt.addMore.pictorial.short": {
+   "speaker": "sparkle",
+   "text": "{a} and {b} more. How many?"
+  },
+  "prompt.numberBond.short": {
+   "speaker": "sparkle",
+   "text": "{a} flowers, {b} here. How many there?"
+  },
+  "prompt.numberBond.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} flowers. This bed has {b}. Move the rest."
+  },
+  "prompt.hop.short": {
+   "speaker": "sparkle",
+   "text": "On {a}, hop {b}!"
+  },
+  "prompt.makeTen.short": {
+   "speaker": "sparkle",
+   "text": "We have {a}. How many more?"
+  },
+  "prompt.makeTen.concrete.short": {
+   "speaker": "sparkle",
+   "text": "We have {a}. Fill it up!"
+  },
+  "prompt.equation.short": {
+   "speaker": "sparkle",
+   "text": "{a} plus {b}."
   },
   "prompt.addMore.concrete": {
    "speaker": "sparkle",
@@ -2642,6 +2818,10 @@
    "speaker": "sparkle",
    "text": "The bees want flowers in both beds. We have {a} flowers, and this bed has {b}. How many go in the other bed?"
   },
+  "prompt.numberBond.concrete": {
+   "speaker": "sparkle",
+   "text": "The bees want flowers in both beds. We have {a} flowers, and this bed has {b}. Move the other flowers to the second bed."
+  },
   "prompt.hop": {
    "speaker": "sparkle",
    "text": "I'm on {a}. I'll hop {b} times. Count my hops with me! Where will I land?"
@@ -2649,6 +2829,10 @@
   "prompt.makeTen": {
    "speaker": "sparkle",
    "text": "The fountain wakes up when the box has ten flowers. We have {a}. How many more do we need?"
+  },
+  "prompt.makeTen.concrete": {
+   "speaker": "sparkle",
+   "text": "The fountain wakes up when the box has ten flowers. We have {a}. Plant seeds until the box is full!"
   },
   "prompt.equation": {
    "speaker": "sparkle",
@@ -2673,6 +2857,10 @@
   "hint.model.findOnLine": {
    "speaker": "sparkle",
    "text": "Hmm, not quite. Let's start at zero and count the stones."
+  },
+  "hint.model.quickLook": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Let's peek one more time!"
   },
   "hint.model.numberBond": {
    "speaker": "sparkle",
@@ -2768,7 +2956,7 @@
   },
   "b2.open1": {
    "speaker": "narrator",
-   "text": "Stepping stones cross the shallow part of the river. Each one has a number, all the way to twenty."
+   "text": "Stepping stones cross the river. Each one has a number, all the way to twenty."
   },
   "b2.open2": {
    "speaker": "sparkle",
@@ -2788,7 +2976,7 @@
   },
   "b3.open2": {
    "speaker": "sparkle",
-   "text": "Let's fill the first box to ten, then put the rest in the next box."
+   "text": "Let's fill one box to ten. The rest go in the next box."
   },
   "b3.payoff": {
    "speaker": "sparkle",
@@ -2848,7 +3036,7 @@
   },
   "ask.tensOnes": {
    "speaker": "sparkle",
-   "text": "How many planks are there altogether?"
+   "text": "How many planks are there in all?"
   },
   "hint.model.tensOnes": {
    "speaker": "sparkle",
@@ -2868,11 +3056,11 @@
   },
   "prompt.bridgeAdd.concrete": {
    "speaker": "sparkle",
-   "text": "This span has {a} planks. Let's add {b} more. Fill the first box to ten, then use the next box."
+   "text": "This part of the bridge has {a} planks. Let's add {b} more. Fill one box to ten first."
   },
   "prompt.bridgeAdd.pictorial": {
    "speaker": "sparkle",
-   "text": "{a} planks and {b} more. How many planks altogether?"
+   "text": "{a} planks and {b} more. How many planks now?"
   },
   "prompt.bridgeAdd": {
    "speaker": "sparkle",
@@ -2948,7 +3136,7 @@
   },
   "k4.open1": {
    "speaker": "narrator",
-   "text": "Grub hid the gems in bags of ten, with a few loose ones beside them."
+   "text": "Grub hid the gems in bags of ten. A few are loose."
   },
   "k4.open2": {
    "speaker": "sparkle",
@@ -3040,7 +3228,7 @@
   },
   "prompt.compare.concrete": {
    "speaker": "sparkle",
-   "text": "You have {a} gems and Grub has {b}. Tap your gems that have no partner."
+   "text": "You have {a} gems and Grub has {b}. Tap your gems with no gem across from them."
   },
   "prompt.compare.pictorial": {
    "speaker": "sparkle",
@@ -3056,11 +3244,11 @@
   },
   "hint.model.compare": {
    "speaker": "sparkle",
-   "text": "Hmm, not quite. Look for your gems with no partner. Those are the extra ones."
+   "text": "Hmm, not quite. Look for your gems with no gem across. Those are the extra ones."
   },
   "hint.worked.compare": {
    "speaker": "sparkle",
-   "text": "Let's count the gems with no partner, together."
+   "text": "Let's count the extra gems together."
   },
   "praise.compare": {
    "speaker": "sparkle",
@@ -3100,7 +3288,7 @@
   },
   "r2.open1": {
    "speaker": "narrator",
-   "text": "For the music, the chairs stand in neat rows, the same number in every row."
+   "text": "The chairs stand in neat rows. Every row has the same number."
   },
   "r2.open2": {
    "speaker": "sparkle",
@@ -3160,7 +3348,7 @@
   },
   "prompt.groups": {
    "speaker": "sparkle",
-   "text": "{a} groups of {b}. How many altogether?"
+   "text": "{a} groups of {b}. How many in all?"
   },
   "ask.groups": {
    "speaker": "sparkle",
@@ -3268,7 +3456,7 @@
   },
   "f2.open1": {
    "speaker": "narrator",
-   "text": "The berry pickers came back with heaps of berries, and baskets that hold the same amount."
+   "text": "The berry pickers came back with heaps of berries. Each basket holds the same number."
   },
   "f2.open2": {
    "speaker": "sparkle",
@@ -3408,7 +3596,7 @@
   },
   "m2.open1": {
    "speaker": "narrator",
-   "text": "Moonstones lay scattered on the hill. Half must go to the left of the moon, half to the right."
+   "text": "Moonstones lay all over the hill. Half go to the left of the moon, half to the right."
   },
   "m2.open2": {
    "speaker": "sparkle",
@@ -3424,7 +3612,7 @@
   },
   "m3.open1": {
    "speaker": "narrator",
-   "text": "A moonbeam stretches from the ground, at zero, all the way up to the moon, at one."
+   "text": "A moonbeam goes from the ground up to the moon. The ground is zero, the moon is one."
   },
   "m3.open2": {
    "speaker": "sparkle",
@@ -3484,7 +3672,7 @@
   },
   "praise.parts": {
    "speaker": "sparkle",
-   "text": "Yes! {answer} equal parts make the whole crystal. The bottom number of a fraction tells how many equal parts."
+   "text": "Yes! {answer} equal parts make the whole crystal."
   },
   "prompt.fractionOf.concrete": {
    "speaker": "sparkle",
@@ -3529,6 +3717,190 @@
   "praise.fractionLine": {
    "speaker": "sparkle",
    "text": "Yes! That's {a} out of {b} steps along the moonbeam."
+  },
+  "prompt.tensOnes.concrete.short": {
+   "speaker": "sparkle",
+   "text": "Tap each plank."
+  },
+  "prompt.tensOnes.pictorial.short": {
+   "speaker": "sparkle",
+   "text": "Ten and {b} more. How many?"
+  },
+  "prompt.bridgeAdd.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} planks. Add {b} more."
+  },
+  "prompt.bridgeAdd.pictorial.short": {
+   "speaker": "sparkle",
+   "text": "{a} and {b} more. How many?"
+  },
+  "prompt.bridgeAdd.short": {
+   "speaker": "sparkle",
+   "text": "{a} plus {b}."
+  },
+  "prompt.takeAway.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} gems. Give Grub {b}."
+  },
+  "prompt.takeAway.short": {
+   "speaker": "sparkle",
+   "text": "{a} take away {b}. How many left?"
+  },
+  "prompt.hopBack.concrete.short": {
+   "speaker": "sparkle",
+   "text": "On {a}. Hop back {b} times!"
+  },
+  "prompt.hopBack.short": {
+   "speaker": "sparkle",
+   "text": "On {a}, back {b}. Tap the stone."
+  },
+  "prompt.compare.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} and {b}. Tap the extras."
+  },
+  "prompt.compare.short": {
+   "speaker": "sparkle",
+   "text": "{a} and {b}. How many more?"
+  },
+  "prompt.subtraction.short": {
+   "speaker": "sparkle",
+   "text": "{a} minus {b}."
+  },
+  "prompt.groups.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} tables, {b} at each. Tap each guest."
+  },
+  "prompt.groups.short": {
+   "speaker": "sparkle",
+   "text": "{a} groups of {b}. How many?"
+  },
+  "prompt.array.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} rows of {b}. Tap each row."
+  },
+  "prompt.skipHop.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{b} tiles each hop. Hop {a} times!"
+  },
+  "prompt.skipHop.short": {
+   "speaker": "sparkle",
+   "text": "{a} hops of {b}. Tap the tile."
+  },
+  "prompt.multiply.short": {
+   "speaker": "sparkle",
+   "text": "{a} times {b}."
+  },
+  "prompt.share.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} cupcakes, {b} plates. Share them out!"
+  },
+  "prompt.share.short": {
+   "speaker": "sparkle",
+   "text": "{a} treats, {b} plates. How many each?"
+  },
+  "prompt.groupInto.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} berries, {b} in each basket. Fill them!"
+  },
+  "prompt.groupInto.short": {
+   "speaker": "sparkle",
+   "text": "{a} berries, {b} in each. How many baskets?"
+  },
+  "prompt.divide.short": {
+   "speaker": "sparkle",
+   "text": "{a} divided by {b}."
+  },
+  "prompt.parts.concrete.short": {
+   "speaker": "sparkle",
+   "text": "Tap each part."
+  },
+  "prompt.parts.short": {
+   "speaker": "sparkle",
+   "text": "How many parts?"
+  },
+  "prompt.fractionOf.concrete.short": {
+   "speaker": "sparkle",
+   "text": "{a} moonstones, {b} equal piles. Share them!"
+  },
+  "prompt.fractionOf.short": {
+   "speaker": "sparkle",
+   "text": "{a} in {b} equal piles. How many each?"
+  },
+  "prompt.fractionLine.short": {
+   "speaker": "sparkle",
+   "text": "Tap {a} out of {b}."
+  },
+  "prompt.tensOnes.short": {
+   "speaker": "sparkle",
+   "text": "Ten and {b} more."
+  },
+  "prompt.array.short": {
+   "speaker": "sparkle",
+   "text": "{a} rows of {b}. How many?"
+  },
+  "ask.addMore.short": {
+   "speaker": "sparkle",
+   "text": "How many now?"
+  },
+  "ask.numberBond.short": {
+   "speaker": "sparkle",
+   "text": "How many there?"
+  },
+  "ask.makeTen.short": {
+   "speaker": "sparkle",
+   "text": "Full! How many seeds?"
+  },
+  "ask.tensOnes.short": {
+   "speaker": "sparkle",
+   "text": "How many planks?"
+  },
+  "ask.bridgeAdd.short": {
+   "speaker": "sparkle",
+   "text": "How many planks?"
+  },
+  "ask.takeAway.short": {
+   "speaker": "sparkle",
+   "text": "How many left?"
+  },
+  "ask.hopBack.short": {
+   "speaker": "sparkle",
+   "text": "Where am I?"
+  },
+  "ask.skipHop.short": {
+   "speaker": "sparkle",
+   "text": "Where am I?"
+  },
+  "ask.compare.short": {
+   "speaker": "sparkle",
+   "text": "How many extra?"
+  },
+  "ask.groups.short": {
+   "speaker": "sparkle",
+   "text": "How many guests?"
+  },
+  "ask.array.short": {
+   "speaker": "sparkle",
+   "text": "How many chairs?"
+  },
+  "ask.share.short": {
+   "speaker": "sparkle",
+   "text": "How many each?"
+  },
+  "ask.groupInto.short": {
+   "speaker": "sparkle",
+   "text": "How many baskets?"
+  },
+  "ask.parts.short": {
+   "speaker": "sparkle",
+   "text": "How many parts?"
+  },
+  "ask.fractionOf.short": {
+   "speaker": "sparkle",
+   "text": "How many each?"
+  },
+  "ask.quickLook.short": {
+   "speaker": "sparkle",
+   "text": "How many stars?"
   }
  }
 }

@@ -56,6 +56,10 @@ final class SceneController: ObservableObject {
     /// Kinds whose teaching praise was already said in this scene (Shrikant: once per scene is enough).
     private var taughtKinds: Set<ActivityKind> = []
     private var lastInstruction: [SpokenLine?] = []
+    /// How many times each how-to prompt was said in this scene: full twice, then short (item 8).
+    private var promptsAsked: [String: Int] = [:]
+    /// Bumped on every new item so a late quick-look timer from an earlier item does nothing.
+    private var itemToken = 0
 
     init(scene: StoryScene, warmups: [Item], resumeAt: Int?, model: AppModel) {
         self.run = SceneRun(scene: scene, warmups: warmups, resumeAt: resumeAt)
@@ -113,9 +117,7 @@ final class SceneController: ObservableObject {
         case .warmup, .core:
             beginItem()
         case .payoff:
-            var lines = run.scene.payoff.map { catalog.spoken($0) }
-            if run.wrappingUp { lines.insert(catalog.spoken("wrapup"), at: 0) }
-            speak(lines, thenShowNext: true)
+            speak(payoffLines, thenShowNext: true)
         case .goodbye:
             if model.firstTimeThisSession("goodbye.\(run.scene.id)") {
                 speak([catalog.spoken(run.scene.goodbye)], thenShowNext: true)
@@ -125,6 +127,16 @@ final class SceneController: ObservableObject {
         case .finished:
             model.sceneFinished(run)
         }
+    }
+
+    /// What the payoff panel says. Cut short by the daily limit: "we'll finish tomorrow", not the success
+    /// story (item 11). Ended early after a run of right answers: a word on that, then the payoff (L13).
+    var payoffLines: [SpokenLine?] {
+        if run.cutShort { return [catalog.spoken("wrapup.pause")] }
+        var lines = run.scene.payoff.map { catalog.spoken($0) }
+        if run.endedEarly { lines.insert(catalog.spoken("stepup"), at: 0) }
+        if run.wrappingUp { lines.insert(catalog.spoken("wrapup"), at: 0) }
+        return lines
     }
 
     /// The big star button: next phase or next item.
@@ -145,29 +157,53 @@ final class SceneController: ObservableObject {
 
     private func beginItem() {
         guard let item else { return }
-        let lvl = item.isAbstractOnly ? CPALevel.abstract : model.state.level(for: item.skill)
+        // A test-out challenge asks with numbers (L12); numeral-only kinds are always at that level.
+        let lvl = item.isAbstractOnly || run.scene.isChallenge ? CPALevel.abstract : model.state.level(for: item.skill)
         session = ItemSession(item: item, level: lvl)
         ui = ItemUIState()
         mood = .asking
+        itemToken += 1
         saveResume()
         var lines: [SpokenLine?] = []
         if case .warmup(0) = run.phase { lines.append(catalog.spoken("warmup.intro")) }
         if case .core(0) = run.phase, !run.warmups.isEmpty { lines.append(catalog.spoken("core.intro")) }
-        let prompt = catalog.prompt(for: item, level: lvl)
-        lastInstruction = [prompt]
-        lines.append(prompt)
+        if item.kind == .quickLook {
+            ui.hidden = true
+            quickLook(intro: lines)
+            return
+        }
+        let key = "\(item.kind.rawValue).\(lvl)"
+        let asked = promptsAsked[key, default: 0]
+        promptsAsked[key] = asked + 1
+        // The ear always replays the full how-to; the voice says the short one after the first two.
+        lastInstruction = [catalog.prompt(for: item, level: lvl)]
+        lines.append(catalog.prompt(for: item, level: lvl, timesAsked: asked))
         speak(lines, thenShowNext: false)
-        if item.kind == .quickLook { scheduleQuickLookHide() }
     }
 
-    private func scheduleQuickLookHide() {
-        // A short look (about 2 seconds) so she sees the group at once. Not a timer on her answer (AC-A6).
-        let delay = model.env.uiTesting ? 1.0 : 2.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            guard let self, self.item?.kind == .quickLook, self.mood == .asking || self.mood == .hint(.modelHint) else { return }
-            withAnimation(.easeInOut(duration: 0.4)) { self.ui.hidden = true }
+    /// Quick look (item 14): "Ready? Look!" is said first with the stars under the cloud. When the voice
+    /// finishes, the stars show for a short look, hide again, and only then the question is asked. The look
+    /// is a viewing time, not a timer on her answer (AC-A6).
+    private func quickLook(intro: [SpokenLine?]) {
+        let token = itemToken
+        let n = promptsAsked["ask.quickLook", default: 0]
+        promptsAsked["ask.quickLook"] = n + 1
+        let full = catalog.spoken("ask.quickLook")
+        let ask = n >= 2 ? (catalog.spoken("ask.quickLook.short") ?? full) : full
+        lastInstruction = [catalog.spoken("quickLook.ready"), full]
+        model.speech.say(intro + [catalog.spoken("quickLook.ready")]) { [weak self] in
+            guard let self, token == self.itemToken else { return }
+            withAnimation(.easeOut(duration: 0.25)) { self.ui.hidden = false }
+            let look = self.model.env.uiTesting ? 1.0 : 2.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + look) { [weak self] in
+                guard let self, token == self.itemToken, !self.revealedOrDone else { return }
+                withAnimation(.easeInOut(duration: 0.4)) { self.ui.hidden = true }
+                self.model.speech.say(ask)
+            }
         }
     }
+
+    private var revealedOrDone: Bool { mood == .correct || mood == .hint(.showAnswer) }
 
     /// The ear button (AC-A2): replay the current instruction in full.
     func replay() {
@@ -176,9 +212,11 @@ final class SceneController: ObservableObject {
         case .payoff: speak(run.scene.payoff.map { catalog.spoken($0) }, thenShowNext: true)
         case .goodbye: speak([catalog.spoken(run.scene.goodbye)], thenShowNext: true)
         default:
-            if item?.kind == .quickLook, mood != .correct {
-                ui.hidden = false
-                scheduleQuickLookHide()
+            if item?.kind == .quickLook, !revealedOrDone {
+                itemToken += 1
+                ui.hidden = true
+                quickLook(intro: [])
+                return
             }
             model.speech.say(lastInstruction)
         }
@@ -238,10 +276,14 @@ final class SceneController: ObservableObject {
     }
 
     /// The question asked once the hands-on step is done.
+    /// Asked in full the first two times in a scene, then in its short form (item 8).
     private func askLine(for item: Item) -> SpokenLine? {
-        let line = catalog.spoken("ask.\(item.kind.rawValue)", item: item) ?? catalog.prompt(for: item, level: .abstract)
-        lastInstruction = [line]
-        return line
+        let id = "ask.\(item.kind.rawValue)"
+        let full = catalog.spoken(id, item: item) ?? catalog.prompt(for: item, level: .abstract)
+        lastInstruction = [full]
+        let n = promptsAsked[id, default: 0]
+        promptsAsked[id] = n + 1
+        return n >= 2 ? (catalog.spoken(id + ".short", item: item) ?? full) : full
     }
 
     func openHelp(_ h: HelpModel) {
@@ -285,6 +327,11 @@ final class SceneController: ObservableObject {
             withAnimation(.linear(duration: 0.5)) { ui.wobble += 1 }
             let hint = catalog.hint(stage, for: item, level: s.level)
             switch stage {
+            case .modelHint where item.kind == .quickLook:
+                // Another short look, then the question again.
+                itemToken += 1
+                ui.hidden = true
+                quickLook(intro: [hint])
             case .modelHint:
                 lastInstruction = [hint]
                 model.speech.say(hint)
@@ -297,20 +344,18 @@ final class SceneController: ObservableObject {
         }
     }
 
-    /// Worked step: count along with her, lighting each object in turn.
+    /// Worked step: count along with her, lighting each object as its number is spoken (item 13).
+    /// The light follows the voice's own line callbacks, so a slower voice never drifts out of step.
     private func countAlong(item: Item, intro: SpokenLine?) {
         let (start, count) = countAlongRange(item)
         var lines: [SpokenLine?] = [intro]
         for i in 0..<count { lines.append(catalog.count(start + i + 1)) }
-        ui.countAlong = 0
-        model.speech.say(lines) { [weak self] in self?.ui.countAlong = nil }
-        if !model.env.uiTesting {
-            for i in 0..<count {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.2 + Double(i) * 0.9) { [weak self] in
-                    if self?.ui.countAlong != nil { self?.ui.countAlong = i }
-                }
-            }
-        }
+        if item.kind == .quickLook { ui.hidden = false }
+        ui.countAlong = nil
+        model.speech.say(lines, each: { [weak self] index in
+            guard index >= 1 else { return }
+            withAnimation(.easeOut(duration: 0.15)) { self?.ui.countAlong = index - 1 }
+        }, then: { [weak self] in self?.ui.countAlong = nil })
     }
 
     /// Where counting on starts and how many steps, per activity.
@@ -325,7 +370,10 @@ final class SceneController: ObservableObject {
     }
 
     private func finishItem(_ s: ItemSession, lines: [SpokenLine?]) {
-        model.record(s.result(at: model.now))
+        let result = s.result(at: model.now)
+        // Challenge answers decide the test-out at the end (L12); they don't move CPA levels one by one.
+        if run.scene.isChallenge { model.state.lastSeen[result.itemID] = result.date } else { model.record(result) }
+        run.noteResult(firstTry: result.firstTryCorrect, atTopLevel: model.state.level(for: s.item.skill) == .abstract)
         speak(lines, thenShowNext: true)
     }
 

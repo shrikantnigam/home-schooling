@@ -154,26 +154,43 @@ struct MapView: View {
             ChildCorners(onCastle: { model.goCastle() }, onEar: { model.speech.say(mapIntro) },
                          onLock: { model.openParentGate() })
         }
-        .onAppear { model.sayIntroOnce("map", [mapIntro]) }
+        // Once per app open, and again whenever a new place has woken up since.
+        .onAppear { model.sayIntroOnce("map." + newlyOpened.joined(separator: ","), [mapIntro]) }
     }
 
+    private var newlyOpened: [ChapterID] { model.progression.newlyOpened(state: model.state) }
+
+    /// Every newly opened place gets its own "awake" line (item 16); several at once share one line.
     private var mapIntro: SpokenLine? {
-        let gardenOpen = model.progression.isChapterUnlocked("garden", state: model.state)
-        return model.catalog.spoken(gardenOpen && !model.state.completedScenes.contains("G1") ? "map.gardenAwake" : "map.pick")
+        let fresh = newlyOpened
+        let c = model.catalog
+        if fresh.count == 1, let line = c.spoken("map.awake.\(fresh[0])") { return line }
+        if fresh.count > 1 { return c.spoken("map.awakeMany") }
+        if let ch = model.content.chapters.first(where: { model.progression.placeState($0.id, state: model.state) == .practice }) {
+            return c.spoken("map.practice.\(ch.id)") ?? c.spoken("map.practice")
+        }
+        return c.spoken("map.pick")
+    }
+
+    private func tap(_ ch: Chapter, _ st: MapPlaceState) {
+        let c = model.catalog
+        switch st {
+        case .locked: model.speech.say(c.spoken("map.locked"))
+        case .open(let next): model.start(sceneID: next)
+        case .waiting(_, let on):
+            model.speech.say(on.first.flatMap { c.spoken("map.waiting.\($0)") } ?? c.spoken("map.waiting"))
+        case .practice: model.startPractice(ch.id)
+        case .done:
+            // Item 15: a finished place can be played again, as a fresh mix of its puzzles.
+            model.speech.say(c.spoken("map.done")) { model.replay(ch.id) }
+        }
     }
 
     @ViewBuilder
     private func place(_ ch: Chapter) -> some View {
         let st = model.progression.placeState(ch.id, state: model.state)
         VStack(spacing: 12) {
-            Button {
-                switch st {
-                case .locked: model.speech.say(model.catalog.spoken("map.locked"))
-                case .open(let next): model.start(sceneID: next)
-                case .practice: model.startPractice(ch.id)
-                case .done: model.speech.say(model.catalog.spoken("map.done"))
-                }
-            } label: {
+            Button { tap(ch, st) } label: {
                 ZStack {
                     Circle().fill(ChapterLook.color(ch.id)).frame(width: placeSize, height: placeSize)
                     ChapterLook.icon(ch.id, lit: st != .locked, size: placeSize * 0.55)
@@ -185,9 +202,20 @@ struct MapView: View {
             }
             .accessibilityIdentifier("map.place.\(ch.id)")
             .accessibilityLabel(ch.place)
+            .accessibilityValue(stateName(st))
             sceneDots(ch)
             Text(ch.place).font(Theme.title(18)).foregroundStyle(Theme.ink).lineLimit(2).multilineTextAlignment(.center)
                 .frame(width: placeSize + 20)
+        }
+    }
+
+    private func stateName(_ st: MapPlaceState) -> String {
+        switch st {
+        case .locked: return "locked"
+        case .open: return "open"
+        case .waiting: return "waiting"
+        case .practice: return "practice"
+        case .done: return "done"
         }
     }
 

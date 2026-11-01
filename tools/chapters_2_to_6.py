@@ -26,7 +26,7 @@ def chapter_2(skills, chapters, scenes, l, it, sc, N, S):
     skill(skills, "hop20", ch, "Add on the number line to 20",
           "Hop forward on the stairs, counting on from the step where you start.")
     chapters.append(dict(id=ch, title="The Bridge of Tens", place="Bridge of Tens",
-                         scenes=["B1", "B2", "B3", "B4", "B5"]))
+                         scenes=["B1", "B2", "B3", "B4", "B5"], requires=["garden"]))
     T = 20
     scenes += [
         sc("B1", ch, "Planks in Bundles", 2, [
@@ -57,12 +57,12 @@ def chapter_2(skills, chapters, scenes, l, it, sc, N, S):
     l("b1.open2", S, "Look! A beaver keeps the planks tied in bundles of ten. Let's count how many we have.")
     l("b1.payoff", S, "Click! The first part of the bridge is back. Ten and some more makes a teen number!")
     l("b1.goodbye", S, "Today you learned that thirteen is ten and three more. Goodnight!")
-    l("b2.open1", N, "Stepping stones cross the shallow part of the river. Each one has a number, all the way to twenty.")
+    l("b2.open1", N, "Stepping stones cross the river. Each one has a number, all the way to twenty.")
     l("b2.open2", S, "Help me find the right stone so I don't get my hooves wet!")
     l("b2.payoff", S, "We crossed every stone! Twenty is two tens.")
     l("b2.goodbye", S, "Today you found numbers all the way to twenty. Goodnight!")
     l("b3.open1", N, "Each part of the bridge has two plank boxes. The first box must be full before the second one holds.")
-    l("b3.open2", S, "Let's fill the first box to ten, then put the rest in the next box.")
+    l("b3.open2", S, "Let's fill one box to ten. The rest go in the next box.")
     l("b3.payoff", S, "Another part of the bridge is fixed! Making ten first makes adding easy.")
     l("b3.goodbye", S, "Today you added by making ten first. Goodnight!")
     l("b4.open1", N, "A long log runs beside the bridge, marked with stones from zero to twenty.")
@@ -78,13 +78,13 @@ def chapter_2(skills, chapters, scenes, l, it, sc, N, S):
     l("prompt.tensOnes.concrete", S, "Here is a bundle of ten planks and some loose ones. Tap each loose plank and count on from ten.")
     l("prompt.tensOnes.pictorial", S, "A bundle of ten and {b} more planks. How many planks is that?")
     l("prompt.tensOnes", S, "Ten and {b} more. How many is that?")
-    l("ask.tensOnes", S, "How many planks are there altogether?")
+    l("ask.tensOnes", S, "How many planks are there in all?")
     l("hint.model.tensOnes", S, "Hmm, not quite. Look at the bundle. It already has ten planks inside.")
     l("hint.worked.tensOnes", S, "Let's start at ten and count on, one plank at a time.")
     l("praise.tensOnes", S, "Yes! Ten and {b} more is {answer}.")
     l("prompt.findOnLine.concrete", S, "Can you help me hop to {a}? Tap the stone where {a} lives.")
-    l("prompt.bridgeAdd.concrete", S, "This span has {a} planks. Let's add {b} more. Fill the first box to ten, then use the next box.")
-    l("prompt.bridgeAdd.pictorial", S, "{a} planks and {b} more. How many planks altogether?")
+    l("prompt.bridgeAdd.concrete", S, "This part of the bridge has {a} planks. Let's add {b} more. Fill one box to ten first.")
+    l("prompt.bridgeAdd.pictorial", S, "{a} planks and {b} more. How many planks now?")
     l("prompt.bridgeAdd", S, "{a} plus {b}. If you want help, tap the plank boxes.")
     l("ask.bridgeAdd", S, "How many planks are there now?")
     l("hint.model.bridgeAdd", S, "Hmm, not quite. Look at the first box. How many more fill it to ten?")
@@ -105,7 +105,7 @@ def chapter_3(skills, chapters, scenes, l, it, sc, N, S):
     skill(skills, "subtract20", ch, "Subtract within 20 with numbers",
           "Ask \"13 take away 4\" at dinner and let her use fingers or spoons to check.")
     chapters.append(dict(id=ch, title="The Goblin's Gems", place="Goblin's Cave",
-                         scenes=["K1", "K2", "K3", "K4", "K5"]))
+                         scenes=["K1", "K2", "K3", "K4", "K5"], requires=["garden"]))
     T = 20
     scenes += [
         sc("K1", ch, "Gems Go Missing", 2, [
@@ -123,12 +123,12 @@ def chapter_3(skills, chapters, scenes, l, it, sc, N, S):
         sc("K4", ch, "Take From Ten", 2, [
             it("k4-13-4", "takeAway", "takeAway", 13, 4, T), it("k4-15-6", "takeAway", "takeAway", 15, 6, T),
             it("k4-12-5", "takeAway", "takeAway", 12, 5, T), it("k4-14-8", "takeAway", "takeAway", 14, 8, T),
-            it("k4-16-7", "takeAway", "takeAway", 16, 7, T), it("k4-11-3", "takeAway", "takeAway", 11, 3, T)], ["k4.payoff"]),
+            it("k4-16-7", "takeAway", "takeAway", 16, 7, T), it("k4-11-3", "takeAway", "takeAway", 11, 3, T)], ["k4.payoff"], needs=["bridge"]),
         sc("K5", ch, "The Gems Come Home", 3, [
             it("k5-9-4", "subtract20", "subtraction", 9, 4, T), it("k5-13-5", "subtract20", "subtraction", 13, 5, T),
             it("k5-17-8", "subtract20", "subtraction", 17, 8, T), it("k5-12-6", "subtract20", "subtraction", 12, 6, T),
             it("k5-15-9", "subtract20", "subtraction", 15, 9, T), it("k5-20-10", "subtract20", "subtraction", 20, 10, T),
-            it("k5-16-8", "subtract20", "subtraction", 16, 8, T)], ["k5.payoff1", "k5.payoff2"]),
+            it("k5-16-8", "subtract20", "subtraction", 16, 8, T)], ["k5.payoff1", "k5.payoff2"], needs=["bridge"]),
     ]
     l("k1.open1", N, "Across the bridge was a dark cave. Inside lived a grumpy goblin named Grub, who loved shiny gems.")
     l("k1.open2", S, "Oh no! Grub is taking the kingdom's gems. Let's find out how many are left each time.")
@@ -142,7 +142,7 @@ def chapter_3(skills, chapters, scenes, l, it, sc, N, S):
     l("k3.open2", S, "Let's line up the gems, one next to one, and see who has more.")
     l("k3.payoff", S, "Lining them up shows who has more, and how many more!")
     l("k3.goodbye", S, "Today you found how many more by matching. Goodnight!")
-    l("k4.open1", N, "Grub hid the gems in bags of ten, with a few loose ones beside them.")
+    l("k4.open1", N, "Grub hid the gems in bags of ten. A few are loose.")
     l("k4.open2", S, "When he takes more than the loose ones, we can take from the ten!")
     l("k4.payoff", S, "Grub is surprised! You can take away from teen numbers too.")
     l("k4.goodbye", S, "Today you took away from numbers up to twenty. Goodnight!")
@@ -165,12 +165,12 @@ def chapter_3(skills, chapters, scenes, l, it, sc, N, S):
     l("hint.model.hopBack", S, "Hmm, not quite. Count the hops back, one stone each.")
     l("hint.worked.hopBack", S, "Let's count back together from {a}.")
     l("praise.hopBack", S, "We landed on {answer}! {a} take away {b} is {answer}.")
-    l("prompt.compare.concrete", S, "You have {a} gems and Grub has {b}. Tap your gems that have no partner.")
+    l("prompt.compare.concrete", S, "You have {a} gems and Grub has {b}. Tap your gems with no gem across from them.")
     l("prompt.compare.pictorial", S, "You have {a} gems and Grub has {b}. How many more do you have?")
     l("prompt.compare", S, "{a} and {b}. How many more is {a}?")
     l("ask.compare", S, "How many more gems do you have than Grub?")
-    l("hint.model.compare", S, "Hmm, not quite. Look for your gems with no partner. Those are the extra ones.")
-    l("hint.worked.compare", S, "Let's count the gems with no partner, together.")
+    l("hint.model.compare", S, "Hmm, not quite. Look for your gems with no gem across. Those are the extra ones.")
+    l("hint.worked.compare", S, "Let's count the extra gems together.")
     l("praise.compare", S, "Yes! You have {answer} more than Grub.")
     l("prompt.subtraction", S, "{a} minus {b}. If you want help, tap the gems.")
     l("hint.model.subtraction", S, "Hmm, not quite. Let's look at the gems and take away {b}.")
@@ -182,14 +182,14 @@ def chapter_4(skills, chapters, scenes, l, it, sc, N, S):
     """The Royal Ball: multiplication as equal groups, rows (arrays) and skip-count hops. Products up to 20."""
     ch = "ball"
     skill(skills, "equalGroups", ch, "Equal groups",
-          "Make 3 plates with 2 crackers each. How many crackers altogether?")
+          "Make 3 plates with 2 crackers each. How many crackers in all?")
     skill(skills, "arrays", ch, "Rows of the same (arrays)",
           "Set out 3 rows of 4 buttons. Count by rows: 4, 8, 12.")
     skill(skills, "skipCount", ch, "Skip counting by 2, 5 and 10",
           "Count shoes by twos, fingers by fives, and toes by tens.")
     skill(skills, "multiply", ch, "Multiply with numbers",
           "Ask \"3 groups of 4?\" in the car and let her draw dots to check.")
-    chapters.append(dict(id=ch, title="The Royal Ball", place="Royal Ball", scenes=["R1", "R2", "R3", "R4"]))
+    chapters.append(dict(id=ch, title="The Royal Ball", place="Royal Ball", scenes=["R1", "R2", "R3", "R4"], requires=["prologue"]))
     T = 20
     scenes += [
         sc("R1", ch, "Seats at the Tables", 2, [
@@ -208,13 +208,13 @@ def chapter_4(skills, chapters, scenes, l, it, sc, N, S):
             it("r4-2x4", "multiply", "multiply", 2, 4, T), it("r4-3x5", "multiply", "multiply", 3, 5, T),
             it("r4-5x2", "multiply", "multiply", 5, 2, T), it("r4-4x3", "multiply", "multiply", 4, 3, T),
             it("r4-2x10", "multiply", "multiply", 2, 10, T), it("r4-3x6", "multiply", "multiply", 3, 6, T),
-            it("r4-4x4", "multiply", "multiply", 4, 4, T)], ["r4.payoff1", "r4.payoff2"]),
+            it("r4-4x4", "multiply", "multiply", 4, 4, T)], ["r4.payoff1", "r4.payoff2"], needs=["garden"]),
     ]
     l("r1.open1", N, "Grub's invitation was real. The Queen was holding a Royal Ball, and everyone was invited!")
     l("r1.open2", S, "Every table must have the same number of guests. Let's count the seats!")
     l("r1.payoff", S, "Every guest has a seat! Equal groups make counting easy.")
     l("r1.goodbye", S, "Today you counted equal groups. Goodnight!")
-    l("r2.open1", N, "For the music, the chairs stand in neat rows, the same number in every row.")
+    l("r2.open1", N, "The chairs stand in neat rows. Every row has the same number.")
     l("r2.open2", S, "Let's count the chairs row by row!")
     l("r2.payoff", S, "The musicians are ready! Rows of the same make counting fast.")
     l("r2.goodbye", S, "Today you counted rows of chairs. Goodnight!")
@@ -229,7 +229,7 @@ def chapter_4(skills, chapters, scenes, l, it, sc, N, S):
     l("r4.goodbye", S, "Goodnight! Save some energy for the feast.")
     l("prompt.groups.concrete", S, "There are {a} tables, with {b} guests at each. Tap each guest to count them all.")
     l("prompt.groups.pictorial", S, "{a} tables with {b} guests at each. How many guests are there?")
-    l("prompt.groups", S, "{a} groups of {b}. How many altogether?")
+    l("prompt.groups", S, "{a} groups of {b}. How many in all?")
     l("ask.groups", S, "How many guests are at the tables?")
     l("hint.model.groups", S, "Hmm, not quite. Look at one table. It has {b} guests. Every table is the same.")
     l("hint.worked.groups", S, "Let's count on, one table at a time.")
@@ -263,7 +263,7 @@ def chapter_5(skills, chapters, scenes, l, it, sc, N, S):
           "Put 10 socks into pairs. How many pairs?")
     skill(skills, "divide", ch, "Divide with numbers",
           "Ask \"8 cookies shared by 2 people?\" and let her share real cookies to check.")
-    chapters.append(dict(id=ch, title="The Fair Feast", place="Fair Feast", scenes=["F1", "F2", "F3", "F4"]))
+    chapters.append(dict(id=ch, title="The Fair Feast", place="Fair Feast", scenes=["F1", "F2", "F3", "F4"], requires=["prologue"]))
     T = 20
     scenes += [
         sc("F1", ch, "Sharing Cupcakes", 2, [
@@ -282,13 +282,13 @@ def chapter_5(skills, chapters, scenes, l, it, sc, N, S):
             it("f4-8/2", "divide", "divide", 8, 2, T), it("f4-12/3", "divide", "divide", 12, 3, T),
             it("f4-10/5", "divide", "divide", 10, 5, T), it("f4-16/4", "divide", "divide", 16, 4, T),
             it("f4-15/3", "divide", "divide", 15, 3, T), it("f4-18/2", "divide", "divide", 18, 2, T),
-            it("f4-20/5", "divide", "divide", 20, 5, T)], ["f4.payoff1", "f4.payoff2"]),
+            it("f4-20/5", "divide", "divide", 20, 5, T)], ["f4.payoff1", "f4.payoff2"], needs=["ball"]),
     ]
     l("f1.open1", N, "After the dancing, everyone was hungry. The royal cooks had made a feast!")
     l("f1.open2", S, "The Queen says every plate must get the same. Let's share fairly, one at a time!")
     l("f1.payoff", S, "Every plate has the same! That's what fair means.")
     l("f1.goodbye", S, "Today you shared things fairly. Goodnight!")
-    l("f2.open1", N, "The berry pickers came back with heaps of berries, and baskets that hold the same amount.")
+    l("f2.open1", N, "The berry pickers came back with heaps of berries. Each basket holds the same number.")
     l("f2.open2", S, "Let's fill each basket until it's full, then start the next one.")
     l("f2.payoff", S, "All the berries are in baskets! Making equal groups tells us how many groups.")
     l("f2.goodbye", S, "Today you made equal groups. Goodnight!")
@@ -330,7 +330,7 @@ def chapter_6(skills, chapters, scenes, l, it, sc, N, S):
           "Share 8 raisins into 2 equal piles. One pile is half. How many is half?")
     skill(skills, "fractionLine", ch, "Fractions on a line from 0 to 1",
           "Cut a ribbon into 4 equal parts and lay it out. Point to one quarter, two quarters, three quarters.")
-    chapters.append(dict(id=ch, title="The Moon Crystal", place="Moon Crystal", scenes=["M1", "M2", "M3", "M4"]))
+    chapters.append(dict(id=ch, title="The Moon Crystal", place="Moon Crystal", scenes=["M1", "M2", "M3", "M4"], requires=["F1"]))
     scenes += [
         sc("M1", ch, "The Broken Crystal", 2, [
             it("m1-2", "equalParts", "parts", 0, 2), it("m1-4", "equalParts", "parts", 0, 4),
@@ -348,17 +348,17 @@ def chapter_6(skills, chapters, scenes, l, it, sc, N, S):
             it("m4-16/4", "fractionOfSet", "fractionOf", 16, 4, 20), it("m4-1/4", "fractionLine", "fractionLine", 1, 4, 4),
             it("m4-14/2", "fractionOfSet", "fractionOf", 14, 2, 20), it("m4-3", "equalParts", "parts", 0, 3),
             it("m4-3/4", "fractionLine", "fractionLine", 3, 4, 4), it("m4-20/4", "fractionOfSet", "fractionOf", 20, 4, 20)],
-           ["m4.payoff1", "m4.payoff2"]),
+           ["m4.payoff1", "m4.payoff2"], needs=["prologue", "garden", "bridge", "goblin", "ball", "feast"]),
     ]
     l("m1.open1", N, "High above the kingdom, the Moon Crystal had cracked into pieces.")
     l("m1.open2", S, "To mend it, every piece must be the same size. Let's count the equal parts!")
     l("m1.payoff", S, "The pieces fit! Equal parts means every part is the same size.")
     l("m1.goodbye", S, "Today you learned about halves, thirds and quarters. Goodnight!")
-    l("m2.open1", N, "Moonstones lay scattered on the hill. Half must go to the left of the moon, half to the right.")
+    l("m2.open1", N, "Moonstones lay all over the hill. Half go to the left of the moon, half to the right.")
     l("m2.open2", S, "Let's share the moonstones into equal piles. One pile is one part.")
     l("m2.payoff", S, "The moon is glowing on both sides! Half means one of two equal parts.")
     l("m2.goodbye", S, "Today you found half and a quarter of a group. Goodnight!")
-    l("m3.open1", N, "A moonbeam stretches from the ground, at zero, all the way up to the moon, at one.")
+    l("m3.open1", N, "A moonbeam goes from the ground up to the moon. The ground is zero, the moon is one.")
     l("m3.open2", S, "The moonbeam has equal steps. Help me find the right step!")
     l("m3.payoff", S, "We walked the whole moonbeam! Fractions live between zero and one.")
     l("m3.goodbye", S, "Today you found fractions on a line. Goodnight!")
@@ -373,7 +373,7 @@ def chapter_6(skills, chapters, scenes, l, it, sc, N, S):
     l("ask.parts", S, "How many equal parts are there?")
     l("hint.model.parts", S, "Hmm, not quite. Touch each part once, and count.")
     l("hint.worked.parts", S, "Let's count the parts together.")
-    l("praise.parts", S, "Yes! {answer} equal parts make the whole crystal. The bottom number of a fraction tells how many equal parts.")
+    l("praise.parts", S, "Yes! {answer} equal parts make the whole crystal.")
     l("prompt.fractionOf.concrete", S, "We have {a} moonstones. Share them into {b} equal piles. Tap the pile to share.")
     l("prompt.fractionOf.pictorial", S, "{a} moonstones in {b} equal piles. How many are in one pile?")
     l("prompt.fractionOf", S, "One part out of {b} equal parts of {a}. How many is that?")
