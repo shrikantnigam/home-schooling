@@ -84,6 +84,8 @@ public struct LearnerState: Codable, Equatable, Sendable {
     /// Stores a finished item and updates the CPA level and practice list.
     public mutating func apply(_ result: ItemResult, engine: MasteryEngine) {
         var rec = record(for: result.skill)
+        // A skill first met through a numeral-only item starts at that level, so its results count.
+        if rec.history.isEmpty && result.level > rec.level { rec.level = result.level }
         engine.record(result, into: &rec)
         skills[result.skill] = rec
         lastSeen[result.itemID] = result.date

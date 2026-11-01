@@ -132,7 +132,7 @@ final class SceneController: ObservableObject {
 
     private func beginItem() {
         guard let item else { return }
-        let lvl = item.kind == .equation ? CPALevel.abstract : model.state.level(for: item.skill)
+        let lvl = item.isAbstractOnly ? CPALevel.abstract : model.state.level(for: item.skill)
         session = ItemSession(item: item, level: lvl)
         ui = ItemUIState()
         mood = .asking

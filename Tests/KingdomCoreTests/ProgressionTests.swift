@@ -302,3 +302,22 @@ final class ChapterGateTests: XCTestCase {
         XCTAssertEqual(s.chapterGate, .scenesOnly)
     }
 }
+
+final class AbstractOnlySkillTests: XCTestCase {
+    func testNumeralOnlySkillStartsAtAbstractSoItCanBecomeSecure() {
+        var s = LearnerState()
+        for i in 0..<5 {
+            s.apply(T.result("subtract20", level: .abstract, correct: true, date: i < 3 ? T.day1 : T.day2, item: "k5-\(i)"),
+                    engine: T.engine)
+        }
+        XCTAssertEqual(s.level(for: "subtract20"), .abstract)
+        XCTAssertTrue(T.engine.isSecure(s.record(for: "subtract20")))
+    }
+
+    func testExistingSkillLevelIsNotJumped() {
+        var s = LearnerState()
+        s.apply(T.result("add", level: .concrete, correct: true, item: "g1"), engine: T.engine)
+        s.apply(T.result("add", level: .abstract, correct: true, item: "g5"), engine: T.engine)
+        XCTAssertEqual(s.level(for: "add"), .concrete)
+    }
+}
