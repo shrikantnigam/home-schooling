@@ -174,6 +174,16 @@ struct ParentAreaView: View {
                             }
                         }
                     }
+                    card {
+                        Text("Open the next chapter").font(Theme.body(17).bold())
+                        Picker("Open the next chapter", selection: Binding(
+                            get: { model.state.chapterGate },
+                            set: { model.state.chapterGate = $0; model.save() })) {
+                            ForEach(ChapterGate.allCases, id: \.self) { g in Text(g.parentLabel).tag(g) }
+                        }
+                        .pickerStyle(.menu)
+                        .accessibilityIdentifier("parent.gate")
+                    }
                     HStack {
                         Button("Unlock next chapter") { model.unlockNextChapter() }
                             .buttonStyle(.bordered)

@@ -225,3 +225,80 @@ final class SceneRunTests: XCTestCase {
         XCTAssertEqual(a, b)
     }
 }
+
+/// The chapter gate chosen after the Chapter 1 retro.
+final class ChapterGateTests: XCTestCase {
+    let content = T.content()
+    var progression: Progression { Progression(content: content, engine: T.engine) }
+
+    /// Puts every skill of a chapter at Abstract with 5 first-try results over 2 days.
+    func secure(_ chapter: ChapterID, in s: inout LearnerState, correct: Int = 5, days: Int = 2) {
+        for sk in content.skills(in: chapter) {
+            var rec = SkillRecord()
+            rec.level = .abstract
+            for i in 0..<5 {
+                rec.history.append(T.result(sk.id, level: .abstract, correct: i < correct, date: days == 2 && i >= 3 ? T.day2 : T.day1))
+            }
+            s.skills[sk.id] = rec
+        }
+    }
+
+    func testSecureIsTheDefault() {
+        XCTAssertEqual(LearnerState().chapterGate, .secure)
+    }
+
+    func testSecureGateOpensAtFourOfFiveOverTwoDays() {
+        var s = LearnerState()
+        T.completeScenes("prologue", in: &s, content: content)
+        secure("prologue", in: &s)
+        XCTAssertTrue(progression.isChapterUnlocked("garden", state: s))
+        XCTAssertEqual(progression.placeState("prologue", state: s), .done)
+        XCTAssertFalse(progression.chapterMastered("prologue", state: s), "secure is not yet mastered")
+    }
+
+    func testSecureGateNeedsTwoDaysAndFourRight() {
+        var s = LearnerState()
+        secure("prologue", in: &s, days: 1)
+        XCTAssertFalse(progression.isChapterUnlocked("garden", state: s))
+        secure("prologue", in: &s, correct: 3)
+        XCTAssertFalse(progression.isChapterUnlocked("garden", state: s))
+    }
+
+    func testSecureNeedsAbstractLevel() {
+        var rec = SkillRecord()
+        rec.level = .pictorial
+        for i in 0..<5 { rec.history.append(T.result(level: .pictorial, correct: true, date: i < 3 ? T.day1 : T.day2)) }
+        XCTAssertFalse(T.engine.isSecure(rec))
+    }
+
+    func testMasteredGateIsStricter() {
+        var s = LearnerState()
+        s.chapterGate = .mastered
+        secure("prologue", in: &s)
+        XCTAssertFalse(progression.isChapterUnlocked("garden", state: s))
+        T.master("prologue", in: &s, content: content)
+        XCTAssertTrue(progression.isChapterUnlocked("garden", state: s))
+    }
+
+    func testScenesOnlyGate() {
+        var s = LearnerState()
+        s.chapterGate = .scenesOnly
+        XCTAssertFalse(progression.isChapterUnlocked("garden", state: s))
+        T.completeScenes("prologue", in: &s, content: content)
+        XCTAssertTrue(progression.isChapterUnlocked("garden", state: s))
+    }
+
+    func testOldSaveFilesDecodeWithDefaultGate() throws {
+        let json = #"{"version":1,"hasMetSparkle":true}"#
+        let s = try JSONDecoder().decode(LearnerState.self, from: Data(json.utf8))
+        XCTAssertEqual(s.chapterGate, .secure)
+        XCTAssertTrue(s.hasMetSparkle)
+    }
+
+    func testResetKeepsGate() {
+        var s = LearnerState()
+        s.chapterGate = .scenesOnly
+        s.resetAllProgress()
+        XCTAssertEqual(s.chapterGate, .scenesOnly)
+    }
+}

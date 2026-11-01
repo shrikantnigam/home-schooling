@@ -31,12 +31,25 @@ public struct Progression: Sendable {
         return ch.scenes.allSatisfy { state.completedScenes.contains($0) }
     }
 
-    /// First chapter is always open. Later ones need every skill of the chapter before mastered,
+    /// Whether a chapter has done enough to open the next one, under the parent's chosen gate.
+    public func chapterPassesGate(_ chapter: ChapterID, state: LearnerState) -> Bool {
+        switch state.chapterGate {
+        case .mastered:
+            return chapterMastered(chapter, state: state)
+        case .secure:
+            let skills = content.skills(in: chapter)
+            return !skills.isEmpty && skills.allSatisfy { engine.isSecure(state.record(for: $0.id)) }
+        case .scenesOnly:
+            return allScenesDone(chapter, state: state)
+        }
+    }
+
+    /// First chapter is always open. Later ones need the chapter before to pass the gate,
     /// or a parent unlock.
     public func isChapterUnlocked(_ chapter: ChapterID, state: LearnerState) -> Bool {
         if state.unlockedChapters.contains(chapter) { return true }
         guard let prev = content.previousChapter(of: chapter) else { return content.chapter(chapter) != nil }
-        return isChapterUnlocked(prev.id, state: state) && chapterMastered(prev.id, state: state)
+        return isChapterUnlocked(prev.id, state: state) && chapterPassesGate(prev.id, state: state)
     }
 
     /// Scenes are a story path: each opens when the one before it is complete.
@@ -50,7 +63,7 @@ public struct Progression: Sendable {
     public func placeState(_ chapter: ChapterID, state: LearnerState) -> MapPlaceState {
         guard let ch = content.chapter(chapter), isChapterUnlocked(chapter, state: state) else { return .locked }
         if let next = ch.scenes.first(where: { !state.completedScenes.contains($0) }) { return .open(next: next) }
-        return chapterMastered(chapter, state: state) ? .done : .practice
+        return chapterPassesGate(chapter, state: state) ? .done : .practice
     }
 
     /// The scene the castle's glowing button leads to: the first unfinished scene in story order,
