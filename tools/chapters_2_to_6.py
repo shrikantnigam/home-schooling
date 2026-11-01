@@ -4,6 +4,7 @@ following docs/chapter-process.md. Briefs live in docs/chapters/."""
 
 def add(skills, chapters, scenes, l, it, sc, N, S):
     chapter_2(skills, chapters, scenes, l, it, sc, N, S)
+    chapter_3(skills, chapters, scenes, l, it, sc, N, S)
 
 
 def skill(skills, id, chapter, name, tip):
@@ -87,3 +88,88 @@ def chapter_2(skills, chapters, scenes, l, it, sc, N, S):
     l("hint.worked.bridgeAdd", S, "Let's count on from {a}, filling the box to ten first.")
     l("praise.bridgeAdd", S, "Yes! {a} and {b} make {answer}. You filled the ten first!")
     l("praise.findOnLine", S, "Yes! That's where {a} lives.")
+
+
+def chapter_3(skills, chapters, scenes, l, it, sc, N, S):
+    """The Goblin's Gems: subtraction within 20 as taking away, hopping back and comparing."""
+    ch = "goblin"
+    skill(skills, "takeAway", ch, "Take away within 20",
+          "Put 9 grapes on a plate, eat 3, and count what is left.")
+    skill(skills, "hopBack", ch, "Subtract by hopping back",
+          "Stand on a stair, step down 3, and say where you are.")
+    skill(skills, "compare", ch, "How many more",
+          "Line up her socks against yours. How many more does one of you have?")
+    skill(skills, "subtract20", ch, "Subtract within 20 with numbers",
+          "Ask \"13 take away 4\" at dinner and let her use fingers or spoons to check.")
+    chapters.append(dict(id=ch, title="The Goblin's Gems", place="Goblin's Cave",
+                         scenes=["K1", "K2", "K3", "K4", "K5"]))
+    T = 20
+    scenes += [
+        sc("K1", ch, "Gems Go Missing", 2, [
+            it("k1-7-2", "takeAway", "takeAway", 7, 2, T), it("k1-9-4", "takeAway", "takeAway", 9, 4, T),
+            it("k1-6-3", "takeAway", "takeAway", 6, 3, T), it("k1-10-5", "takeAway", "takeAway", 10, 5, T),
+            it("k1-8-1", "takeAway", "takeAway", 8, 1, T), it("k1-10-7", "takeAway", "takeAway", 10, 7, T)], ["k1.payoff"]),
+        sc("K2", ch, "Hopping Home", 2, [
+            it("k2-9-3", "hopBack", "hopBack", 9, 3, T), it("k2-12-4", "hopBack", "hopBack", 12, 4, T),
+            it("k2-15-5", "hopBack", "hopBack", 15, 5, T), it("k2-11-3", "hopBack", "hopBack", 11, 3, T),
+            it("k2-18-6", "hopBack", "hopBack", 18, 6, T), it("k2-14-7", "hopBack", "hopBack", 14, 7, T)], ["k2.payoff"]),
+        sc("K3", ch, "Who Has More?", 2, [
+            it("k3-7-4", "compare", "compare", 7, 4, T), it("k3-9-5", "compare", "compare", 9, 5, T),
+            it("k3-6-2", "compare", "compare", 6, 2, T), it("k3-10-6", "compare", "compare", 10, 6, T),
+            it("k3-8-7", "compare", "compare", 8, 7, T), it("k3-9-3", "compare", "compare", 9, 3, T)], ["k3.payoff"]),
+        sc("K4", ch, "Take From Ten", 2, [
+            it("k4-13-4", "takeAway", "takeAway", 13, 4, T), it("k4-15-6", "takeAway", "takeAway", 15, 6, T),
+            it("k4-12-5", "takeAway", "takeAway", 12, 5, T), it("k4-14-8", "takeAway", "takeAway", 14, 8, T),
+            it("k4-16-7", "takeAway", "takeAway", 16, 7, T), it("k4-11-3", "takeAway", "takeAway", 11, 3, T)], ["k4.payoff"]),
+        sc("K5", ch, "The Gems Come Home", 3, [
+            it("k5-9-4", "subtract20", "subtraction", 9, 4, T), it("k5-13-5", "subtract20", "subtraction", 13, 5, T),
+            it("k5-17-8", "subtract20", "subtraction", 17, 8, T), it("k5-12-6", "subtract20", "subtraction", 12, 6, T),
+            it("k5-15-9", "subtract20", "subtraction", 15, 9, T), it("k5-20-10", "subtract20", "subtraction", 20, 10, T),
+            it("k5-16-8", "subtract20", "subtraction", 16, 8, T)], ["k5.payoff1", "k5.payoff2"]),
+    ]
+    l("k1.open1", N, "Across the bridge was a dark cave. Inside lived a grumpy goblin named Grub, who loved shiny gems.")
+    l("k1.open2", S, "Oh no, Siara! Grub is taking the kingdom's gems. Let's find out how many are left each time.")
+    l("k1.payoff", S, "We counted every gem that was left. Taking away makes the number smaller.")
+    l("k1.goodbye", S, "Today you learned that taking away means some are gone. Goodnight, Siara!")
+    l("k2.open1", N, "Grub's tunnel has stepping stones, and the way home goes backwards.")
+    l("k2.open2", S, "Let's hop back toward the entrance. Count my hops with me!")
+    l("k2.payoff", S, "We hopped all the way back! Hopping back is taking away.")
+    l("k2.goodbye", S, "Today you subtracted by hopping back on the line. Goodnight, Siara!")
+    l("k3.open1", N, "Grub says he has more gems than Siara. Is that true?")
+    l("k3.open2", S, "Let's line up the gems, one next to one, and see who has more.")
+    l("k3.payoff", S, "Lining them up shows who has more, and how many more!")
+    l("k3.goodbye", S, "Today you found how many more by matching. Goodnight, Siara!")
+    l("k4.open1", N, "Grub hid the gems in bags of ten, with a few loose ones beside them.")
+    l("k4.open2", S, "When he takes more than the loose ones, we can take from the ten!")
+    l("k4.payoff", S, "Grub is surprised! You can take away from teen numbers too.")
+    l("k4.goodbye", S, "Today you took away from numbers up to twenty. Goodnight, Siara!")
+    l("k5.open1", N, "Grub sits on his gem pile, looking a little lonely.")
+    l("k5.open2", S, "Let's work out the gems with numbers. Maybe Grub will give them back!")
+    l("k5.payoff1", S, "Grub says sorry and gives the gems back! Today you learned that subtracting finds what is left, or how many more.")
+    l("k5.payoff2", S, "And look, Grub has an invitation... to a Royal Ball! I wonder who will be there.")
+    l("k5.goodbye", S, "Goodnight, Siara! Even grumpy goblins can be friends.")
+    l("prompt.takeAway.concrete", S, "We have {a} gems. Grub wants {b}. Tap {b} gems to give them to Grub.")
+    l("prompt.takeAway.pictorial", S, "There were {a} gems, and Grub took {b}. How many gems are left?")
+    l("prompt.takeAway", S, "{a} take away {b}. How many are left?")
+    l("ask.takeAway", S, "How many gems are left for us?")
+    l("hint.model.takeAway", S, "Hmm, not quite. Look at the gems that are still here. Touch each one.")
+    l("hint.worked.takeAway", S, "Let's count the gems that are left, together.")
+    l("praise.takeAway", S, "Yes! {a} take away {b} leaves {answer}.")
+    l("prompt.hopBack.concrete", S, "I'm on {a}. I'll hop back {b} times. Tap the hop button and count with me!")
+    l("prompt.hopBack.pictorial", S, "I'm on {a} and I hopped back {b} times. Where did I land?")
+    l("prompt.hopBack", S, "{a} take away {b}. Tap the stone where I land.")
+    l("ask.hopBack", S, "Where did I land? Tap the stone.")
+    l("hint.model.hopBack", S, "Hmm, not quite. Count the hops back, one stone each.")
+    l("hint.worked.hopBack", S, "Let's count back together from {a}.")
+    l("praise.hopBack", S, "We landed on {answer}! {a} take away {b} is {answer}.")
+    l("prompt.compare.concrete", S, "You have {a} gems and Grub has {b}. Tap your gems that have no partner.")
+    l("prompt.compare.pictorial", S, "You have {a} gems and Grub has {b}. How many more do you have?")
+    l("prompt.compare", S, "{a} and {b}. How many more is {a}?")
+    l("ask.compare", S, "How many more gems do you have than Grub?")
+    l("hint.model.compare", S, "Hmm, not quite. Look for your gems with no partner. Those are the extra ones.")
+    l("hint.worked.compare", S, "Let's count the gems with no partner, together.")
+    l("praise.compare", S, "Yes! You have {answer} more than Grub.")
+    l("prompt.subtraction", S, "{a} minus {b}. If you want help, tap the gems.")
+    l("hint.model.subtraction", S, "Hmm, not quite. Let's look at the gems and take away {b}.")
+    l("hint.worked.subtraction", S, "Let's take them away one at a time and count what is left.")
+    l("praise.subtraction", S, "Yes! {a} minus {b} is {answer}.")

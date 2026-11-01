@@ -71,6 +71,30 @@
    "chapter": "bridge",
    "name": "Add on the number line to 20",
    "homeTip": "Hop forward on the stairs, counting on from the step where you start."
+  },
+  {
+   "id": "takeAway",
+   "chapter": "goblin",
+   "name": "Take away within 20",
+   "homeTip": "Put 9 grapes on a plate, eat 3, and count what is left."
+  },
+  {
+   "id": "hopBack",
+   "chapter": "goblin",
+   "name": "Subtract by hopping back",
+   "homeTip": "Stand on a stair, step down 3, and say where you are."
+  },
+  {
+   "id": "compare",
+   "chapter": "goblin",
+   "name": "How many more",
+   "homeTip": "Line up her socks against yours. How many more does one of you have?"
+  },
+  {
+   "id": "subtract20",
+   "chapter": "goblin",
+   "name": "Subtract within 20 with numbers",
+   "homeTip": "Ask \"13 take away 4\" at dinner and let her use fingers or spoons to check."
   }
  ],
  "chapters": [
@@ -107,6 +131,18 @@
     "B3",
     "B4",
     "B5"
+   ]
+  },
+  {
+   "id": "goblin",
+   "title": "The Goblin's Gems",
+   "place": "Goblin's Cave",
+   "scenes": [
+    "K1",
+    "K2",
+    "K3",
+    "K4",
+    "K5"
    ]
   }
  ],
@@ -961,6 +997,335 @@
     "b5.payoff2"
    ],
    "goodbye": "b5.goodbye"
+  },
+  {
+   "id": "K1",
+   "chapter": "goblin",
+   "title": "Gems Go Missing",
+   "open": [
+    "k1.open1",
+    "k1.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "k1-7-2",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 7,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "k1-9-4",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 9,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "k1-6-3",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 6,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "k1-10-5",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 10,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "k1-8-1",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 8,
+     "b": 1,
+     "max": 20
+    },
+    {
+     "id": "k1-10-7",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 10,
+     "b": 7,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "k1.payoff"
+   ],
+   "goodbye": "k1.goodbye"
+  },
+  {
+   "id": "K2",
+   "chapter": "goblin",
+   "title": "Hopping Home",
+   "open": [
+    "k2.open1",
+    "k2.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "k2-9-3",
+     "skill": "hopBack",
+     "kind": "hopBack",
+     "a": 9,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "k2-12-4",
+     "skill": "hopBack",
+     "kind": "hopBack",
+     "a": 12,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "k2-15-5",
+     "skill": "hopBack",
+     "kind": "hopBack",
+     "a": 15,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "k2-11-3",
+     "skill": "hopBack",
+     "kind": "hopBack",
+     "a": 11,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "k2-18-6",
+     "skill": "hopBack",
+     "kind": "hopBack",
+     "a": 18,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "k2-14-7",
+     "skill": "hopBack",
+     "kind": "hopBack",
+     "a": 14,
+     "b": 7,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "k2.payoff"
+   ],
+   "goodbye": "k2.goodbye"
+  },
+  {
+   "id": "K3",
+   "chapter": "goblin",
+   "title": "Who Has More?",
+   "open": [
+    "k3.open1",
+    "k3.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "k3-7-4",
+     "skill": "compare",
+     "kind": "compare",
+     "a": 7,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "k3-9-5",
+     "skill": "compare",
+     "kind": "compare",
+     "a": 9,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "k3-6-2",
+     "skill": "compare",
+     "kind": "compare",
+     "a": 6,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "k3-10-6",
+     "skill": "compare",
+     "kind": "compare",
+     "a": 10,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "k3-8-7",
+     "skill": "compare",
+     "kind": "compare",
+     "a": 8,
+     "b": 7,
+     "max": 20
+    },
+    {
+     "id": "k3-9-3",
+     "skill": "compare",
+     "kind": "compare",
+     "a": 9,
+     "b": 3,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "k3.payoff"
+   ],
+   "goodbye": "k3.goodbye"
+  },
+  {
+   "id": "K4",
+   "chapter": "goblin",
+   "title": "Take From Ten",
+   "open": [
+    "k4.open1",
+    "k4.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "k4-13-4",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 13,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "k4-15-6",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 15,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "k4-12-5",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 12,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "k4-14-8",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 14,
+     "b": 8,
+     "max": 20
+    },
+    {
+     "id": "k4-16-7",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 16,
+     "b": 7,
+     "max": 20
+    },
+    {
+     "id": "k4-11-3",
+     "skill": "takeAway",
+     "kind": "takeAway",
+     "a": 11,
+     "b": 3,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "k4.payoff"
+   ],
+   "goodbye": "k4.goodbye"
+  },
+  {
+   "id": "K5",
+   "chapter": "goblin",
+   "title": "The Gems Come Home",
+   "open": [
+    "k5.open1",
+    "k5.open2"
+   ],
+   "warmupCount": 3,
+   "items": [
+    {
+     "id": "k5-9-4",
+     "skill": "subtract20",
+     "kind": "subtraction",
+     "a": 9,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "k5-13-5",
+     "skill": "subtract20",
+     "kind": "subtraction",
+     "a": 13,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "k5-17-8",
+     "skill": "subtract20",
+     "kind": "subtraction",
+     "a": 17,
+     "b": 8,
+     "max": 20
+    },
+    {
+     "id": "k5-12-6",
+     "skill": "subtract20",
+     "kind": "subtraction",
+     "a": 12,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "k5-15-9",
+     "skill": "subtract20",
+     "kind": "subtraction",
+     "a": 15,
+     "b": 9,
+     "max": 20
+    },
+    {
+     "id": "k5-20-10",
+     "skill": "subtract20",
+     "kind": "subtraction",
+     "a": 20,
+     "b": 10,
+     "max": 20
+    },
+    {
+     "id": "k5-16-8",
+     "skill": "subtract20",
+     "kind": "subtraction",
+     "a": 16,
+     "b": 8,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "k5.payoff1",
+    "k5.payoff2"
+   ],
+   "goodbye": "k5.goodbye"
   }
  ],
  "lines": {
@@ -1655,6 +2020,190 @@
   "praise.findOnLine": {
    "speaker": "sparkle",
    "text": "Yes! That's where {a} lives."
+  },
+  "k1.open1": {
+   "speaker": "narrator",
+   "text": "Across the bridge was a dark cave. Inside lived a grumpy goblin named Grub, who loved shiny gems."
+  },
+  "k1.open2": {
+   "speaker": "sparkle",
+   "text": "Oh no, Siara! Grub is taking the kingdom's gems. Let's find out how many are left each time."
+  },
+  "k1.payoff": {
+   "speaker": "sparkle",
+   "text": "We counted every gem that was left. Taking away makes the number smaller."
+  },
+  "k1.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned that taking away means some are gone. Goodnight, Siara!"
+  },
+  "k2.open1": {
+   "speaker": "narrator",
+   "text": "Grub's tunnel has stepping stones, and the way home goes backwards."
+  },
+  "k2.open2": {
+   "speaker": "sparkle",
+   "text": "Let's hop back toward the entrance. Count my hops with me!"
+  },
+  "k2.payoff": {
+   "speaker": "sparkle",
+   "text": "We hopped all the way back! Hopping back is taking away."
+  },
+  "k2.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you subtracted by hopping back on the line. Goodnight, Siara!"
+  },
+  "k3.open1": {
+   "speaker": "narrator",
+   "text": "Grub says he has more gems than Siara. Is that true?"
+  },
+  "k3.open2": {
+   "speaker": "sparkle",
+   "text": "Let's line up the gems, one next to one, and see who has more."
+  },
+  "k3.payoff": {
+   "speaker": "sparkle",
+   "text": "Lining them up shows who has more, and how many more!"
+  },
+  "k3.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you found how many more by matching. Goodnight, Siara!"
+  },
+  "k4.open1": {
+   "speaker": "narrator",
+   "text": "Grub hid the gems in bags of ten, with a few loose ones beside them."
+  },
+  "k4.open2": {
+   "speaker": "sparkle",
+   "text": "When he takes more than the loose ones, we can take from the ten!"
+  },
+  "k4.payoff": {
+   "speaker": "sparkle",
+   "text": "Grub is surprised! You can take away from teen numbers too."
+  },
+  "k4.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you took away from numbers up to twenty. Goodnight, Siara!"
+  },
+  "k5.open1": {
+   "speaker": "narrator",
+   "text": "Grub sits on his gem pile, looking a little lonely."
+  },
+  "k5.open2": {
+   "speaker": "sparkle",
+   "text": "Let's work out the gems with numbers. Maybe Grub will give them back!"
+  },
+  "k5.payoff1": {
+   "speaker": "sparkle",
+   "text": "Grub says sorry and gives the gems back! Today you learned that subtracting finds what is left, or how many more."
+  },
+  "k5.payoff2": {
+   "speaker": "sparkle",
+   "text": "And look, Grub has an invitation... to a Royal Ball! I wonder who will be there."
+  },
+  "k5.goodbye": {
+   "speaker": "sparkle",
+   "text": "Goodnight, Siara! Even grumpy goblins can be friends."
+  },
+  "prompt.takeAway.concrete": {
+   "speaker": "sparkle",
+   "text": "We have {a} gems. Grub wants {b}. Tap {b} gems to give them to Grub."
+  },
+  "prompt.takeAway.pictorial": {
+   "speaker": "sparkle",
+   "text": "There were {a} gems, and Grub took {b}. How many gems are left?"
+  },
+  "prompt.takeAway": {
+   "speaker": "sparkle",
+   "text": "{a} take away {b}. How many are left?"
+  },
+  "ask.takeAway": {
+   "speaker": "sparkle",
+   "text": "How many gems are left for us?"
+  },
+  "hint.model.takeAway": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look at the gems that are still here. Touch each one."
+  },
+  "hint.worked.takeAway": {
+   "speaker": "sparkle",
+   "text": "Let's count the gems that are left, together."
+  },
+  "praise.takeAway": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} take away {b} leaves {answer}."
+  },
+  "prompt.hopBack.concrete": {
+   "speaker": "sparkle",
+   "text": "I'm on {a}. I'll hop back {b} times. Tap the hop button and count with me!"
+  },
+  "prompt.hopBack.pictorial": {
+   "speaker": "sparkle",
+   "text": "I'm on {a} and I hopped back {b} times. Where did I land?"
+  },
+  "prompt.hopBack": {
+   "speaker": "sparkle",
+   "text": "{a} take away {b}. Tap the stone where I land."
+  },
+  "ask.hopBack": {
+   "speaker": "sparkle",
+   "text": "Where did I land? Tap the stone."
+  },
+  "hint.model.hopBack": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Count the hops back, one stone each."
+  },
+  "hint.worked.hopBack": {
+   "speaker": "sparkle",
+   "text": "Let's count back together from {a}."
+  },
+  "praise.hopBack": {
+   "speaker": "sparkle",
+   "text": "We landed on {answer}! {a} take away {b} is {answer}."
+  },
+  "prompt.compare.concrete": {
+   "speaker": "sparkle",
+   "text": "You have {a} gems and Grub has {b}. Tap your gems that have no partner."
+  },
+  "prompt.compare.pictorial": {
+   "speaker": "sparkle",
+   "text": "You have {a} gems and Grub has {b}. How many more do you have?"
+  },
+  "prompt.compare": {
+   "speaker": "sparkle",
+   "text": "{a} and {b}. How many more is {a}?"
+  },
+  "ask.compare": {
+   "speaker": "sparkle",
+   "text": "How many more gems do you have than Grub?"
+  },
+  "hint.model.compare": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look for your gems with no partner. Those are the extra ones."
+  },
+  "hint.worked.compare": {
+   "speaker": "sparkle",
+   "text": "Let's count the gems with no partner, together."
+  },
+  "praise.compare": {
+   "speaker": "sparkle",
+   "text": "Yes! You have {answer} more than Grub."
+  },
+  "prompt.subtraction": {
+   "speaker": "sparkle",
+   "text": "{a} minus {b}. If you want help, tap the gems."
+  },
+  "hint.model.subtraction": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Let's look at the gems and take away {b}."
+  },
+  "hint.worked.subtraction": {
+   "speaker": "sparkle",
+   "text": "Let's take them away one at a time and count what is left."
+  },
+  "praise.subtraction": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} minus {b} is {answer}."
   }
  }
 }

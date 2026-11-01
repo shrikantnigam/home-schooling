@@ -396,7 +396,8 @@ struct HelpButtons: View {
     var body: some View {
         HStack(spacing: 30) {
             Button { controller.openHelp(.flowerBox) } label: {
-                FlowerBox(first: 2, second: 1, cellSize: 22).frame(width: 160, height: 80)
+                FlowerBox(first: 2, second: 1, cellSize: 22, style: controller.item?.counterStyle ?? .flower)
+                    .frame(width: 160, height: 80)
             }
             .accessibilityIdentifier("help.flowerBox")
             .accessibilityLabel("Show the flower box")
