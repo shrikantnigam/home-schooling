@@ -98,8 +98,8 @@ final class QAPlayer {
                 // Stars and gems are tapped by index; flowers waiting for a bed are always the first one.
                 if i.kind == "parts" {
                     // Crystal parts are pie wedges that share one square frame: touch the middle of wedge k.
-                    let mid = (-90 + 360 * (Double(k) + 0.5) / Double(n)) * .pi / 180
-                    wait("obj.\(k)").coordinate(withNormalizedOffset: CGVector(dx: 0.5 + 0.3 * cos(mid), dy: 0.5 + 0.3 * sin(mid))).tap()
+                    let mid: Double = (-90 + 360 * (Double(k) + 0.5) / Double(n)) * Double.pi / 180
+                    wait("obj.\(k)").coordinate(withNormalizedOffset: CGVector(dx: CGFloat(0.5 + 0.3 * cos(mid)), dy: CGFloat(0.5 + 0.3 * sin(mid)))).tap()
                 }
                 else if el("star.\(k)").exists { tap("star.\(k)") }
                 else if el("obj.\(k)").exists { tap("obj.\(k)") }

@@ -914,8 +914,10 @@ struct Wedge: Shape {
 
     /// Where to put a number on the wedge, from the circle's centre.
     func labelOffset(radius: CGFloat) -> CGSize {
-        let mid = (start.radians + end.radians) / 2
-        return CGSize(width: cos(mid) * radius * 0.55, height: sin(mid) * radius * 0.55)
+        let mid: Double = (start.radians + end.radians) / 2
+        let x = CGFloat(cos(mid)) * 0.55
+        let y = CGFloat(sin(mid)) * 0.55
+        return CGSize(width: radius * x, height: radius * y)
     }
 }
 
