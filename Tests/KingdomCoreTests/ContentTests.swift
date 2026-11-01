@@ -207,3 +207,17 @@ final class ActivityKindTests: XCTestCase {
         XCTAssertEqual(p.next(state: s), .scene("B1"))
     }
 }
+
+final class TeachingPraiseTests: XCTestCase {
+    func testTeachingPraiseOnlyWhenAsked() throws {
+        let content = try Content.bundled()
+        let catalog = LineCatalog(lines: content.lines)
+        let item = try XCTUnwrap(content.scenes.flatMap(\.items).first { $0.kind == .countTap })
+        let taught = try XCTUnwrap(catalog.praise(for: item, level: .concrete, variant: 0, teach: true))
+        XCTAssertTrue(taught.text.contains("last number"))
+        for v in 0..<6 {
+            let plain = try XCTUnwrap(catalog.praise(for: item, level: .concrete, variant: v, teach: false))
+            XCTAssertFalse(plain.text.contains("last number"))
+        }
+    }
+}

@@ -53,6 +53,8 @@ final class SceneController: ObservableObject {
 
     unowned let model: AppModel
     private var praiseVariant = 0
+    /// Kinds whose teaching praise was already said in this scene (Shrikant: once per scene is enough).
+    private var taughtKinds: Set<ActivityKind> = []
     private var lastInstruction: [SpokenLine?] = []
 
     init(scene: StoryScene, warmups: [Item], resumeAt: Int?, model: AppModel) {
@@ -264,7 +266,8 @@ final class SceneController: ObservableObject {
             mood = .correct
             if item.kind == .numberBond { foundBonds.append([item.b, item.answer]) }
             praiseVariant += 1
-            finishItem(s, lines: [catalog.praise(for: item, level: s.level, variant: praiseVariant)])
+            let teach = taughtKinds.insert(item.kind).inserted
+            finishItem(s, lines: [catalog.praise(for: item, level: s.level, variant: praiseVariant, teach: teach)])
         case .hint(let stage):
             mood = .hint(stage)
             ui.wobbleTile = answer

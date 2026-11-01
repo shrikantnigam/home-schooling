@@ -64,6 +64,17 @@ public struct LineCatalog: Sendable {
     }
 
     /// Praise names what she did when a kind-specific line exists; otherwise rotates general praise.
+    /// Praise for a right answer. The kind's teaching praise (for example "The last number tells how many")
+    /// is used when `teach` is true; otherwise a general praise line. Callers teach once per scene per kind.
+    public func praise(for item: Item, level: CPALevel, variant: Int, teach: Bool) -> SpokenLine? {
+        if teach, let id = LineCatalog.mostSpecific("praise", kind: item.kind, level: level, lines: lines), id != "praise" {
+            return spoken(id, item: item)
+        }
+        let general = lines.keys.filter { $0.hasPrefix("praise.") && Int($0.dropFirst("praise.".count)) != nil }.sorted()
+        guard !general.isEmpty else { return nil }
+        return spoken(general[abs(variant) % general.count], item: item)
+    }
+
     public func praise(for item: Item, level: CPALevel, variant: Int) -> SpokenLine? {
         if let id = LineCatalog.mostSpecific("praise", kind: item.kind, level: level, lines: lines), id != "praise",
            variant % 2 == 0 {
