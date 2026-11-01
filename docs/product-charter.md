@@ -92,8 +92,18 @@ go in the chapter file. The first time, "Show me": each reviewer quotes the line
 | Escaped problems (found by Shrikant, catchable by a check) | 0 per release | PM digest |
 | "Too easy" or "too long" (four first-try rights in a row, or a scene she leaves early) | Under 10% of scenes | App's parent area |
 
+## Visual direction (Shrikant, 2026-11-01)
+
+**Paper theatre.** The kingdom is a toy theatre of layered cut paper: soft shadows between layers, a paper grain,
+and warm, muted colours (cream, terracotta, sage, ochre), not bright app colours. Every place is its own stage set.
+From the stage direction, three ideas come too: the curtain rises at a scene's start and falls at its end; counts
+land on a soft beat, so each tap matches one number and skip counting becomes dance steps; and dancing appears in
+the story (equal rows of dancers at the Royal Ball). Her right answers build the set piece by piece (S5). Sounds
+are paper, wood and music, not chimes. Reference board: https://claude.ai/artifact/LS4xENNvUjJpmw8KYWgDoa (board 1).
+
 ## Changelog
 
+- v1.2 (2026-11-01): visual direction set to paper theatre, with the curtain, beat and dance ideas.
 - v1.1 (2026-11-01): Shrikant watched her play. The Prologue was too long and too easy (counting 1 to 6 again and
   again), and she already knows counting and subitizing. Added L12 (start where she is, test-out), L13 (never
   mundane), S11 (an open kingdom after the Prologue), and the "too easy" measure. The persona now says she is ahead.
