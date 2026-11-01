@@ -1,7 +1,7 @@
 # Kingdom of Numbers: Product Spec (v0.1, draft)
 
 Owner: Product manager role · Reviewed with: Child learning expert role
-Status: Draft for Shrikant's review · Date: 2026-11-01
+Status: v0.2, Shrikant's answers applied · Date: 2026-11-01
 
 ## 1. Why we are building this
 
@@ -16,7 +16,7 @@ One learner: a 6-year-old in kindergarten who likes math and reading but cannot 
 3. **No reading required.** Every instruction, choice and piece of feedback is spoken. Text on screen is optional and always paired with audio.
 4. **Mastery, not speed.** No timers, no streak pressure, no lives. Progress unlocks when she shows understanding.
 5. **Explain mistakes kindly.** A wrong answer triggers a model-based hint, never a buzzer.
-6. **Finite sessions.** 10 to 15 minutes, ending at a natural story stopping point.
+6. **Finite sessions.** A scene is 10 to 15 minutes and ends at a natural story stopping point; the daily cap is 20 minutes.
 7. **No ads, no purchases, no accounts, no network needed.** Nothing leaves the iPad.
 
 ## 2. Users
@@ -108,10 +108,10 @@ An item counts as "correct" for mastery only if right on the first try without a
 
 ## 6. Parent controls and time limits
 
-**Parent gate:** entering the parent area needs a task a pre-reader cannot do (hold two fingers for 3 seconds, then answer a written question like "type the year"), or the iPad's own passcode via Face ID/Touch ID where available. Pick one at build time; default to the written question.
+**Parent gate:** entering the parent area needs a task a pre-reader cannot do: hold two fingers for 3 seconds, then answer a written question such as "type the year".
 
 **Time limits:**
-- Daily limit, default **15 minutes**, adjustable from 5 to 30 in 5-minute steps.
+- Daily limit, default **20 minutes**, adjustable from 5 to 30 in 5-minute steps.
 - Optional session limit, default off. Sessions already end naturally after one scene.
 - When the limit is reached, she **finishes the current item and the payoff**, then Sparkle says goodnight and the castle shows a "Sparkle is sleeping" screen until the next day. No mid-problem cutoff.
 - Quiet hours (optional): no play between set times, for example after 7:30 pm.
@@ -123,16 +123,17 @@ An item counts as "correct" for mastery only if right on the first try without a
 - "Stuck on" list: items marked needs practice, each with a one-line suggestion for an off-screen activity (for example, "Make 7 with spoons, then add 2 more").
 - No raw scores shown to the child.
 
-**Other settings:** narration volume, music on/off, child's name for Sparkle to say (recorded or text-to-speech), reset all progress (with confirmation).
+**Other settings:** narration volume, music on/off, speech rate, reset all progress (with confirmation).
 
 **Privacy:** all data stays on the device. No analytics SDKs, no network calls. App must fit Apple's Kids Category rules.
 
 ## 7. Audio and voiceover
 
-- One narrator voice for the story and one character voice for Sparkle.
+- MVP uses Apple's on-device text-to-speech (AVSpeechSynthesizer) with two distinct enhanced English voices: one narrator and one for Sparkle. Lines name the heroine Siara.
 - MVP line count estimate: about 250 to 350 recorded lines (instructions, number names 0 to 20, praise variants, hint scripts, story panels).
-- Options: (a) record a parent or friend, (b) hire a voice actor, (c) high-quality on-device text-to-speech as a placeholder. Recommendation: build with TTS placeholders, record final voices once scripts are locked.
-- All audio is pre-recorded files bundled in the app (no streaming). Each line has an ID referenced by scripts, so voices can be swapped.
+- The app checks that the enhanced voices are downloaded and, if not, shows the parent how to download them in Settings. It falls back to the default voice so play is never blocked.
+- Recorded voices can replace TTS later without code changes, because every line has an ID.
+- Music and sound effects are bundled files. Speech is generated on the device, so nothing streams.
 - Subtitles off by default; available as a parent setting for later reading practice.
 
 ## 8. Art list (MVP)
@@ -141,7 +142,7 @@ Style direction: soft, warm, storybook watercolor or flat-pastel vector, high co
 
 **Characters**
 - Sparkle the unicorn: idle, talking, happy, thinking, encouraging, sleeping, hopping (number line), flying (payoff). About 8 poses, plus mouth flaps for talking.
-- The princess (the child's character): idle, waving, celebrating, pointing, thinking. Plus a simple customization (hair color, dress color) if we use an avatar (open question).
+- Princess Siara (the child's character): idle, waving, celebrating, pointing, thinking.
 - Star sprites (Prologue): small character stars that blink when counted.
 - Garden helpers (Chapter 1): a bee or butterfly guide, optional.
 
@@ -185,9 +186,8 @@ iPad only for now, offline, drag-and-drop and animation heavy, lots of bundled a
 ### Recommendation
 **SwiftUI for app structure and parent area, with SpriteKit (or SwiftUI Canvas/animation) for the story and manipulative scenes. Local data with SwiftData. Bundled audio with AVFoundation.** Distribute to the family iPad via TestFlight or direct install from Xcode; no App Store release needed at first.
 
-**What this requires:** a Mac that can run the current Xcode (Apple Silicon recommended), a free Apple ID for direct installs to one device (apps expire after 7 days), or the Apple Developer Program ($99/year) for TestFlight and no expiry. An iPad running iPadOS 17 or newer.
+**What this requires (confirmed):** Shrikant's Mac with the current Xcode, the Apple Developer Program ($99/year) for TestFlight installs, and an iPad running iPadOS 17 or newer.
 
-**If no Mac is available:** build an early clickable prototype as a web app to test the story and mastery loop with her, then move to SwiftUI.
 
 ### Architecture outline (for the developers)
 - Content is **data, not code**: chapters, scenes, items, skills, hints and audio IDs live in JSON files, so new chapters need no engine changes.
@@ -198,7 +198,7 @@ iPad only for now, offline, drag-and-drop and animation heavy, lots of bundled a
 
 | Question | Decision | Reason |
 |---|---|---|
-| Is 15 min/day right for a 6-year-old? | Default 15, scenes about 10 | Short distributed sessions beat long ones at this age; leaves room for off-screen play |
+| What daily limit for a 6-year-old? | Default 20 (Shrikant's choice), scenes 10 to 15 | Short distributed sessions beat long ones at this age; one scene at a time leaves room for off-screen play |
 | Should she ever see a wrong answer marked red? | No; gentle wobble plus hint | Error-related anxiety in early math hurts persistence |
 | Speed or timed drills? | None in MVP | Fluency comes later; timing at 6 adds anxiety without benefit |
 | Move straight to numerals once she gets it right? | Only via the CPA rule (4 of 5) | Children often succeed with objects before the abstract idea is secure |
@@ -218,6 +218,8 @@ Each criterion is testable. IDs are referenced in test cases.
 - **AC-A4** No activity requires reading text to complete. Verify by completing the Prologue with text hidden.
 - **AC-A5** All touch targets in child screens are at least 60 x 60 pt.
 - **AC-A6** No child screen has a countdown or time-limited input.
+- **AC-A7** Narration and Sparkle use two audibly different voices, and every line that names the heroine says "Siara".
+- **AC-A8** With enhanced voices not downloaded, all audio still plays using the default voice, and the parent area shows how to download the better voices.
 
 ### Story and flow
 - **AC-S1** A new install starts at Prologue scene P1 after a short intro, with no setup required from the child.
@@ -239,7 +241,7 @@ Each criterion is testable. IDs are referenced in test cases.
 
 ### Parent controls
 - **AC-P1** The parent area cannot be opened without passing the parent gate.
-- **AC-P2** Daily limit defaults to 15 minutes and can be set from 5 to 30 in 5-minute steps.
+- **AC-P2** Daily limit defaults to 20 minutes and can be set from 5 to 30 in 5-minute steps.
 - **AC-P3** When the daily limit is reached mid-item, the child can finish that item and see the payoff; then the sleeping screen appears and blocks play until local midnight.
 - **AC-P4** Quiet hours, when set, block starting a scene in that window.
 - **AC-P5** The progress view shows each skill's status and CPA level, minutes per day for the last 7 days, and the stuck-on list with an off-screen tip per item.
@@ -258,20 +260,22 @@ Each criterion is testable. IDs are referenced in test cases.
 - **AC-L1** After finishing Chapter 1 she can solve 4 of 5 spoken addition problems within 10 using real objects, off-screen.
 - **AC-L2** She can show at least one strategy (count on, make ten, or hops on a line) when asked "how did you know?"
 
-## 12. Open questions for Shrikant
+## 12. Decisions from Shrikant (2026-11-01)
 
-1. **Mac:** Do you have a Mac that can run Xcode? This decides SwiftUI now vs a web prototype first.
-2. **Heroine:** Should the princess be your daughter by name (personalized narration), or a customizable avatar she names herself?
-3. **Voice:** Would you or a family member record the voices, or should we use text-to-speech for now and decide later?
-4. **Time limit:** Is 15 minutes a day the right default, and should play be blocked after a certain hour?
-5. **Target iPad:** Which iPad model and iPadOS version will she use? (Needed for performance criteria and art sizes.)
-6. **Apple Developer Program:** Is $99/year acceptable for TestFlight installs, or should we use free 7-day installs to start?
+1. **Mac:** Available. Build natively with SwiftUI; the web-prototype fallback is not needed.
+2. **Heroine:** The princess is named **Siara**. Sparkle and the narrator call her Siara. No avatar builder in MVP.
+3. **Voice:** On-device computer voice (Apple text-to-speech, using an enhanced/premium English voice) for MVP. Recording real voices can come later.
+4. **Time limit:** Default **20 minutes a day**, adjustable later in the parent area.
+5. **Target iPad:** Not bought yet. Target any iPad that runs iPadOS 17 or newer; test on the iPad the family gets (the base 10th or 11th generation iPad is enough).
+6. **Apple Developer Program:** Approved ($99/year). Install builds through TestFlight.
+
+Still open: whether to block play after a certain hour (quiet hours ship off by default).
 
 ## 13. Team roles and hand-offs
 
 | Role | Owns | First deliverable from this spec |
 |---|---|---|
-| Product manager | This spec, priorities, scope calls | Answers to open questions, v1.0 of spec |
+| Product manager | This spec, priorities, scope calls | Keep this spec current as decisions land |
 | Child learning expert | Pedagogy, mastery rules, hint scripts | Hint and praise scripts for Prologue and Chapter 1 |
 | UX designer | Flows, screen layouts, interaction details | Wireframes for castle, map, each activity type, parent area |
 | Graphic designer | Characters, backgrounds, manipulatives | Sparkle model sheet and style frames from section 8 |
