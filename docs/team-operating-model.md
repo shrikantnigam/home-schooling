@@ -1,4 +1,4 @@
-# Kingdom of Numbers: team operating model (v1.1)
+# Kingdom of Numbers: team operating model (v2)
 
 Date: 2026-11-01 · Owner: Product manager · Approved by: Shrikant (pending)
 
@@ -26,100 +26,26 @@ Every one of these was checkable without Shrikant. The rule from now on: **a pro
 checklist could have caught is a process failure.** It gets a new checklist item and an automated check where
 possible, in the same batch as the fix.
 
-## 2. The goal every role serves
+## 2. What every role serves: the product charter
 
-> She learns real math through a story she cares about, in short sessions, and asks to come back because the
-> story and the success feel good, not because the app pulls at her.
+The goal is the [product charter](product-charter.md): through a story she finds relatable and wants to
+continue, she learns math she can explain and use away from the screen. The charter's learning rules (L1 to
+L11), story rules (S1 to S10) and scene rubric outrank every checklist below. The checklists in section 5 catch
+craft problems (narration, screens, code). The charter decides whether a scene is any good.
 
-Every role's objective below is a piece of that sentence. When two roles disagree, the child learning expert
-decides on learning, the PM decides on scope and order, and anything that changes the goal goes to Shrikant.
+## 3. Roles, workflows and the ledger: the Kingdom Studio pack
 
-## 3. Roles
+Roles, workflows and timing are set up as a Gas City-style pack in [`studio/`](../studio/README.md):
 
-### Product manager (PM): Shrikant's single point of contact
+- **Agents (who):** each role's objective, owned decisions, success measures and quality bar are in
+  [`studio/agents/`](../studio/agents/): PM (the mayor, Shrikant's only contact), child learning expert,
+  story director (story and voice), child's-eye reviewer (new), UX and art, developer, and QA.
+- **Formulas (how):** [`studio/formulas/`](../studio/formulas/) has chapter, feature, fix batch and release.
+- **Orders (when):** [`studio/orders.md`](../studio/orders.md), including the patrol and the digest.
+- **Ledger (beads):** [`studio/ledger.md`](../studio/ledger.md), with GitHub Issues as the work ledger.
 
-- **Objective:** ship the smallest set of changes that moves the goal forward, with no surprises for Shrikant.
-- **Owns:** the backlog and its order, chapter and feature briefs with acceptance criteria (ACs), the whole-app
-  journey ACs (section 6), batching, the decision log, the digest, and every message to Shrikant.
-- **Decides alone:** priority, order, batching, wording of ACs, and whether a finding blocks release.
-- **Escalates to Shrikant only for:** (1) confirming the objective of a new ask before building it, (2) approving
-  scope (a new chapter, a new feature, or dropping something he asked for), (3) spend, accounts and anything
-  outside the project (Apple developer account, TestFlight, App Store, paid tools), (4) anything about his
-  daughter's personal data or safety, and (5) the release-candidate feel check on a real iPad (section 7).
-- **Success measures:** zero escaped problems per release (section 1 rule); every ask from Shrikant has a
-  confirmed objective within one reply and a delivered result or a dated plan; no more than one decision ask
-  per day unless he asks for more.
-- **Quality bar:** a brief states the story problem, the math goal, the player-visible outcome, and ACs a tester
-  can check from a screenshot or a transcript. "Looks good" is not an AC.
-
-### Child learning expert (LE)
-
-- **Objective:** every minute of play teaches something, at the right level, in a way a 6-year-old pre-reader can follow.
-- **Owns:** skills and their CPA ladder, the dose check, hint and praise scripts, the teaching content of every
-  spoken line, the home tips, and the session-length check.
-- **Decides alone:** what is taught, in what order, how hints and praise work, and vetoes anything that holds
-  attention without teaching (rewards for their own sake, streaks, timers, fake urgency).
-- **Success measures:** every skill reachable to the chapter gate within the dose; every item's story problem
-  is the math problem; no teaching phrase spoken more than once per scene (section 5B); each scene fits in
-  10 to 15 minutes at a 6-year-old's pace.
-- **Quality bar:** praise names what she did ("You counted on from 5!"), never generic, and doesn't repeat the
-  same teaching rule more than once per scene. Hints model the method; they never just give the answer.
-
-### UX designer
-
-- **Objective:** she always knows what to do, where she is, and how far she has come, without reading.
-- **Owns:** screen flows, layout notes, the component library, navigation (castle, map, scenes), overall
-  progress display, touch targets, and the mock boards in `mocks/`.
-- **Decides alone:** layout, flow, and component choices within the style frame.
-- **Success measures:** every screen reachable from the castle in two taps or fewer; overall progress visible
-  on the castle and the map; no dead ends; every tappable element at least 64 pt with an accessibility identifier.
-- **Quality bar:** every screen has a mock or layout note before it is built, and QA screenshots match it.
-
-### Graphic designer
-
-- **Objective:** a kingdom that feels warm and consistent, where the art helps the math (equal parts look
-  equal, groups look like groups).
-- **Owns:** the style frame, characters, art list per chapter, colour and contrast.
-- **Decides alone:** visual style within the spec.
-- **Success measures:** math visuals are accurate (equal parts equal, counts exact) in every screenshot;
-  contrast meets WCAG AA for any text; Siara and Sparkle look the same on every screen.
-- **Quality bar:** no art that misleads the math, and nothing faded that should look tappable.
-
-### Story and voice director (new role)
-
-- **Objective:** the app sounds like a kind storyteller and a playful friend, not a machine reading a script.
-- **Owns:** every spoken line's wording, the narration rules (section 5A), pacing and pauses, voice selection
-  and fallback, and the per-screen narration transcript review.
-- **Decides alone:** wording and pacing of lines, voice settings, which lines are intros versus feedback.
-- **Success measures:** the narration audit (section 5A) passes with zero failures; no line over 14 words;
-  every multi-sentence line has a pause between sentences; every character voice is audible on a device
-  without extra voices installed.
-- **Quality bar:** read every screen's transcript aloud in order, as she would hear it. If it sounds repetitive,
-  nagging or robotic, it fails, even if each line is fine alone.
-
-### Developers
-
-- **Objective:** working, tested code that makes the brief true, with no regressions.
-- **Owns:** content data, KingdomCore, the SwiftUI app, unit tests, QA hooks (accessibility identifiers,
-  `QAPlayer` support, the speech log in section 5A), and CI.
-- **Decides alone:** architecture and implementation.
-- **Success measures:** `swift test` green; content validation green; the narration audit and launch smoke test
-  green; no fix ships without a test that would have caught it.
-- **Quality bar:** the definition of done in [chapter-process.md](chapter-process.md), plus: every bug fix adds a
-  unit test, a UI test or a checker rule.
-
-### QA
-
-- **Objective:** nothing reaches Shrikant that a careful tester playing every screen would notice.
-- **Owns:** play-through UI tests, screenshot review against mocks, the launch smoke test, the narration
-  transcript audit, the whole-app journey test, and the QA report.
-- **Decides alone:** whether a build passes. A blocker stops the release; the PM can only downgrade a finding
-  to "ticketed" with the LE's agreement if it affects learning.
-- **Success measures:** every screen and every activity kind played, including one wrong path each and the full
-  hint ladder for at least one; every AC checked against a named screenshot or transcript line; zero escaped
-  problems.
-- **Quality bar:** play like the child, not like a script. Cold launch first, then the real path through the
-  castle and map, not only presets.
+When two roles disagree, the learning expert decides on learning, the story director on story, and the PM on
+scope and order. Anything that changes the charter goes to Shrikant.
 
 ## 4. The pipeline: gates before anything reaches Shrikant
 
@@ -132,10 +58,12 @@ in the repo, and a pass rule. A stage starts only when the gate before it has pa
 | 1 | Spec | PM | Brief with ACs in `docs/chapters/` or `docs/features/` | ACs cover the story, the math, the journey (section 6) and narration (section 5A) |
 | 2 | Learning review | LE | Pedagogy section, dose check | Every item's story problem is its math problem; dose reaches the gate; praise and hints scripted |
 | 3 | UX and art | UX, graphic | Layout notes, mock boards, art list | Every new screen has a mock; navigation and progress covered |
+| 3b | Story and charter review | Story director, learning expert, child's-eye reviewer | Rubric scores from scripts and mocks | Every charter rubric row averages 3 or more on paper |
 | 4 | Script | Story and voice | Line list per screen, marked intro or feedback | `tools/narration_audit.py` has no FAIL; the rest of 5A holds on paper |
 | 5 | Build and unit tests | Developers | Code, content, tests | Definition of done met; CI unit tests green |
 | 6 | QA play-through | QA | UI tests, screenshots, QA report | Launch smoke test, every screen, wrong paths, screenshots match mocks, no blocker |
 | 7 | Narration and voice review | Story and voice, with QA | Transcript per screen from the play-through | Narration audit passes; transcript read in order sounds natural |
+| 7b | Scene rubric | Story director, learning expert, child's-eye reviewer | Rubric scores with quoted evidence | Every row averages 4 or more; no score of 2 or less |
 | 8 | Sign-off retro | PM, LE, QA | `docs/retros/` | All three sign off; learnings applied to the process docs |
 | 9 | Release candidate | PM | Digest entry, build instructions | Only now does Shrikant hear about it |
 
@@ -265,6 +193,11 @@ Shrikant talks to the PM. Nobody else asks him things.
 - Don't merge to `main` without Shrikant's approval of the release candidate.
 
 ## 9. Changelog
+
+- v2 (2026-11-01, after Shrikant pointed out that v1 covered narration but not the app's purpose): adds the
+  [product charter](product-charter.md) (learning and story rules, a scene rubric, product measures) as the top
+  gate. Roles, workflows, orders and the ledger move into the Gas City-style `studio/` pack, and there's a new
+  child's-eye reviewer. The charter check on the current app is in [audits/2026-11-01-charter-check.md](audits/2026-11-01-charter-check.md).
 
 - v1.1 (2026-11-01, after the dry run on the current app, see [audits/2026-11-01-dry-run.md](audits/2026-11-01-dry-run.md)):
   the repeated-instruction rule and the per-sentence and per-turn word caps replace the per-line cap; shared lines
