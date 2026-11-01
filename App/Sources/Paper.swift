@@ -82,20 +82,22 @@ struct StageLook {
 struct PaperStage: View {
     var chapter: ChapterID?
     var lit: Double = 1
+    /// Busy screens with cards (setup) hide the sun or moon so it never sits behind a card.
+    var showSky: Bool = true
 
     var body: some View {
         let look = StageLook.of(chapter)
         GeometryReader { geo in
             ZStack {
                 look.sky
-                if look.night {
+                if look.night && showSky {
                     PaperStars(lit: lit).frame(width: geo.size.width, height: geo.size.height * 0.6)
                         .position(x: geo.size.width / 2, y: geo.size.height * 0.3)
                     Circle().fill(Theme.card).frame(width: 110, height: 110)
                         .overlay(Circle().fill(look.sky).frame(width: 90, height: 90).offset(x: 28, y: -14))
                         .paperCut()
                         .position(x: geo.size.width * 0.82, y: geo.size.height * 0.16)
-                } else {
+                } else if showSky {
                     Circle().fill(Theme.sun).frame(width: 140, height: 140).paperCut()
                         .position(x: geo.size.width * 0.8, y: geo.size.height * 0.17)
                 }

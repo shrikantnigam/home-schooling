@@ -12,7 +12,7 @@ struct SetupView: View {
 
     var body: some View {
         ZStack {
-            PaperStage(chapter: nil)
+            PaperStage(chapter: nil, showSky: false)
             ScrollView {
                 VStack(spacing: 22) {
                     Text("Welcome to the Kingdom of Numbers").font(Theme.title(40)).foregroundStyle(Theme.ink)

@@ -160,7 +160,8 @@ struct MapView: View {
                 Text("The Kingdom").font(Theme.title(38)).foregroundStyle(Theme.ink)
                     .padding(.horizontal, 26).padding(.vertical, 6)
                     .background(Banner().fill(Theme.card)).paperCut(0.5)
-                    .position(x: size.width / 2, y: 70)
+                    // Below the subtitle strip so the spoken line never covers the title.
+                    .position(x: size.width / 2, y: 118)
                 PaperGrain()
                 ChildCorners(onCastle: { model.goCastle() }, onEar: { model.speech.say(mapIntro) },
                              onLock: { model.openParentGate() })
