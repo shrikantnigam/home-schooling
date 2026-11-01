@@ -1,4 +1,4 @@
-# Kingdom of Numbers: product charter (v1)
+# Kingdom of Numbers: product charter (v1.1)
 
 Date: 2026-11-01 · Owners: PM (keeper), child learning expert (learning rules), story director (story rules)
 Status: proposed, waiting for Shrikant's approval
@@ -18,7 +18,9 @@ want.
 
 ## Who she is (the persona every agent writes for)
 
-- 6 years old (as of Nov 2026), in kindergarten. She can't read yet, likes math and stories, and can't add yet.
+- 6 years old (as of Nov 2026), in kindergarten. She can't read yet and loves math and stories. **She is ahead
+  for her age** (Shrikant, 2026-11-01): she already counts well, and she told him about subitizing herself.
+  Plain counting from 1 to 6 bored and irritated her. Never assume she starts from zero: find out (L12).
 - She loves princesses and unicorns. She dances and wants to go back to martial arts. She's an older sister.
 - What feels real at her age: being fair and sharing, helping a friend who is sad, practising until you get it
   (a dance step, a kick), getting ready for a show or a party, lost things, bedtime, being brave in the dark,
@@ -41,6 +43,8 @@ Owner: child learning expert. Each rule has a check.
 | L8 | **Away from the screen.** Every chapter has a home activity with real objects she has (toys, snacks, dance counts, kicks), and the payoff points to it. | Brief has a home activity; parent area shows it |
 | L9 | **Teaching density.** At least 80% of her taps in a scene are math actions or math choices. No decoration, collection or reward taps. A reward is the world changing, never points, stickers or streaks. | QA counts taps by kind in the play-through |
 | L10 | **Order of ideas.** No word, symbol or method is used before the scene that teaches it. Every chapter has a vocabulary list, and new words are shown before they are named. | Narration audit vocabulary list; LE review |
+| L12 | **Start where she is.** Every chapter opens with a short, story-framed challenge (3 to 5 items across the chapter's skills, harder ones included). If she gets them right first try, she skips ahead: the skill starts at the numbers level, and scenes she has shown she knows are marked done. No skill makes a quick learner wait days for a spacing rule. Spacing is for review, not for gating. | Unit tests for test-out; QA runs a "fast learner" persona who answers everything right first time and must reach the next chapter in one session |
+| L13 | **Never mundane.** No more than 3 items in a row of the same kind or size. Numbers spread across the skill's range, and each item is a little harder or different. If she gets 4 right in a row first try, the scene steps up a level or ends early with the payoff. A scene has 8 items at most. | Content audit (kinds and ranges per scene); unit test for the step-up |
 | L11 | **Show, then name.** The world shows the idea first and Sparkle names it after she has done it. "Today you learned that..." lectures are kept to one short line per chapter. | Story and LE review of payoffs |
 
 ## Story rules (S)
@@ -58,6 +62,7 @@ Owner: story director. Each rule has a check.
 | S7 | **The world remembers.** Places she fixed stay fixed, and friends come back (the beaver at the feast, Grub at the ball). Callbacks to what she did earlier. | Brief has callbacks |
 | S8 | **Her interests are in the story.** Princesses and unicorns are the frame. Dancing (counting steps, rows of dancers, rhythm for skip counting) and martial arts (practice, belts, counting kicks) appear across the book, at least once every two chapters. | PM backlog review |
 | S9 | **Values she can carry.** Fairness, kindness, being brave, and the idea that mistakes help brains grow. Every chapter ends with a kind act as well as a solved problem. | Rubric, row 3 |
+| S11 | **An open kingdom she explores.** After the Prologue (or after testing out of it), several places open at once and she chooses where to go. Each place is a complete story with its own small arc, and a light thread ties them together (each place gives back a piece of the Moon Crystal). A place opens when its prerequisites are met, not when the place before it on a line is done. | Map design; progression unit tests against the skill map |
 | S10 | **Told for the ear.** Short, warm and spoken (the narration rules in 5A). | Narration audit |
 
 ## The scene rubric (a gate, not a suggestion)
@@ -85,3 +90,12 @@ go in the chapter file. The first time, "Show me": each reviewer quotes the line
 | She asks to play | Yes, most days she plays | Shrikant, one yes-or-no in the weekly digest (optional) |
 | Sessions that end at a story stop, not cut off by the limit | 90% or more | App's parent area |
 | Escaped problems (found by Shrikant, catchable by a check) | 0 per release | PM digest |
+| "Too easy" or "too long" (four first-try rights in a row, or a scene she leaves early) | Under 10% of scenes | App's parent area |
+
+## Changelog
+
+- v1.1 (2026-11-01): Shrikant watched her play. The Prologue was too long and too easy (counting 1 to 6 again and
+  again), and she already knows counting and subitizing. Added L12 (start where she is, test-out), L13 (never
+  mundane), S11 (an open kingdom after the Prologue), and the "too easy" measure. The persona now says she is ahead.
+  This counts as an escape: v1 would have caught the repetition (the narration audit and L3), but not that she is
+  ahead, because the persona assumed she starts from zero and nothing tested a fast learner.
