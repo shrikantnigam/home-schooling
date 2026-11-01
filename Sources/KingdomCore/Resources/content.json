@@ -95,6 +95,30 @@
    "chapter": "goblin",
    "name": "Subtract within 20 with numbers",
    "homeTip": "Ask \"13 take away 4\" at dinner and let her use fingers or spoons to check."
+  },
+  {
+   "id": "equalGroups",
+   "chapter": "ball",
+   "name": "Equal groups",
+   "homeTip": "Make 3 plates with 2 crackers each. How many crackers altogether?"
+  },
+  {
+   "id": "arrays",
+   "chapter": "ball",
+   "name": "Rows of the same (arrays)",
+   "homeTip": "Set out 3 rows of 4 buttons. Count by rows: 4, 8, 12."
+  },
+  {
+   "id": "skipCount",
+   "chapter": "ball",
+   "name": "Skip counting by 2, 5 and 10",
+   "homeTip": "Count shoes by twos, fingers by fives, and toes by tens."
+  },
+  {
+   "id": "multiply",
+   "chapter": "ball",
+   "name": "Multiply with numbers",
+   "homeTip": "Ask \"3 groups of 4?\" in the car and let her draw dots to check."
   }
  ],
  "chapters": [
@@ -143,6 +167,17 @@
     "K3",
     "K4",
     "K5"
+   ]
+  },
+  {
+   "id": "ball",
+   "title": "The Royal Ball",
+   "place": "Royal Ball",
+   "scenes": [
+    "R1",
+    "R2",
+    "R3",
+    "R4"
    ]
   }
  ],
@@ -1326,6 +1361,271 @@
     "k5.payoff2"
    ],
    "goodbye": "k5.goodbye"
+  },
+  {
+   "id": "R1",
+   "chapter": "ball",
+   "title": "Seats at the Tables",
+   "open": [
+    "r1.open1",
+    "r1.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "r1-2x3",
+     "skill": "equalGroups",
+     "kind": "groups",
+     "a": 2,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "r1-3x2",
+     "skill": "equalGroups",
+     "kind": "groups",
+     "a": 3,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "r1-4x2",
+     "skill": "equalGroups",
+     "kind": "groups",
+     "a": 4,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "r1-2x5",
+     "skill": "equalGroups",
+     "kind": "groups",
+     "a": 2,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "r1-3x3",
+     "skill": "equalGroups",
+     "kind": "groups",
+     "a": 3,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "r1-5x2",
+     "skill": "equalGroups",
+     "kind": "groups",
+     "a": 5,
+     "b": 2,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "r1.payoff"
+   ],
+   "goodbye": "r1.goodbye"
+  },
+  {
+   "id": "R2",
+   "chapter": "ball",
+   "title": "Rows of Chairs",
+   "open": [
+    "r2.open1",
+    "r2.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "r2-2x4",
+     "skill": "arrays",
+     "kind": "array",
+     "a": 2,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "r2-3x3",
+     "skill": "arrays",
+     "kind": "array",
+     "a": 3,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "r2-3x5",
+     "skill": "arrays",
+     "kind": "array",
+     "a": 3,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "r2-4x4",
+     "skill": "arrays",
+     "kind": "array",
+     "a": 4,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "r2-2x6",
+     "skill": "arrays",
+     "kind": "array",
+     "a": 2,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "r2-4x5",
+     "skill": "arrays",
+     "kind": "array",
+     "a": 4,
+     "b": 5,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "r2.payoff"
+   ],
+   "goodbye": "r2.goodbye"
+  },
+  {
+   "id": "R3",
+   "chapter": "ball",
+   "title": "The Hopping Dance",
+   "open": [
+    "r3.open1",
+    "r3.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "r3-5x2",
+     "skill": "skipCount",
+     "kind": "skipHop",
+     "a": 5,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "r3-3x5",
+     "skill": "skipCount",
+     "kind": "skipHop",
+     "a": 3,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "r3-2x10",
+     "skill": "skipCount",
+     "kind": "skipHop",
+     "a": 2,
+     "b": 10,
+     "max": 20
+    },
+    {
+     "id": "r3-4x2",
+     "skill": "skipCount",
+     "kind": "skipHop",
+     "a": 4,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "r3-4x5",
+     "skill": "skipCount",
+     "kind": "skipHop",
+     "a": 4,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "r3-8x2",
+     "skill": "skipCount",
+     "kind": "skipHop",
+     "a": 8,
+     "b": 2,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "r3.payoff"
+   ],
+   "goodbye": "r3.goodbye"
+  },
+  {
+   "id": "R4",
+   "chapter": "ball",
+   "title": "The Royal Ball",
+   "open": [
+    "r4.open1",
+    "r4.open2"
+   ],
+   "warmupCount": 3,
+   "items": [
+    {
+     "id": "r4-2x4",
+     "skill": "multiply",
+     "kind": "multiply",
+     "a": 2,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "r4-3x5",
+     "skill": "multiply",
+     "kind": "multiply",
+     "a": 3,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "r4-5x2",
+     "skill": "multiply",
+     "kind": "multiply",
+     "a": 5,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "r4-4x3",
+     "skill": "multiply",
+     "kind": "multiply",
+     "a": 4,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "r4-2x10",
+     "skill": "multiply",
+     "kind": "multiply",
+     "a": 2,
+     "b": 10,
+     "max": 20
+    },
+    {
+     "id": "r4-3x6",
+     "skill": "multiply",
+     "kind": "multiply",
+     "a": 3,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "r4-4x4",
+     "skill": "multiply",
+     "kind": "multiply",
+     "a": 4,
+     "b": 4,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "r4.payoff1",
+    "r4.payoff2"
+   ],
+   "goodbye": "r4.goodbye"
   }
  ],
  "lines": {
@@ -2204,6 +2504,174 @@
   "praise.subtraction": {
    "speaker": "sparkle",
    "text": "Yes! {a} minus {b} is {answer}."
+  },
+  "r1.open1": {
+   "speaker": "narrator",
+   "text": "Grub's invitation was real. The Queen was holding a Royal Ball, and everyone was invited!"
+  },
+  "r1.open2": {
+   "speaker": "sparkle",
+   "text": "Every table must have the same number of guests. Let's count the seats, Siara!"
+  },
+  "r1.payoff": {
+   "speaker": "sparkle",
+   "text": "Every guest has a seat! Equal groups make counting easy."
+  },
+  "r1.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you counted equal groups. Goodnight, Siara!"
+  },
+  "r2.open1": {
+   "speaker": "narrator",
+   "text": "For the music, the chairs stand in neat rows, the same number in every row."
+  },
+  "r2.open2": {
+   "speaker": "sparkle",
+   "text": "Let's count the chairs row by row!"
+  },
+  "r2.payoff": {
+   "speaker": "sparkle",
+   "text": "The musicians are ready! Rows of the same make counting fast."
+  },
+  "r2.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you counted rows of chairs. Goodnight, Siara!"
+  },
+  "r3.open1": {
+   "speaker": "narrator",
+   "text": "The dance floor has numbered tiles, and the Royal Dance uses big hops."
+  },
+  "r3.open2": {
+   "speaker": "sparkle",
+   "text": "Each hop jumps over the same number of tiles. Count the hops with me!"
+  },
+  "r3.payoff": {
+   "speaker": "sparkle",
+   "text": "What a dance! Counting by twos, fives and tens is like hopping."
+  },
+  "r3.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you skip counted. Goodnight, Siara!"
+  },
+  "r4.open1": {
+   "speaker": "narrator",
+   "text": "The Ball begins! The Queen asks Siara to help with the last seating plans."
+  },
+  "r4.open2": {
+   "speaker": "sparkle",
+   "text": "You can use numbers now, Siara. Times means groups of!"
+  },
+  "r4.payoff1": {
+   "speaker": "sparkle",
+   "text": "Everyone is dancing! Today you learned that times means equal groups."
+  },
+  "r4.payoff2": {
+   "speaker": "sparkle",
+   "text": "The Queen says the feast is next... but she is worried there won't be enough to share."
+  },
+  "r4.goodbye": {
+   "speaker": "sparkle",
+   "text": "Goodnight, Siara! Save some energy for the feast."
+  },
+  "prompt.groups.concrete": {
+   "speaker": "sparkle",
+   "text": "There are {a} tables, with {b} guests at each. Tap each guest to count them all."
+  },
+  "prompt.groups.pictorial": {
+   "speaker": "sparkle",
+   "text": "{a} tables with {b} guests at each. How many guests are there?"
+  },
+  "prompt.groups": {
+   "speaker": "sparkle",
+   "text": "{a} groups of {b}. How many altogether?"
+  },
+  "ask.groups": {
+   "speaker": "sparkle",
+   "text": "How many guests are at the tables?"
+  },
+  "hint.model.groups": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look at one table. It has {b} guests. Every table is the same."
+  },
+  "hint.worked.groups": {
+   "speaker": "sparkle",
+   "text": "Let's count on, one table at a time."
+  },
+  "praise.groups": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} groups of {b} is {answer}."
+  },
+  "prompt.array.concrete": {
+   "speaker": "sparkle",
+   "text": "There are {a} rows with {b} chairs in each. Tap each row and count by rows."
+  },
+  "prompt.array.pictorial": {
+   "speaker": "sparkle",
+   "text": "{a} rows of {b} chairs. How many chairs?"
+  },
+  "prompt.array": {
+   "speaker": "sparkle",
+   "text": "{a} rows of {b}. How many chairs?"
+  },
+  "ask.array": {
+   "speaker": "sparkle",
+   "text": "How many chairs are there?"
+  },
+  "hint.model.array": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Each row has {b} chairs. Count by {b}s."
+  },
+  "hint.worked.array": {
+   "speaker": "sparkle",
+   "text": "Let's count row by row, adding {b} each time."
+  },
+  "praise.array": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} rows of {b} make {answer}."
+  },
+  "prompt.skipHop.concrete": {
+   "speaker": "sparkle",
+   "text": "Each hop jumps {b} tiles. I'll hop {a} times. Tap the hop button and count with me!"
+  },
+  "prompt.skipHop.pictorial": {
+   "speaker": "sparkle",
+   "text": "I hopped {a} times, {b} tiles each hop. Where did I land?"
+  },
+  "prompt.skipHop": {
+   "speaker": "sparkle",
+   "text": "{a} hops of {b}. Tap where I land."
+  },
+  "ask.skipHop": {
+   "speaker": "sparkle",
+   "text": "Where did I land? Tap the tile."
+  },
+  "hint.model.skipHop": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Each hop is {b} tiles long. Count by {b}s."
+  },
+  "hint.worked.skipHop": {
+   "speaker": "sparkle",
+   "text": "Let's count by {b}s together."
+  },
+  "praise.skipHop": {
+   "speaker": "sparkle",
+   "text": "We landed on {answer}! {a} hops of {b} is {answer}."
+  },
+  "prompt.multiply": {
+   "speaker": "sparkle",
+   "text": "{a} times {b}. If you want help, tap the guests."
+  },
+  "hint.model.multiply": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Think of {a} groups with {b} in each."
+  },
+  "hint.worked.multiply": {
+   "speaker": "sparkle",
+   "text": "Let's count by {b}s, {a} times."
+  },
+  "praise.multiply": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} times {b} is {answer}."
   }
  }
 }

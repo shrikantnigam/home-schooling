@@ -5,6 +5,7 @@ following docs/chapter-process.md. Briefs live in docs/chapters/."""
 def add(skills, chapters, scenes, l, it, sc, N, S):
     chapter_2(skills, chapters, scenes, l, it, sc, N, S)
     chapter_3(skills, chapters, scenes, l, it, sc, N, S)
+    chapter_4(skills, chapters, scenes, l, it, sc, N, S)
 
 
 def skill(skills, id, chapter, name, tip):
@@ -173,3 +174,79 @@ def chapter_3(skills, chapters, scenes, l, it, sc, N, S):
     l("hint.model.subtraction", S, "Hmm, not quite. Let's look at the gems and take away {b}.")
     l("hint.worked.subtraction", S, "Let's take them away one at a time and count what is left.")
     l("praise.subtraction", S, "Yes! {a} minus {b} is {answer}.")
+
+
+def chapter_4(skills, chapters, scenes, l, it, sc, N, S):
+    """The Royal Ball: multiplication as equal groups, rows (arrays) and skip-count hops. Products up to 20."""
+    ch = "ball"
+    skill(skills, "equalGroups", ch, "Equal groups",
+          "Make 3 plates with 2 crackers each. How many crackers altogether?")
+    skill(skills, "arrays", ch, "Rows of the same (arrays)",
+          "Set out 3 rows of 4 buttons. Count by rows: 4, 8, 12.")
+    skill(skills, "skipCount", ch, "Skip counting by 2, 5 and 10",
+          "Count shoes by twos, fingers by fives, and toes by tens.")
+    skill(skills, "multiply", ch, "Multiply with numbers",
+          "Ask \"3 groups of 4?\" in the car and let her draw dots to check.")
+    chapters.append(dict(id=ch, title="The Royal Ball", place="Royal Ball", scenes=["R1", "R2", "R3", "R4"]))
+    T = 20
+    scenes += [
+        sc("R1", ch, "Seats at the Tables", 2, [
+            it("r1-2x3", "equalGroups", "groups", 2, 3, T), it("r1-3x2", "equalGroups", "groups", 3, 2, T),
+            it("r1-4x2", "equalGroups", "groups", 4, 2, T), it("r1-2x5", "equalGroups", "groups", 2, 5, T),
+            it("r1-3x3", "equalGroups", "groups", 3, 3, T), it("r1-5x2", "equalGroups", "groups", 5, 2, T)], ["r1.payoff"]),
+        sc("R2", ch, "Rows of Chairs", 2, [
+            it("r2-2x4", "arrays", "array", 2, 4, T), it("r2-3x3", "arrays", "array", 3, 3, T),
+            it("r2-3x5", "arrays", "array", 3, 5, T), it("r2-4x4", "arrays", "array", 4, 4, T),
+            it("r2-2x6", "arrays", "array", 2, 6, T), it("r2-4x5", "arrays", "array", 4, 5, T)], ["r2.payoff"]),
+        sc("R3", ch, "The Hopping Dance", 2, [
+            it("r3-5x2", "skipCount", "skipHop", 5, 2, T), it("r3-3x5", "skipCount", "skipHop", 3, 5, T),
+            it("r3-2x10", "skipCount", "skipHop", 2, 10, T), it("r3-4x2", "skipCount", "skipHop", 4, 2, T),
+            it("r3-4x5", "skipCount", "skipHop", 4, 5, T), it("r3-8x2", "skipCount", "skipHop", 8, 2, T)], ["r3.payoff"]),
+        sc("R4", ch, "The Royal Ball", 3, [
+            it("r4-2x4", "multiply", "multiply", 2, 4, T), it("r4-3x5", "multiply", "multiply", 3, 5, T),
+            it("r4-5x2", "multiply", "multiply", 5, 2, T), it("r4-4x3", "multiply", "multiply", 4, 3, T),
+            it("r4-2x10", "multiply", "multiply", 2, 10, T), it("r4-3x6", "multiply", "multiply", 3, 6, T),
+            it("r4-4x4", "multiply", "multiply", 4, 4, T)], ["r4.payoff1", "r4.payoff2"]),
+    ]
+    l("r1.open1", N, "Grub's invitation was real. The Queen was holding a Royal Ball, and everyone was invited!")
+    l("r1.open2", S, "Every table must have the same number of guests. Let's count the seats, Siara!")
+    l("r1.payoff", S, "Every guest has a seat! Equal groups make counting easy.")
+    l("r1.goodbye", S, "Today you counted equal groups. Goodnight, Siara!")
+    l("r2.open1", N, "For the music, the chairs stand in neat rows, the same number in every row.")
+    l("r2.open2", S, "Let's count the chairs row by row!")
+    l("r2.payoff", S, "The musicians are ready! Rows of the same make counting fast.")
+    l("r2.goodbye", S, "Today you counted rows of chairs. Goodnight, Siara!")
+    l("r3.open1", N, "The dance floor has numbered tiles, and the Royal Dance uses big hops.")
+    l("r3.open2", S, "Each hop jumps over the same number of tiles. Count the hops with me!")
+    l("r3.payoff", S, "What a dance! Counting by twos, fives and tens is like hopping.")
+    l("r3.goodbye", S, "Today you skip counted. Goodnight, Siara!")
+    l("r4.open1", N, "The Ball begins! The Queen asks Siara to help with the last seating plans.")
+    l("r4.open2", S, "You can use numbers now, Siara. Times means groups of!")
+    l("r4.payoff1", S, "Everyone is dancing! Today you learned that times means equal groups.")
+    l("r4.payoff2", S, "The Queen says the feast is next... but she is worried there won't be enough to share.")
+    l("r4.goodbye", S, "Goodnight, Siara! Save some energy for the feast.")
+    l("prompt.groups.concrete", S, "There are {a} tables, with {b} guests at each. Tap each guest to count them all.")
+    l("prompt.groups.pictorial", S, "{a} tables with {b} guests at each. How many guests are there?")
+    l("prompt.groups", S, "{a} groups of {b}. How many altogether?")
+    l("ask.groups", S, "How many guests are at the tables?")
+    l("hint.model.groups", S, "Hmm, not quite. Look at one table. It has {b} guests. Every table is the same.")
+    l("hint.worked.groups", S, "Let's count on, one table at a time.")
+    l("praise.groups", S, "Yes! {a} groups of {b} is {answer}.")
+    l("prompt.array.concrete", S, "There are {a} rows with {b} chairs in each. Tap each row and count by rows.")
+    l("prompt.array.pictorial", S, "{a} rows of {b} chairs. How many chairs?")
+    l("prompt.array", S, "{a} rows of {b}. How many chairs?")
+    l("ask.array", S, "How many chairs are there?")
+    l("hint.model.array", S, "Hmm, not quite. Each row has {b} chairs. Count by {b}s.")
+    l("hint.worked.array", S, "Let's count row by row, adding {b} each time.")
+    l("praise.array", S, "Yes! {a} rows of {b} make {answer}.")
+    l("prompt.skipHop.concrete", S, "Each hop jumps {b} tiles. I'll hop {a} times. Tap the hop button and count with me!")
+    l("prompt.skipHop.pictorial", S, "I hopped {a} times, {b} tiles each hop. Where did I land?")
+    l("prompt.skipHop", S, "{a} hops of {b}. Tap where I land.")
+    l("ask.skipHop", S, "Where did I land? Tap the tile.")
+    l("hint.model.skipHop", S, "Hmm, not quite. Each hop is {b} tiles long. Count by {b}s.")
+    l("hint.worked.skipHop", S, "Let's count by {b}s together.")
+    l("praise.skipHop", S, "We landed on {answer}! {a} hops of {b} is {answer}.")
+    l("prompt.multiply", S, "{a} times {b}. If you want help, tap the guests.")
+    l("hint.model.multiply", S, "Hmm, not quite. Think of {a} groups with {b} in each.")
+    l("hint.worked.multiply", S, "Let's count by {b}s, {a} times.")
+    l("praise.multiply", S, "Yes! {a} times {b} is {answer}.")
