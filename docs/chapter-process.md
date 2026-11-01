@@ -42,6 +42,8 @@ Each stage has an output in the repo. A stage starts only when the one before it
    - Any change from the brief or mock goes in the **deviation log** (section 5 of the chapter file) when it is made, with the reason.
    - **New in v2:** every new kind has a case in the parent area's stuck-list `describe()` (the switch must be
      exhaustive, so a missing case breaks the build), and its `concreteStep` so `QAPlayer` can solve it.
+   - **New in v2:** the Numbers-level screenshot of every new kind is reviewed on its own (Chapter 6 showed
+     "14 + 2" for "½ of 14"), and look-only counters use `.allowsHitTesting(false)`, not `.disabled`, so they don't fade.
    - `swift test` is green, including `ContentTests` (content validation, lines for every item at every level).
 5. **QA play-through** → `App/QATests/ChapterNPlaythroughTests.swift` and section 6 of the chapter file.
    Play every new scene start to finish from a preset, one wrong-answer path per activity kind (all three hint
@@ -67,9 +69,10 @@ There is no Mac in the cloud session, so CI does the Mac work (`.github/workflow
 
 ## Changelog
 
-- v2 (2026-11-01, after the Chapter 2 and 3 retros): dose check names starting levels and numeral-only skills
+- v2 (2026-11-01, after the Chapter 2 to 6 retros): dose check names starting levels and numeral-only skills
   and uses the chapter gate; definition of done adds the parent stuck-list entry and `concreteStep`;
-  screenshot naming prefix; QA split into one CI job per chapter.
+  screenshot naming prefix; QA split into one CI job per chapter; Numbers-level review of new kinds; look-only
+  counters don't use `.disabled`.
 - v1 (2026-11-01, after the Chapter 1 retro): added the dose check, the developer definition of done
   (accessibility identifiers, QA solver support), the deviation log, landscape-before-launch for QA,
   and the cloud CI notes. Design for later chapters is layout notes on the shared components, with new
