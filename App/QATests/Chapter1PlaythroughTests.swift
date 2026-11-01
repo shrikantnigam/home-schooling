@@ -187,12 +187,10 @@ final class Chapter1PlaythroughTests: XCTestCase {
         XCTAssertTrue(p.el("parent.today").exists)
         p.tap("parent.tab.time")
         p.wait("parent.limit.value")
-        XCTAssertEqual(p.el("parent.limit.value").label, "20 min")
-        p.tap("parent.limit.plus")
+        // Charter v1.3: set once at setup, then locked.
         XCTAssertEqual(p.el("parent.limit.value").label, "25 min")
-        for _ in 0..<6 { p.tap("parent.limit.minus") }
-        XCTAssertEqual(p.el("parent.limit.value").label, "5 min")
-        p.snap("time limits at 5")
+        XCTAssertFalse(p.el("parent.limit.plus").exists)
+        p.snap("time limit locked after setup")
         p.tap("parent.tab.sound")
         p.snap("sound and voice")
         p.tap("parent.tab.screenTime")
@@ -205,6 +203,11 @@ final class Chapter1PlaythroughTests: XCTestCase {
         p.snap("reset confirmation")
         p.app.alerts.firstMatch.buttons["Reset"].firstMatch.tap()
         p.tap("parent.back")
+        // Reset everything starts setup again.
+        p.wait("setup.start")
+        p.snap("setup again after reset")
+        p.tap("setup.start")
+        p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
         p.wait("castle.play")
         p.tap("castle.play")
         p.wait("panel.open.P0")
@@ -280,5 +283,37 @@ final class Chapter1PlaythroughTests: XCTestCase {
         let resumed = p.currentItem()!
         p.snap("next day: resumed at the next item")
         XCTAssertFalse(seen.contains(resumed.id), "resumes after \(seen), got \(resumed.id)")
+    }
+
+    /// Charter v1.3: first-launch setup of name, companion and daily limit, then locked.
+    func test12_FirstLaunchSetup() {
+        let p = QAPlayer(self, prefix: "12")
+        p.launch(extra: ["-showSetup"])
+        p.wait("setup.start")
+        p.snap("setup: five companions")
+        for c in ["unicorn", "superhero", "princess", "monster", "gnome"] {
+            XCTAssertTrue(p.el("setup.companion.\(c)").exists, c)
+        }
+        let name = p.el("setup.name")
+        name.tap()
+        name.press(forDuration: 1.2)
+        if p.app.menuItems["Select All"].waitForExistence(timeout: 2) { p.app.menuItems["Select All"].tap() }
+        name.typeText(XCUIKeyboardKey.delete.rawValue)
+        name.typeText("Maya")
+        p.tap("setup.companion.gnome")
+        p.tap("setup.limit.plus")
+        XCTAssertEqual(p.el("setup.limit.value").label, "30 min")
+        for _ in 0..<10 { p.tap("setup.limit.plus") }
+        XCTAssertEqual(p.el("setup.limit.value").label, "55 min", "always under an hour")
+        p.snap("setup filled in")
+        p.tap("setup.start")
+        p.snap("setup confirm")
+        p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
+        p.wait("castle.play")
+        p.snap("castle with the gnome")
+        XCTAssertTrue(p.app.descendants(matching: .any)["Pip the gnome"].exists)
+        p.tap("castle.play")
+        p.wait("panel.open.P0")
+        p.snap("P0 with the gnome")
     }
 }

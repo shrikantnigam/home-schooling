@@ -10,6 +10,7 @@ final class AppModel: ObservableObject {
         case scene
         case gate
         case parent
+        case setup
     }
 
     @Published var route: Route = .castle
@@ -18,7 +19,8 @@ final class AppModel: ObservableObject {
 
     let env = AppEnvironment.current
     let content: Content
-    let catalog: LineCatalog
+    /// Lines with her name and her companion filled in. Rebuilt when setup is done.
+    private(set) var catalog: LineCatalog
     let engine: MasteryEngine
     let progression: Progression
     let speech: SpeechPlayer
@@ -52,6 +54,13 @@ final class AppModel: ObservableObject {
         if env.uiTesting { loaded.sound.subtitles = true }
         state = loaded
         if let preset = env.preset { applyPreset(preset) }
+        // QA play-throughs use the setup defaults unless they test the setup screen itself.
+        if env.uiTesting && !env.showSetup && state.needsSetup {
+            state.completeSetup(SetupChoices(heroName: SetupChoices.defaultName, companion: .unicorn,
+                                             dailyLimitMinutes: state.timeSettings.dailyLimitMinutes))
+        }
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        route = state.needsSetup ? .setup : .castle
         applySound()
         startTicker()
     }
@@ -71,7 +80,17 @@ final class AppModel: ObservableObject {
         try? store.save(state)
     }
 
+    /// First-launch setup (charter v1.3): saved once, then locked.
+    func completeSetup(name: String, companion: Companion, minutes: Int) {
+        guard state.completeSetup(SetupChoices(heroName: name, companion: companion, dailyLimitMinutes: minutes)) else { return }
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        applySound()
+        save()
+        route = .castle
+    }
+
     func applySound() {
+        speech.companionPitch = state.companion.voicePitch
         speech.rate = Float(state.sound.speechRate)
         speech.volume = Float(state.sound.narrationVolume)
     }
@@ -110,7 +129,7 @@ final class AppModel: ObservableObject {
         speech.stop()
         if let scene { scene.saveResume() }
         scene = nil
-        route = .castle
+        route = state.needsSetup ? .setup : .castle
         save()
     }
 
@@ -229,6 +248,8 @@ final class AppModel: ObservableObject {
 
     func resetAll() {
         state.resetAllProgress()
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        introsSpoken = []
         save()
     }
 

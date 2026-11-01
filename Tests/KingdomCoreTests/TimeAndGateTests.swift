@@ -5,19 +5,21 @@ import XCTest
 final class TimeKeeperTests: XCTestCase {
     let cal = T.calendar
 
-    // AC-P2
-    func testDailyLimitDefaultsTo20AndSteps5To30() {
+    // AC-P2, charter v1.3: default 25 minutes, always under an hour, in 5-minute steps.
+    func testDailyLimitDefaultsTo25AndStaysUnderAnHour() {
         var s = TimeSettings()
-        XCTAssertEqual(s.dailyLimitMinutes, 20)
+        XCTAssertEqual(s.dailyLimitMinutes, 25)
         s.setDailyLimit(3); XCTAssertEqual(s.dailyLimitMinutes, 5)
-        s.setDailyLimit(45); XCTAssertEqual(s.dailyLimitMinutes, 30)
+        s.setDailyLimit(60); XCTAssertEqual(s.dailyLimitMinutes, 55)
+        s.setDailyLimit(240); XCTAssertEqual(s.dailyLimitMinutes, 55)
         s.setDailyLimit(17); XCTAssertEqual(s.dailyLimitMinutes, 15)
         s.setDailyLimit(18); XCTAssertEqual(s.dailyLimitMinutes, 20)
         s.stepLimit(up: true); XCTAssertEqual(s.dailyLimitMinutes, 25)
-        s.stepLimit(up: true); s.stepLimit(up: true); XCTAssertEqual(s.dailyLimitMinutes, 30)
-        for _ in 0..<10 { s.stepLimit(up: false) }
+        for _ in 0..<20 { s.stepLimit(up: true) }
+        XCTAssertEqual(s.dailyLimitMinutes, 55)
+        for _ in 0..<20 { s.stepLimit(up: false) }
         XCTAssertEqual(s.dailyLimitMinutes, 5)
-        XCTAssertEqual(TimeSettings.allowedLimits, [5, 10, 15, 20, 25, 30])
+        XCTAssertEqual(TimeSettings.allowedLimits.last, 55)
     }
 
     // AC-P3

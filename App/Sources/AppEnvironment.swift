@@ -10,6 +10,8 @@ struct AppEnvironment {
     let preset: String?
     /// Overrides "now" for QA so day-based rules can be exercised.
     let dayOffset: Int
+    /// QA runs skip the first-launch setup with its defaults, unless this is passed to test the setup itself.
+    let showSetup: Bool
 
     static let current: AppEnvironment = {
         let args = ProcessInfo.processInfo.arguments
@@ -21,7 +23,8 @@ struct AppEnvironment {
             uiTesting: args.contains("-uiTesting"),
             reset: args.contains("-reset"),
             preset: value(after: "-preset"),
-            dayOffset: Int(value(after: "-dayOffset") ?? "") ?? 0
+            dayOffset: Int(value(after: "-dayOffset") ?? "") ?? 0,
+            showSetup: args.contains("-showSetup")
         )
     }()
 }

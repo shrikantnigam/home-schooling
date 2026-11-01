@@ -55,7 +55,7 @@ struct CastleView: View {
                 .accessibilityLabel("Kingdom map")
                 .offset(x: 170, y: -40)
             } else {
-                Text(block == .sleeping ? "Sparkle is sleeping" : "Sparkle is resting")
+                Text("\(model.state.companion.name) is \(block == .sleeping ? "sleeping" : "resting")")
                     .font(Theme.title(40))
                     .foregroundStyle(.white)
                     .accessibilityIdentifier("castle.sleeping")

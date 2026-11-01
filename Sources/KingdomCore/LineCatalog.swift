@@ -39,10 +39,12 @@ public struct SpokenLine: Equatable, Sendable {
 public struct LineCatalog: Sendable {
     public let lines: [LineID: Line]
     public let heroName: String
+    public let companion: Companion
 
-    public init(lines: [LineID: Line], heroName: String = "Siara") {
+    public init(lines: [LineID: Line], heroName: String = "Siara", companion: Companion = .unicorn) {
         self.lines = lines
         self.heroName = heroName
+        self.companion = companion
     }
 
     public func spoken(_ id: LineID, item: Item? = nil, n: Int? = nil) -> SpokenLine? {
@@ -55,6 +57,7 @@ public struct LineCatalog: Sendable {
                 .replacingOccurrences(of: "{answer}", with: String(item.answer))
         }
         if let n { text = text.replacingOccurrences(of: "{n}", with: String(n)) }
+        text = text.replacingOccurrences(of: "{companion}", with: companion.name)
         if heroName != "Siara" { text = text.replacingOccurrences(of: "Siara", with: heroName) }
         return SpokenLine(id: id, speaker: line.speaker, text: text)
     }

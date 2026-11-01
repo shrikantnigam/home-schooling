@@ -103,11 +103,16 @@ final class ProgressionTests: XCTestCase {
         var s = LearnerState()
         T.completeScenes("prologue", in: &s, content: content)
         s.timeSettings.setDailyLimit(10)
+        s.timeSettings.quietStart = 19 * 60
+        s.timeSettings.quietEnd = 7 * 60
         s.hasMetSparkle = true
         s.resetAllProgress()
         XCTAssertEqual(progression.next(state: s), .scene("P0"))
         XCTAssertFalse(s.hasMetSparkle)
-        XCTAssertEqual(s.timeSettings.dailyLimitMinutes, 10)
+        // The daily limit is chosen again at setup (charter v1.3); quiet hours stay.
+        XCTAssertEqual(s.timeSettings.dailyLimitMinutes, 25)
+        XCTAssertEqual(s.timeSettings.quietStart, 19 * 60)
+        XCTAssertTrue(s.needsSetup)
     }
 
     func testPracticeScenePutsNeedsPracticeItemsFirst() {

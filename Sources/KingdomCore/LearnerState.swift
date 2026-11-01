@@ -55,12 +55,27 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public var chapterGate: ChapterGate = .secure
     /// Skills she showed she already knows in a test-out challenge (L12). They count as secure.
     public var testedOutSkills: Set<SkillID> = []
+    /// Name, companion and daily limit, chosen once at first launch. Nil until setup is done.
+    public private(set) var setup: SetupChoices?
 
     public init() {}
 
+    public var needsSetup: Bool { setup == nil }
+    public var heroName: String { setup?.heroName ?? SetupChoices.defaultName }
+    public var companion: Companion { setup?.companion ?? .unicorn }
+
+    /// Saves the setup choices. Locked: a second call does nothing (only "reset everything" starts setup again).
+    @discardableResult
+    public mutating func completeSetup(_ choices: SetupChoices) -> Bool {
+        guard setup == nil else { return false }
+        setup = choices
+        timeSettings.setDailyLimit(choices.dailyLimitMinutes)
+        return true
+    }
+
     enum CodingKeys: String, CodingKey {
         case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
-             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills
+             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup
     }
 
     public init(from decoder: Decoder) throws {
@@ -78,6 +93,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
         hasMetSparkle = try c.decodeIfPresent(Bool.self, forKey: .hasMetSparkle) ?? false
         chapterGate = try c.decodeIfPresent(ChapterGate.self, forKey: .chapterGate) ?? .secure
         testedOutSkills = try c.decodeIfPresent(Set<SkillID>.self, forKey: .testedOutSkills) ?? []
+        setup = try c.decodeIfPresent(SetupChoices.self, forKey: .setup)
     }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }
@@ -107,9 +123,11 @@ public struct LearnerState: Codable, Equatable, Sendable {
         needsPractice.subtract(ids)
     }
 
-    /// AC-P7: back to a fresh install, but keep the parent's time and sound settings.
+    /// AC-P7: back to a fresh install, keeping the sound settings, quiet hours and gate. Setup starts again,
+    /// since it is the only way to change the name, companion and daily limit (charter v1.3).
     public mutating func resetAllProgress() {
-        let keepTime = timeSettings
+        var keepTime = timeSettings
+        keepTime.setDailyLimit(TimeSettings.defaultLimit)
         let keepSound = sound
         let keepGate = chapterGate
         self = LearnerState()

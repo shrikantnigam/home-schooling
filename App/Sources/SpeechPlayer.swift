@@ -11,6 +11,8 @@ final class SpeechPlayer: NSObject, ObservableObject {
     @Published private(set) var isSpeaking = false
 
     var rate: Float = 0.42
+    /// The companion's voice pitch (charter v1.3: each companion sounds like itself).
+    var companionPitch: Float = 1.3
     var volume: Float = 1
 
     private let synth = AVSpeechSynthesizer()
@@ -106,7 +108,7 @@ final class SpeechPlayer: NSObject, ObservableObject {
         case .sparkle:
             u.voice = sparkleVoice
             // Higher and brighter so Sparkle sounds different even with one default voice.
-            u.pitchMultiplier = 1.3 * pitchLift
+            u.pitchMultiplier = companionPitch * pitchLift
         }
         let lastInLine = queue.first.map { $0.index != next.index } ?? true
         switch last {

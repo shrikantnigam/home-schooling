@@ -76,7 +76,7 @@ l("map.waiting.goblin",S,"First we need to help Grub. Then we can come back here
 l("map.waiting.moon",S,"First we need to visit the moon. Then we can come back here!")
 l("map.practice",S,"One place wants a little more practice. Tap the glowing place!")
 l("map.done",S,"You helped this place already! Let's play here again.")
-l("sleeping",N,"Sparkle is sleeping. She'll be ready to play tomorrow.")
+l("sleeping",N,"Sparkle is sleeping. Let's play again tomorrow.")
 l("quiet",N,"Sparkle is resting now. Let's play together another time.")
 l("warmup.intro",S,"Let's warm up with something we did before!")
 l("core.intro",S,"Now let's help the kingdom!")
@@ -242,6 +242,15 @@ for lid, t in [
  ("ask.quickLook.short","How many stars?"),
 ]:
     l(lid, S, t)
+# Each companion's own hello, said once in the Prologue's opening (charter v1.3).
+l("companion.hello.unicorn",S,"I'm a unicorn, and my horn glows when we count!")
+l("companion.hello.superhero",S,"I'm a superhero, and my super power is counting!")
+l("companion.hello.princess",S,"I'm a princess from the castle, and I love puzzles!")
+l("companion.hello.monster",S,"I'm a friendly monster, and I love munching numbers!")
+l("companion.hello.gnome",S,"I'm a garden gnome, and I know every path in the kingdom!")
+# The companion is chosen at setup: lines name it with {companion}, never "Sparkle" or "unicorn" (charter v1.3).
+for v in L.values():
+    v["text"] = v["text"].replace("Sparkle", "{companion}")
 content = dict(skills=skills, chapters=chapters, scenes=scenes, lines=L)
 json.dump(content, open(os.path.join(ROOT, "Sources/KingdomCore/Resources/content.json"), "w"), indent=1)
 print(len(skills), "skills,", len(scenes), "scenes,", sum(len(x["items"]) for x in scenes), "items,", len(L), "lines")

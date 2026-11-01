@@ -164,15 +164,26 @@ public struct Progression: Sendable {
         )
     }
 
-    /// Reorders items so that no more than `maxRun` of the same kind come in a row, where possible.
+    /// Reorders items so that no more than `maxRun` of the same kind come in a row, where possible. Keeps the
+    /// given order (most needed first) unless taking the next item would make a long run unavoidable later.
     public static func interleaved(_ items: [Item], maxRun: Int = 3) -> [Item] {
         var left = items
         var out: [Item] = []
+        func feasible(_ rest: [Item]) -> Bool {
+            let counts = Dictionary(grouping: rest, by: \.kind).mapValues(\.count)
+            guard let most = counts.values.max() else { return true }
+            return most <= maxRun * (rest.count - most + 1)
+        }
         while !left.isEmpty {
             let run = out.suffix(maxRun)
             let blocked = run.count == maxRun && Set(run.map(\.kind)).count == 1 ? run.first?.kind : nil
-            let i = left.firstIndex { $0.kind != blocked } ?? 0
-            out.append(left.remove(at: i))
+            let allowed = left.indices.filter { left[$0].kind != blocked }
+            let pick = allowed.first { i in
+                var rest = left
+                rest.remove(at: i)
+                return feasible(rest)
+            } ?? allowed.first ?? 0
+            out.append(left.remove(at: pick))
         }
         return out
     }

@@ -29,8 +29,9 @@ struct RootView: View {
                 if let scene = model.scene { ScenePlayerView(controller: scene) } else { CastleView() }
             case .gate: ParentGateView()
             case .parent: ParentAreaView()
+            case .setup: SetupView()
             }
-            if model.route != .gate && model.route != .parent {
+            if model.route != .gate && model.route != .parent && model.route != .setup {
                 // Top centre, clear of the answer tiles and the three corner buttons.
                 VStack {
                     Subtitle(speech: model.speech, show: model.state.sound.subtitles)

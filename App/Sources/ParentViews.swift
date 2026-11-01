@@ -282,15 +282,14 @@ struct ParentAreaView: View {
             Text("Time limits").font(Theme.title(32))
             card {
                 Text("Daily limit").font(Theme.body(19).bold())
-                HStack(spacing: 20) {
-                    Button { model.state.timeSettings.stepLimit(up: false); model.save() } label: { Image(systemName: "minus.circle.fill").font(.system(size: 40)) }
-                        .accessibilityIdentifier("parent.limit.minus")
+                HStack(spacing: 12) {
+                    Image(systemName: "lock.fill").foregroundStyle(Theme.muted)
                     Text("\(model.state.timeSettings.dailyLimitMinutes) min").font(Theme.title(30))
                         .accessibilityIdentifier("parent.limit.value")
-                    Button { model.state.timeSettings.stepLimit(up: true); model.save() } label: { Image(systemName: "plus.circle.fill").font(.system(size: 40)) }
-                        .accessibilityIdentifier("parent.limit.plus")
                 }
-                Text("When time is up, Siara finishes the item she is on and sees the story payoff, then Sparkle goes to sleep until tomorrow.")
+                Text("Set once at setup, with \(model.state.heroName)'s name and companion. To change it, use Reset everything, which starts setup again.")
+                    .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                Text("When time is up, \(model.state.heroName) finishes the puzzle on screen, hears \"we'll finish tomorrow\", and picks up there the next day.")
                     .font(Theme.body(15)).foregroundStyle(Theme.muted)
             }
             card {
@@ -348,7 +347,7 @@ struct ParentAreaView: View {
                     Label("Enhanced voices are installed.", systemImage: "checkmark.circle.fill").foregroundStyle(Theme.garden)
                 } else {
                     Text("Better voices are available").font(Theme.body(17).bold())
-                    Text("Sparkle is using the basic voice. For a warmer voice, open Settings > Accessibility > Spoken Content > Voices > English, and download an Enhanced or Premium voice (for example Ava and Nicky). The app keeps working while you do this.")
+                    Text("\(model.state.companion.name) is using the basic voice. For a warmer voice, open Settings > Accessibility > Spoken Content > Voices > English, and download an Enhanced or Premium voice (for example Ava and Nicky). The app keeps working while you do this.")
                         .font(Theme.body(15)).foregroundStyle(Theme.muted)
                         .accessibilityIdentifier("parent.voiceHelp")
                 }

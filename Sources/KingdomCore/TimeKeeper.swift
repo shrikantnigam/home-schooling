@@ -2,8 +2,9 @@ import Foundation
 
 /// Parent time settings (spec section 6, AC-P2, AC-P4).
 public struct TimeSettings: Codable, Equatable, Sendable {
-    public static let allowedLimits = Array(stride(from: 5, through: 30, by: 5))
-    public static let defaultLimit = 20
+    /// Always under an hour (charter v1.3).
+    public static let allowedLimits = Array(stride(from: 5, through: 55, by: 5))
+    public static let defaultLimit = 25
 
     public private(set) var dailyLimitMinutes: Int = TimeSettings.defaultLimit
     /// Quiet hours as minutes after local midnight. Off when nil. May wrap past midnight.
@@ -12,10 +13,10 @@ public struct TimeSettings: Codable, Equatable, Sendable {
 
     public init() {}
 
-    /// Clamps to 5...30 and snaps to 5-minute steps.
+    /// Clamps to 5...55 and snaps to 5-minute steps.
     public mutating func setDailyLimit(_ minutes: Int) {
         let snapped = Int((Double(minutes) / 5).rounded()) * 5
-        dailyLimitMinutes = Swift.min(30, Swift.max(5, snapped))
+        dailyLimitMinutes = Swift.min(55, Swift.max(5, snapped))
     }
 
     public mutating func stepLimit(up: Bool) { setDailyLimit(dailyLimitMinutes + (up ? 5 : -5)) }

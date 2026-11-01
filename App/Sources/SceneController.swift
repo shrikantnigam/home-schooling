@@ -107,12 +107,12 @@ final class SceneController: ObservableObject {
         switch run.phase {
         case .open:
             if model.firstTimeThisSession("open.\(run.scene.id)") {
-                speak(run.scene.open.map { catalog.spoken($0) }, thenShowNext: true)
+                speak(openLines, thenShowNext: true)
             } else if run.scene.id.hasPrefix("practice-") {
                 speak([catalog.spoken("practice.short")], thenShowNext: true)
             } else {
                 // Heard already since the app opened: stay quiet; the ear replays it.
-                quiet(lines: run.scene.open.map { catalog.spoken($0) })
+                quiet(lines: openLines)
             }
         case .warmup, .core:
             beginItem()
@@ -127,6 +127,15 @@ final class SceneController: ObservableObject {
         case .finished:
             model.sceneFinished(run)
         }
+    }
+
+    /// The story open. The very first scene adds the companion's own hello (charter v1.3).
+    var openLines: [SpokenLine?] {
+        var lines = run.scene.open.map { catalog.spoken($0) }
+        if run.scene.isChallenge, run.scene.chapter == "prologue" {
+            lines.append(catalog.spoken("companion.hello.\(model.state.companion.rawValue)"))
+        }
+        return lines
     }
 
     /// What the payoff panel says. Cut short by the daily limit: "we'll finish tomorrow", not the success
@@ -208,7 +217,7 @@ final class SceneController: ObservableObject {
     /// The ear button (AC-A2): replay the current instruction in full.
     func replay() {
         switch run.phase {
-        case .open: speak(run.scene.open.map { catalog.spoken($0) }, thenShowNext: true)
+        case .open: speak(openLines, thenShowNext: true)
         case .payoff: speak(run.scene.payoff.map { catalog.spoken($0) }, thenShowNext: true)
         case .goodbye: speak([catalog.spoken(run.scene.goodbye)], thenShowNext: true)
         default:

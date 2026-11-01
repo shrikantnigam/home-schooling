@@ -2436,11 +2436,11 @@
   },
   "sleeping": {
    "speaker": "narrator",
-   "text": "Sparkle is sleeping. She'll be ready to play tomorrow."
+   "text": "{companion} is sleeping. Let's play again tomorrow."
   },
   "quiet": {
    "speaker": "narrator",
-   "text": "Sparkle is resting now. Let's play together another time."
+   "text": "{companion} is resting now. Let's play together another time."
   },
   "warmup.intro": {
    "speaker": "sparkle",
@@ -2456,7 +2456,7 @@
   },
   "wrapup.pause": {
    "speaker": "sparkle",
-   "text": "Sparkle is getting sleepy. We'll finish this story tomorrow!"
+   "text": "{companion} is getting sleepy. We'll finish this story tomorrow!"
   },
   "stepup": {
    "speaker": "sparkle",
@@ -2476,7 +2476,7 @@
   },
   "p0.open2": {
    "speaker": "sparkle",
-   "text": "Hi, I'm Sparkle! The stars fell asleep. Let's see what you already know!"
+   "text": "Hi, I'm {companion}! The stars fell asleep. Let's see what you already know!"
   },
   "p0.payoff": {
    "speaker": "sparkle",
@@ -2504,7 +2504,7 @@
   },
   "p2.open1": {
    "speaker": "narrator",
-   "text": "Sparkle wants to cross the sky on star stones."
+   "text": "{companion} wants to cross the sky on star stones."
   },
   "p2.open2": {
    "speaker": "sparkle",
@@ -2608,7 +2608,7 @@
   },
   "practice.open1": {
    "speaker": "narrator",
-   "text": "Sparkle wants to play here a little more."
+   "text": "{companion} wants to play here a little more."
   },
   "practice.open2": {
    "speaker": "sparkle",
@@ -2624,7 +2624,7 @@
   },
   "practice.open1.prologue": {
    "speaker": "narrator",
-   "text": "Sparkle wants to look at the stars a little more."
+   "text": "{companion} wants to look at the stars a little more."
   },
   "practice.payoff.prologue": {
    "speaker": "sparkle",
@@ -2636,7 +2636,7 @@
   },
   "practice.open1.garden": {
    "speaker": "narrator",
-   "text": "Sparkle wants to play in the garden a little more."
+   "text": "{companion} wants to play in the garden a little more."
   },
   "practice.payoff.garden": {
    "speaker": "sparkle",
@@ -2648,7 +2648,7 @@
   },
   "practice.open1.bridge": {
    "speaker": "narrator",
-   "text": "Sparkle wants to walk on the bridge a little more."
+   "text": "{companion} wants to walk on the bridge a little more."
   },
   "practice.payoff.bridge": {
    "speaker": "sparkle",
@@ -2660,7 +2660,7 @@
   },
   "practice.open1.goblin": {
    "speaker": "narrator",
-   "text": "Sparkle wants to count gems with Grub a little more."
+   "text": "{companion} wants to count gems with Grub a little more."
   },
   "practice.payoff.goblin": {
    "speaker": "sparkle",
@@ -2672,7 +2672,7 @@
   },
   "practice.open1.ball": {
    "speaker": "narrator",
-   "text": "Sparkle wants to dance at the ball a little more."
+   "text": "{companion} wants to dance at the ball a little more."
   },
   "practice.payoff.ball": {
    "speaker": "sparkle",
@@ -2684,7 +2684,7 @@
   },
   "practice.open1.feast": {
    "speaker": "narrator",
-   "text": "Sparkle wants to help at the feast a little more."
+   "text": "{companion} wants to help at the feast a little more."
   },
   "practice.payoff.feast": {
    "speaker": "sparkle",
@@ -2696,7 +2696,7 @@
   },
   "practice.open1.moon": {
    "speaker": "narrator",
-   "text": "Sparkle wants to look at the moon a little more."
+   "text": "{companion} wants to look at the moon a little more."
   },
   "practice.payoff.moon": {
    "speaker": "sparkle",
@@ -2960,7 +2960,7 @@
   },
   "b2.open2": {
    "speaker": "sparkle",
-   "text": "Help me find the right stone so I don't get my hooves wet!"
+   "text": "Help me find the right stone so we don't get our feet wet!"
   },
   "b2.payoff": {
    "speaker": "sparkle",
@@ -3901,6 +3901,26 @@
   "ask.quickLook.short": {
    "speaker": "sparkle",
    "text": "How many stars?"
+  },
+  "companion.hello.unicorn": {
+   "speaker": "sparkle",
+   "text": "I'm a unicorn, and my horn glows when we count!"
+  },
+  "companion.hello.superhero": {
+   "speaker": "sparkle",
+   "text": "I'm a superhero, and my super power is counting!"
+  },
+  "companion.hello.princess": {
+   "speaker": "sparkle",
+   "text": "I'm a princess from the castle, and I love puzzles!"
+  },
+  "companion.hello.monster": {
+   "speaker": "sparkle",
+   "text": "I'm a friendly monster, and I love munching numbers!"
+  },
+  "companion.hello.gnome": {
+   "speaker": "sparkle",
+   "text": "I'm a garden gnome, and I know every path in the kingdom!"
   }
  }
 }

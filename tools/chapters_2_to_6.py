@@ -58,7 +58,7 @@ def chapter_2(skills, chapters, scenes, l, it, sc, N, S):
     l("b1.payoff", S, "Click! The first part of the bridge is back. Ten and some more makes a teen number!")
     l("b1.goodbye", S, "Today you learned that thirteen is ten and three more. Goodnight!")
     l("b2.open1", N, "Stepping stones cross the river. Each one has a number, all the way to twenty.")
-    l("b2.open2", S, "Help me find the right stone so I don't get my hooves wet!")
+    l("b2.open2", S, "Help me find the right stone so we don't get our feet wet!")
     l("b2.payoff", S, "We crossed every stone! Twenty is two tens.")
     l("b2.goodbye", S, "Today you found numbers all the way to twenty. Goodnight!")
     l("b3.open1", N, "Each part of the bridge has two plank boxes. The first box must be full before the second one holds.")
