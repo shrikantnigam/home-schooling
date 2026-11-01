@@ -25,7 +25,7 @@ struct CastleView: View {
                 Text("Kingdom of Numbers")
                     .font(Theme.title(46))
                     .foregroundStyle(block == nil ? Theme.ink : .white)
-                    .padding(.top, 44)
+                    .padding(.top, 90)
                 Spacer()
             }
 
@@ -91,7 +91,7 @@ struct MapView: View {
         ZStack {
             SkyBackground(night: false)
             VStack(spacing: 28) {
-                Text("The Kingdom").font(Theme.title(40)).foregroundStyle(Theme.ink).padding(.top, 40)
+                Text("The Kingdom").font(Theme.title(40)).foregroundStyle(Theme.ink).padding(.top, 90)
                 HStack(spacing: 26) {
                     ForEach(model.content.chapters) { ch in place(ch) }
                     ForEach(futurePlaces.dropFirst(max(0, model.content.chapters.count - 2)), id: \.self) { name in

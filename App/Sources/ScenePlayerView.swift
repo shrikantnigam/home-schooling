@@ -65,7 +65,7 @@ struct StoryPanel: View {
             Text(scene.title)
                 .font(Theme.title(44))
                 .foregroundStyle(scene.chapter == "prologue" ? .white : Theme.ink)
-                .padding(.top, 60)
+                .padding(.top, 96)
                 .accessibilityIdentifier("panel.\(kindName).\(scene.id)")
             Spacer()
             HStack(alignment: .bottom, spacing: 40) {
@@ -120,8 +120,11 @@ struct ItemScreen: View {
         VStack(spacing: 18) {
             Spacer(minLength: 90)
             HStack(alignment: .center, spacing: 20) {
-                SparkleView(mood: isHint ? .thinking : .happy, size: 170)
-                    .padding(.leading, 30)
+                // On number-line activities Sparkle stands on the line instead.
+                if !item.answersOnLine {
+                    SparkleView(mood: isHint ? .thinking : .happy, size: 170)
+                        .padding(.leading, 30)
+                }
                 ActivityArea(item: item, controller: controller)
                     .frame(maxWidth: .infinity)
             }

@@ -31,10 +31,12 @@ struct RootView: View {
             case .parent: ParentAreaView()
             }
             if model.route != .gate && model.route != .parent {
+                // Top centre, clear of the answer tiles and the three corner buttons.
                 VStack {
-                    Spacer()
                     Subtitle(speech: model.speech, show: model.state.sound.subtitles)
-                        .padding(.bottom, 150)
+                        .padding(.top, 24)
+                        .padding(.horizontal, 120)
+                    Spacer()
                 }
                 .allowsHitTesting(false)
             }

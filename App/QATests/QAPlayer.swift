@@ -15,6 +15,7 @@ final class QAPlayer {
 
     func launch(reset: Bool = true, preset: String? = nil, extra: [String] = []) {
         app.launchArguments = ["-uiTesting"] + (reset ? ["-reset"] : []) + (preset.map { ["-preset", $0] } ?? []) + extra
+        XCUIDevice.shared.orientation = .landscapeLeft
         app.launch()
         XCUIDevice.shared.orientation = .landscapeLeft
     }
