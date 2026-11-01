@@ -8,6 +8,24 @@ public struct ResumePoint: Codable, Equatable, Sendable {
     public let index: Int
 }
 
+/// What opens the next chapter (decided with Shrikant after the Chapter 1 retro).
+public enum ChapterGate: String, Codable, CaseIterable, Sendable {
+    /// Every skill at the Numbers level with 4 of the last 5 right, across 2 days. Default.
+    case secure
+    /// The spec's full mastery rule: 80% of the last 10 Numbers items over 2 days.
+    case mastered
+    /// Story order only: finishing the scenes opens the next chapter.
+    case scenesOnly
+
+    public var parentLabel: String {
+        switch self {
+        case .secure: return "When each skill is secure with numbers"
+        case .mastered: return "When each skill is fully mastered"
+        case .scenesOnly: return "When the scenes are finished"
+        }
+    }
+}
+
 public struct SoundSettings: Codable, Equatable, Sendable {
     public var narrationVolume: Double = 1.0
     public var musicOn = true
@@ -34,8 +52,30 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public var timeSettings = TimeSettings()
     public var sound = SoundSettings()
     public var hasMetSparkle = false
+    public var chapterGate: ChapterGate = .secure
 
     public init() {}
+
+    enum CodingKeys: String, CodingKey {
+        case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
+             timeSettings, sound, hasMetSparkle, chapterGate
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        version = try c.decodeIfPresent(Int.self, forKey: .version) ?? LearnerState.currentVersion
+        skills = try c.decodeIfPresent([SkillID: SkillRecord].self, forKey: .skills) ?? [:]
+        completedScenes = try c.decodeIfPresent(Set<SceneID>.self, forKey: .completedScenes) ?? []
+        unlockedChapters = try c.decodeIfPresent(Set<ChapterID>.self, forKey: .unlockedChapters) ?? []
+        needsPractice = try c.decodeIfPresent(Set<String>.self, forKey: .needsPractice) ?? []
+        lastSeen = try c.decodeIfPresent([String: Date].self, forKey: .lastSeen) ?? [:]
+        resume = try c.decodeIfPresent(ResumePoint.self, forKey: .resume)
+        time = try c.decodeIfPresent(TimeKeeper.self, forKey: .time) ?? TimeKeeper()
+        timeSettings = try c.decodeIfPresent(TimeSettings.self, forKey: .timeSettings) ?? TimeSettings()
+        sound = try c.decodeIfPresent(SoundSettings.self, forKey: .sound) ?? SoundSettings()
+        hasMetSparkle = try c.decodeIfPresent(Bool.self, forKey: .hasMetSparkle) ?? false
+        chapterGate = try c.decodeIfPresent(ChapterGate.self, forKey: .chapterGate) ?? .secure
+    }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }
 
@@ -44,6 +84,8 @@ public struct LearnerState: Codable, Equatable, Sendable {
     /// Stores a finished item and updates the CPA level and practice list.
     public mutating func apply(_ result: ItemResult, engine: MasteryEngine) {
         var rec = record(for: result.skill)
+        // A skill first met through a numeral-only item starts at that level, so its results count.
+        if rec.history.isEmpty && result.level > rec.level { rec.level = result.level }
         engine.record(result, into: &rec)
         skills[result.skill] = rec
         lastSeen[result.itemID] = result.date
@@ -65,9 +107,11 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public mutating func resetAllProgress() {
         let keepTime = timeSettings
         let keepSound = sound
+        let keepGate = chapterGate
         self = LearnerState()
         timeSettings = keepTime
         sound = keepSound
+        chapterGate = keepGate
     }
 }
 

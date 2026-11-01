@@ -80,6 +80,16 @@ public struct MasteryEngine: Sendable {
         return days.count >= rules.masteryDays
     }
 
+    /// Ready to move on: at the Abstract level, at least 4 of the last 5 Abstract items right on the
+    /// first try, and those 5 spread over at least 2 days. Lighter than mastery, used for the chapter gate.
+    public func isSecure(_ record: SkillRecord) -> Bool {
+        if isMastered(record) { return true }
+        guard record.level == .abstract else { return false }
+        let window = record.history.filter { $0.level == .abstract }.suffix(rules.upWindow)
+        guard window.count == rules.upWindow, window.filter(\.firstTryCorrect).count >= rules.upNeeded else { return false }
+        return Set(window.map { calendar.startOfDay(for: $0.date) }).count >= rules.masteryDays
+    }
+
     public func status(_ record: SkillRecord?) -> SkillStatus {
         guard let record else { return .notStarted }
         if isMastered(record) { return .mastered }

@@ -174,6 +174,16 @@ struct ParentAreaView: View {
                             }
                         }
                     }
+                    card {
+                        Text("Open the next chapter").font(Theme.body(17).bold())
+                        Picker("Open the next chapter", selection: Binding(
+                            get: { model.state.chapterGate },
+                            set: { model.state.chapterGate = $0; model.save() })) {
+                            ForEach(ChapterGate.allCases, id: \.self) { g in Text(g.parentLabel).tag(g) }
+                        }
+                        .pickerStyle(.menu)
+                        .accessibilityIdentifier("parent.gate")
+                    }
                     HStack {
                         Button("Unlock next chapter") { model.unlockNextChapter() }
                             .buttonStyle(.bordered)
@@ -246,6 +256,22 @@ struct ParentAreaView: View {
         case .findOnLine: return "Finding \(i.a) on the line"
         case .quickLook: return "Quick look at \(i.a) stars"
         case .countTap, .howMany: return "Counting \(i.a) stars"
+        case .tensOnes: return "Ten and \(i.b) more"
+        case .bridgeAdd: return "\(i.a) plus \(i.b), making ten first"
+        case .takeAway: return "\(i.a) gems, \(i.b) taken away"
+        case .hopBack: return "Hopping back \(i.b) from \(i.a)"
+        case .compare: return "How many more: \(i.a) and \(i.b)"
+        case .subtraction: return "\(i.a) minus \(i.b)"
+        case .groups: return "\(i.a) tables of \(i.b) guests"
+        case .array: return "\(i.a) rows of \(i.b) chairs"
+        case .skipHop: return "\(i.a) hops of \(i.b)"
+        case .multiply: return "\(i.a) times \(i.b)"
+        case .share: return "Sharing \(i.a) treats onto \(i.b) plates"
+        case .groupInto: return "\(i.a) berries in baskets of \(i.b)"
+        case .divide: return "\(i.a) divided by \(i.b)"
+        case .parts: return "Counting \(i.b) equal parts"
+        case .fractionLine: return "Finding \(i.a)/\(i.b) on the moonbeam"
+        case .fractionOf: return "One part in \(i.b) of \(i.a) gems"
         }
     }
 

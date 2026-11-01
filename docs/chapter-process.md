@@ -1,4 +1,4 @@
-# Chapter process (v1)
+# Chapter process (v2)
 
 How one chapter of Kingdom of Numbers goes from idea to a playable, tested build.
 v0 was used for Chapter 1. The Chapter 1 retro ([retros/chapter-1-retro.md](retros/chapter-1-retro.md))
@@ -26,6 +26,9 @@ Each stage has an output in the repo. A stage starts only when the one before it
    one off-screen home tip. **Dose check (new in v1):** count items per skill across scenes and confirm the
    mastery rule (up a level at 4 of 5, mastery at 8 of last 10 abstract over 2 days) can be reached with
    the scene items plus practice scenes, and say how many practice scenes that takes.
+   **New in v2:** check against the chapter gate in use (default: secure, 4 of the last 5 at Numbers over
+   2 days), state each skill's starting CPA level, and flag numeral-only skills (all items `isAbstractOnly`),
+   which start at Numbers.
 3. **Design (UX and graphic)** → same file, section 4.
    One layout note per scene using the shared component library (corners, tiles, ten-frame, stone line,
    bond circles, story panel). Any new component gets a mock board in `mocks/` at 1180 x 820 first.
@@ -37,11 +40,16 @@ Each stage has an output in the repo. A stage starts only when the one before it
    - Every tappable element has an accessibility identifier; containers use
      `.accessibilityElement(children: .contain)` so they don't hide their children's identifiers.
    - Any change from the brief or mock goes in the **deviation log** (section 5 of the chapter file) when it is made, with the reason.
+   - **New in v2:** every new kind has a case in the parent area's stuck-list `describe()` (the switch must be
+     exhaustive, so a missing case breaks the build), and its `concreteStep` so `QAPlayer` can solve it.
+   - **New in v2:** the Numbers-level screenshot of every new kind is reviewed on its own (Chapter 6 showed
+     "14 + 2" for "½ of 14"), and look-only counters use `.allowsHitTesting(false)`, not `.disabled`, so they don't fade.
    - `swift test` is green, including `ContentTests` (content validation, lines for every item at every level).
 5. **QA play-through** → `App/QATests/ChapterNPlaythroughTests.swift` and section 6 of the chapter file.
    Play every new scene start to finish from a preset, one wrong-answer path per activity kind (all three hint
    steps for at least one), every new parent-area element, and a screenshot of each step. Review screenshots
-   as contact sheets per scene against the layout notes and the ACs. File each finding with a screenshot name.
+   as contact sheets per scene. **New in v2:** name screenshots with the chapter prefix (`cN-TT-SS name`) so the
+   print script picks them up against the layout notes and the ACs. File each finding with a screenshot name.
 6. **Fix and re-run** until QA has no open blocker. Cosmetic findings can be ticketed.
 7. **Retro** → `docs/retros/chapter-N-retro.md`.
    PM, LE and QA each sign off, sign off with follow-ups, or block. Gaps become learnings; learnings change this
@@ -55,9 +63,16 @@ There is no Mac in the cloud session, so CI does the Mac work (`.github/workflow
 - `QA play-through` generates the Xcode project with XcodeGen, runs the UI tests on an iPad simulator,
   and prints every screenshot into the job log (the session can read logs but not artifact downloads).
   Rotate the device to landscape before launching the app, or screenshots come out cropped.
+- **New in v2:** each chapter's play-through runs as its own parallel job (a matrix over chapters), so CI time
+  stays near 15 minutes as chapters are added instead of growing past the 45-minute job limit.
+  A new chapter adds its number to the matrix.
 
 ## Changelog
 
+- v2 (2026-11-01, after the Chapter 2 to 6 retros): dose check names starting levels and numeral-only skills
+  and uses the chapter gate; definition of done adds the parent stuck-list entry and `concreteStep`;
+  screenshot naming prefix; QA split into one CI job per chapter; Numbers-level review of new kinds; look-only
+  counters don't use `.disabled`.
 - v1 (2026-11-01, after the Chapter 1 retro): added the dose check, the developer definition of done
   (accessibility identifiers, QA solver support), the deviation log, landscape-before-launch for QA,
   and the cloud CI notes. Design for later chapters is layout notes on the shared components, with new

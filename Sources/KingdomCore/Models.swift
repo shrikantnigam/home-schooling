@@ -185,6 +185,14 @@ public struct Item: Codable, Hashable, Identifiable, Sendable {
         }
     }
 
+    /// Numeral-only kinds (G5, K5, R4, F4): always shown at the Abstract level, with models as help.
+    public var isAbstractOnly: Bool {
+        switch kind {
+        case .equation, .subtraction, .multiply, .divide: return true
+        default: return false
+        }
+    }
+
     /// The symbol shown between the numbers at the abstract level.
     public var operatorSymbol: String {
         switch kind {
