@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  unit-tests:
+    name: Developer unit tests (KingdomCore)
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift version
+        run: swift --version
+      - name: swift test
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee unit-tests.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-tests-log
+          path: unit-tests.log
+
+  qa-playthrough:
+    name: QA play-through (iPad simulator)
+    runs-on: macos-15
+    needs: unit-tests
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: App
+        run: xcodegen generate
+      - name: Pick an iPad simulator
+        id: sim
+        run: |
+          xcrun simctl list devices available
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json,sys
+          d=json.load(sys.stdin)["devices"]
+          c=[(r,x) for r,l in d.items() if "iOS" in r for x in l if "iPad" in x["name"]]
+          c.sort(key=lambda t:(t[0], "Air" in t[1]["name"], "(A16)" in t[1]["name"] or "10th" in t[1]["name"]))
+          print(c[-1][1]["udid"])')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+      - name: Build and run QA play-through
+        working-directory: App
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project KingdomOfNumbers.xcodeproj \
+            -scheme KingdomOfNumbers \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -resultBundlePath ../QA.xcresult \
+            CODE_SIGNING_ALLOWED=NO > ../qa.log 2>&1 && status=0 || status=$?
+          grep -E "error:|Test Case|\*\* " ../qa.log || true
+          exit $status
+      - name: Export screenshots
+        if: always()
+        run: |
+          mkdir -p qa-screenshots
+          if [ -d QA.xcresult ]; then
+            xcrun xcresulttool export attachments --path QA.xcresult --output-path qa-screenshots || true
+          fi
+          ls qa-screenshots | head -5
+      - name: Print screenshots into the log (small JPEGs, base64)
+        if: always()
+        run: python3 .github/scripts/print_screenshots.py qa-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-playthrough
+          path: |
+            qa.log
+            qa-screenshots
