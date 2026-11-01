@@ -102,9 +102,12 @@ struct FindOnLineActivity: View {
         let numbers: Set<Int>? = (level == .abstract && controller.hintStage == nil) ? [0, 5, item.top] : nil
         VStack(spacing: 10) {
             HStack(spacing: 10) {
-                Text("\(item.a)").font(Theme.numeral(64)).foregroundStyle(.white)
+                Text("\(item.a)").font(Theme.numeral(64)).foregroundStyle(Theme.ink)
                 if level != .abstract { DotPattern(n: item.a, dot: 12, color: Theme.gold) }
             }
+            // A card so the target reads on day and night skies (QA finding c2-02-30: white on pale blue).
+            .padding(.horizontal, 22).padding(.vertical, 6)
+            .background(RoundedRectangle(cornerRadius: 20).fill(Color.white.opacity(0.9)))
             StoneLine(
                 top: item.top,
                 sparkleAt: controller.revealed ? item.answer : 0,
@@ -609,10 +612,22 @@ struct CounterActivity: View {
             && controller.ui.help == nil && controller.hintStage == nil
         VStack(spacing: 20) {
             if abstractOnly {
-                EquationText(a: item.a, b: item.b, op: item.operatorSymbol, showDots: false)
-                if item.kind == .parts || item.kind == .fractionOf {
-                    EmptyView()
-                } else {
+                switch item.kind {
+                case .parts:
+                    // Numbers level for equal parts: the bottom number of 1/b names how many parts.
+                    FractionText(numerator: 1, denominator: item.b)
+                case .fractionOf:
+                    // "1/b of a", never an operator sign (QA finding c6-01-74 showed "14 + 2").
+                    HStack(spacing: 18) {
+                        FractionText(numerator: 1, denominator: item.b)
+                        Text("of \(item.a)").font(Theme.numeral(72)).foregroundStyle(Theme.ink)
+                            .padding(.horizontal, 24).padding(.vertical, 8)
+                            .background(RoundedRectangle(cornerRadius: 20).fill(Color.white.opacity(0.9)))
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("equation")
+                default:
+                    EquationText(a: item.a, b: item.b, op: item.operatorSymbol, showDots: false)
                     HelpButtons(controller: controller, line: false)
                 }
             } else {
@@ -634,10 +649,10 @@ struct CounterActivity: View {
         case .compare:
             VStack(alignment: .leading, spacing: 14) {
                 matchRow(count: item.a, matched: item.b, tappable: concrete, label: "Siara")
-                matchRow(count: item.b, matched: item.b, tappable: false, label: "Goblin")
+                matchRow(count: item.b, matched: item.b, tappable: false, label: "Grub")
             }
         case .groups, .multiply:
-            HStack(spacing: 22) {
+            HStack(spacing: item.a > 4 ? 10 : 22) {
                 ForEach(0..<item.a, id: \.self) { g in
                     groupCircle(index: g, size: item.b, tappableOffset: g * item.b, tappable: concrete)
                 }
@@ -654,7 +669,7 @@ struct CounterActivity: View {
                         .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(controller.ui.countAlong == r ? 0.95 : 0.6)))
                     }
                     .buttonStyle(.plain)
-                    .disabled(!concrete)
+                    .allowsHitTesting(concrete)
                     .accessibilityIdentifier("obj.\(r)")
                 }
             }
@@ -683,24 +698,31 @@ struct CounterActivity: View {
                 }
             }
         case .parts:
-            // The crystal cut into b equal parts; tap each part to count it.
-            HStack(spacing: 6) {
+            // The crystal cut into b equal wedges, like a pie, so every part really is equal
+            // (QA finding c6-01-17: vertical slices of a circle are not equal). Tap each part to count it.
+            ZStack {
                 ForEach(0..<item.b, id: \.self) { i in
+                    let wedge = Wedge(index: i, of: item.b)
                     Button { controller.tapObject(i, total: item.b) } label: {
-                        ZStack {
-                            Rectangle().fill(controller.ui.counted.contains(i) ? Theme.gold : Color(hex: 0xBFD8FF))
-                                .frame(width: 360 / CGFloat(item.b), height: 220)
-                            if let k = controller.ui.counted.firstIndex(of: i) { badge(k + 1) }
-                        }
+                        wedge.fill(controller.ui.counted.contains(i) ? Theme.gold : Color(hex: 0xBFD8FF))
+                            .overlay(wedge.stroke(Color(hex: 0x2A2D5C), lineWidth: 4))
+                            .overlay {
+                                if let k = controller.ui.counted.firstIndex(of: i) {
+                                    Text("\(k + 1)").font(Theme.numeral(22)).foregroundStyle(.white)
+                                        .padding(7).background(Circle().fill(Theme.deepLavender))
+                                        .offset(wedge.labelOffset(radius: 130))
+                                }
+                            }
+                            .contentShape(wedge)
                     }
                     .buttonStyle(.plain)
-                    .disabled(!concrete)
+                    .allowsHitTesting(concrete)
                     .accessibilityIdentifier("obj.\(i)")
                 }
             }
-            .clipShape(Circle())
+            .frame(width: 260, height: 260)
             .overlay(Circle().stroke(Color.white, lineWidth: 6))
-            .frame(width: 380, height: 260)
+            .frame(width: 380, height: 280)
         default:
             EmptyView()
         }
@@ -717,7 +739,7 @@ struct CounterActivity: View {
                         .shadow(color: controller.ui.countAlong == i ? Theme.gold : .clear, radius: 10)
                 }
                 .buttonStyle(.plain)
-                .disabled(!tappable || crossed.contains(i))
+                .allowsHitTesting(tappable && !crossed.contains(i))
                 .accessibilityIdentifier("obj.\(i)")
             }
         }
@@ -725,7 +747,9 @@ struct CounterActivity: View {
 
     private func matchRow(count: Int, matched: Int, tappable: Bool, label: String) -> some View {
         HStack(spacing: 8) {
-            Text(label).font(Theme.title(20)).foregroundStyle(Theme.ink).frame(width: 90, alignment: .leading)
+            Text(label).font(Theme.title(20)).foregroundStyle(Theme.ink)
+                .padding(.horizontal, 10).padding(.vertical, 4)
+                .background(Capsule().fill(Color.white.opacity(0.85))).frame(width: 90, alignment: .leading)
             ForEach(0..<count, id: \.self) { i in
                 let extra = i >= matched
                 let k = extra ? i - matched : -1
@@ -738,28 +762,37 @@ struct CounterActivity: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .disabled(!tappable || !extra)
+                .allowsHitTesting(tappable && extra)
                 .accessibilityIdentifier(extra && tappable ? "obj.\(k)" : "gem.\(label).\(i)")
             }
         }
     }
 
     private func groupCircle(index g: Int, size: Int, tappableOffset: Int, tappable: Bool) -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.fixed(40), spacing: 4), count: min(size, 3)), spacing: 4) {
-            ForEach(0..<size, id: \.self) { j in
-                let idx = tappableOffset + j
-                Button { controller.tapObject(idx, total: item.a * item.b) } label: {
-                    ZStack(alignment: .top) {
-                        CounterSprite(style: .guest, second: controller.ui.counted.contains(idx), size: 40)
-                        if let c = controller.ui.counted.firstIndex(of: idx) { badge(c + 1).scaleEffect(0.7) }
+        // Rows of up to 3 guests inside a fixed-size table, so the table always holds its guests
+        // (QA finding c4-01-16: a lazy grid in an HStack collapsed the table and guests spilled out).
+        let perRow = min(size, 3)
+        let rows = (size + perRow - 1) / max(perRow, 1)
+        return VStack(spacing: 4) {
+            ForEach(0..<rows, id: \.self) { r in
+                HStack(spacing: 4) {
+                    ForEach(0..<min(perRow, size - r * perRow), id: \.self) { c in
+                        let idx = tappableOffset + r * perRow + c
+                        Button { controller.tapObject(idx, total: item.a * item.b) } label: {
+                            ZStack(alignment: .top) {
+                                CounterSprite(style: .guest, second: controller.ui.counted.contains(idx), size: 40)
+                                if let k = controller.ui.counted.firstIndex(of: idx) { badge(k + 1).scaleEffect(0.7) }
+                            }
+                            .frame(width: 42, height: 42)
+                        }
+                        .buttonStyle(.plain)
+                        .allowsHitTesting(tappable)
+                        .accessibilityIdentifier("obj.\(idx)")
                     }
                 }
-                .buttonStyle(.plain)
-                .disabled(!tappable)
-                .accessibilityIdentifier("obj.\(idx)")
             }
         }
-        .padding(14)
+        .frame(width: 180, height: 180)
         .background(Circle().fill(Color.white.opacity(0.8)))
         .overlay(Circle().stroke(controller.hintStage == .modelHint && g == 0 ? Theme.gold : Theme.lavender, lineWidth: 3))
     }
@@ -860,6 +893,29 @@ struct LineOpsActivity: View {
         case .skipHop: return 0
         default: return nil
         }
+    }
+}
+
+/// One of `count` equal pie wedges of a circle, starting at the top and going clockwise.
+struct Wedge: Shape {
+    let index: Int
+    let of: Int
+    private var start: Angle { .degrees(-90 + 360 * Double(index) / Double(max(of, 1))) }
+    private var end: Angle { .degrees(-90 + 360 * Double(index + 1) / Double(max(of, 1))) }
+
+    func path(in rect: CGRect) -> Path {
+        let c = CGPoint(x: rect.midX, y: rect.midY)
+        var p = Path()
+        p.move(to: c)
+        p.addArc(center: c, radius: min(rect.width, rect.height) / 2, startAngle: start, endAngle: end, clockwise: false)
+        p.closeSubpath()
+        return p
+    }
+
+    /// Where to put a number on the wedge, from the circle's centre.
+    func labelOffset(radius: CGFloat) -> CGSize {
+        let mid = (start.radians + end.radians) / 2
+        return CGSize(width: cos(mid) * radius * 0.55, height: sin(mid) * radius * 0.55)
     }
 }
 

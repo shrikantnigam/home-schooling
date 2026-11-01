@@ -2980,7 +2980,7 @@
   },
   "prompt.takeAway.concrete": {
    "speaker": "sparkle",
-   "text": "We have {a} gems. Grub wants {b}. Tap {b} gems to give them to Grub."
+   "text": "We have {a} gems. Grub wants {b} of them. Tap the gems to give Grub {b}."
   },
   "prompt.takeAway.pictorial": {
    "speaker": "sparkle",
@@ -3480,7 +3480,7 @@
   },
   "praise.parts": {
    "speaker": "sparkle",
-   "text": "Yes! {answer} equal parts. Each part is one {answer}th... we say one half, one third or one quarter!"
+   "text": "Yes! {answer} equal parts make the whole crystal. The bottom number of a fraction tells how many equal parts."
   },
   "prompt.fractionOf.concrete": {
    "speaker": "sparkle",
