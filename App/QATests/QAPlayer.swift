@@ -23,7 +23,11 @@ final class QAPlayer {
     /// Saves a screenshot named for the report, e.g. "01-03 P1 open".
     func snap(_ name: String) {
         shot += 1
-        let a = XCTAttachment(screenshot: app.screenshot())
+        // The screen, not the app element: app.screenshot() comes out cropped in landscape.
+        let a = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        if shot == 1 {
+            print("QA-FRAME window=\(app.windows.firstMatch.frame) orientation=\(XCUIDevice.shared.orientation.rawValue)")
+        }
         a.name = String(format: "%@-%02d %@", prefix, shot, name)
         a.lifetime = .keepAlways
         test.add(a)
