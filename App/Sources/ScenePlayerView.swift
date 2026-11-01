@@ -169,7 +169,6 @@ struct AnswerTiles: View {
         .opacity(controller.readyToAnswer || revealed ? 1 : 0)
         .allowsHitTesting(controller.readyToAnswer)
         .frame(height: 130)
-        .accessibilityIdentifier("tiles")
     }
 }
 

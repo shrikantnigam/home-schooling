@@ -149,7 +149,6 @@ struct SeedBag: View {
             }
         }
         .frame(height: 80)
-        .accessibilityIdentifier("seedBag")
     }
 }
 
@@ -254,6 +253,7 @@ struct NumberBondActivity: View {
                     if level == .abstract { Text("\(item.b)").font(Theme.numeral(60)).foregroundStyle(Theme.ink) }
                     else { flowers(item.b, size: 34) }
                 }
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("bed.one")
                 bondCircle(size: 170, dashed: true, glow: controller.hintStage == .modelHint) {
                     if controller.revealed {
@@ -265,6 +265,7 @@ struct NumberBondActivity: View {
                         Text("?").font(Theme.numeral(60)).foregroundStyle(Theme.lavender)
                     }
                 }
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("bed.two")
             }
             if level == .concrete && controller.ui.moved < other && !controller.revealed {
@@ -287,6 +288,7 @@ struct NumberBondActivity: View {
                             .background(Capsule().fill(Color.white.opacity(0.85)))
                     }
                 }
+                .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("foundBonds")
             }
         }
@@ -427,6 +429,7 @@ struct EquationText: View {
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 30).padding(.vertical, 10)
         .background(RoundedRectangle(cornerRadius: 26).fill(Color.white.opacity(0.88)))
+        .accessibilityElement(children: .combine)
         .accessibilityIdentifier("equation")
     }
 

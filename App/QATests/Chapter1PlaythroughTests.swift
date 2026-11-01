@@ -194,7 +194,7 @@ final class Chapter1PlaythroughTests: XCTestCase {
         p.tap("parent.tab.reset")
         p.tap("parent.resetAll")
         p.snap("reset confirmation")
-        p.app.alerts.buttons["Reset"].tap()
+        p.app.alerts.firstMatch.buttons["Reset"].firstMatch.tap()
         p.tap("parent.back")
         p.wait("castle.play")
         p.tap("castle.play")

@@ -143,6 +143,7 @@ struct FlowerBox: View {
         .padding(14)
         .background(RoundedRectangle(cornerRadius: 22).fill(Theme.soil))
         .overlay(RoundedRectangle(cornerRadius: 22).stroke(Theme.soilDark, lineWidth: 4))
+        .accessibilityElement(children: .combine)
         .accessibilityIdentifier("flowerBox")
     }
 

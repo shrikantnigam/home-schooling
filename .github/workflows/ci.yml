@@ -61,8 +61,9 @@ jobs:
             -scheme KingdomOfNumbers \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -resultBundlePath ../QA.xcresult \
-            CODE_SIGNING_ALLOWED=NO 2>&1 | tee ../qa.log | grep -E "error:|warning: unre|Test Case|passed|failed|\*\*" || true
-          test ${PIPESTATUS[0]} -eq 0
+            CODE_SIGNING_ALLOWED=NO > ../qa.log 2>&1 && status=0 || status=$?
+          grep -E "error:|Test Case|\*\* " ../qa.log || true
+          exit $status
       - name: Export screenshots
         if: always()
         run: |
@@ -70,7 +71,10 @@ jobs:
           if [ -d QA.xcresult ]; then
             xcrun xcresulttool export attachments --path QA.xcresult --output-path qa-screenshots || true
           fi
-          ls qa-screenshots | head -100
+          ls qa-screenshots | head -5
+      - name: Print screenshots into the log (small JPEGs, base64)
+        if: always()
+        run: python3 .github/scripts/print_screenshots.py qa-screenshots
       - uses: actions/upload-artifact@v4
         if: always()
         with:
