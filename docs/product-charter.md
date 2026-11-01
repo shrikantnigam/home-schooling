@@ -1,4 +1,4 @@
-# Kingdom of Numbers: product charter (v1.1)
+# Kingdom of Numbers: product charter (v1.3)
 
 Date: 2026-11-01 · Owners: PM (keeper), child learning expert (learning rules), story director (story rules)
 Status: proposed, waiting for Shrikant's approval
@@ -94,15 +94,33 @@ go in the chapter file. The first time, "Show me": each reviewer quotes the line
 
 ## Visual direction (Shrikant, 2026-11-01)
 
-**Paper theatre.** The kingdom is a toy theatre of layered cut paper: soft shadows between layers, a paper grain,
-and warm, muted colours (cream, terracotta, sage, ochre), not bright app colours. Every place is its own stage set.
+**Paper theatre (board 1), without folk patterns.** He tried the mix and turned it down because it "lost its
+character". The kingdom is a toy theatre of layered cut paper: soft shadows between layers, a paper grain, and
+warm, muted colours (cream, terracotta, sage, ochre), not bright app colours. Every place is its own stage set.
 From the stage direction, three ideas come too: the curtain rises at a scene's start and falls at its end; counts
 land on a soft beat, so each tap matches one number and skip counting becomes dance steps; and dancing appears in
-the story (equal rows of dancers at the Royal Ball). Her right answers build the set piece by piece (S5). Sounds
-are paper, wood and music, not chimes. Reference board: https://claude.ai/artifact/LS4xENNvUjJpmw8KYWgDoa (board 1).
+the story. Her right answers build the set piece by piece (S5). Sounds are paper, wood and music, not chimes.
+Reference: https://claude.ai/artifact/LS4xENNvUjJpmw8KYWgDoa (board 1). The unicorn on board 1 reads as a pig:
+companions must be recognisable in silhouette (a unicorn has its horn, mane, a long neck and legs).
+
+## First-launch setup (Shrikant, 2026-11-01)
+
+- A one-time setup at first launch, done by the parent with the child: the daily time limit, the hero's name, and
+  the companion.
+- **Time limit:** default 25 minutes, always under 60.
+- **Name:** default "Siara", which can be changed during setup.
+- **Companion:** five choices: a unicorn (Sparkle), a made-up superhero, a princess, a cute monster, or a gnome.
+  Each has its own look, voice pitch and a few lines of its own. Story lines name the companion and never hard-code
+  "unicorn" or "hooves".
+- **Locked after setup.** None of the three can be changed afterwards. (Our reading: only "reset everything" in the
+  parent area, behind the parent gate, starts setup again.)
+- Map: a detailed, imaginary kingdom landscape in the paper-theatre style (paths, river, hills, castle, each place a
+  small set), not a set of circles.
 
 ## Changelog
 
+- v1.3 (2026-11-01): paper theatre only (the folk mix was turned down), first-launch setup (time limit, name,
+  companion, locked), five companions, and a detailed map.
 - v1.2 (2026-11-01): visual direction set to paper theatre, with the curtain, beat and dance ideas.
 - v1.1 (2026-11-01): Shrikant watched her play. The Prologue was too long and too easy (counting 1 to 6 again and
   again), and she already knows counting and subitizing. Added L12 (start where she is, test-out), L13 (never
