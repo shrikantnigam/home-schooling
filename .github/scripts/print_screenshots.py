@@ -19,7 +19,7 @@ for test in entries:
         name = a.get("suggestedHumanReadableName", "")
         fn = a.get("exportedFileName", "")
         path = os.path.join(root, fn)
-        if not re.match(r"^\d\d-\d\d ", name) or not os.path.exists(path):
+        if not re.match(r"^(c\d-)?\d\d-\d\d ", name) or not os.path.exists(path):
             continue
         out = os.path.join(tmp, f"{count}.jpg")
         subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "55", "-Z", "700", path, "--out", out],
