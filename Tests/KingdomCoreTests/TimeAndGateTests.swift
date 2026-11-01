@@ -26,7 +26,7 @@ final class TimeKeeperTests: XCTestCase {
     func testSleepingAfterLimitUntilLocalMidnight() {
         var tk = TimeKeeper()
         let settings = TimeSettings()
-        tk.addPlay(seconds: 19 * 60, at: T.date(2026, 11, 2, 18), calendar: cal)
+        tk.addPlay(seconds: 24 * 60, at: T.date(2026, 11, 2, 18), calendar: cal)
         XCTAssertNil(tk.block(at: T.date(2026, 11, 2, 18, 30), settings: settings, calendar: cal))
         tk.addPlay(seconds: 60, at: T.date(2026, 11, 2, 18, 31), calendar: cal)
         XCTAssertEqual(tk.block(at: T.date(2026, 11, 2, 23, 59), settings: settings, calendar: cal), .sleeping)
@@ -36,9 +36,9 @@ final class TimeKeeperTests: XCTestCase {
     func testRaisingLimitWakesSparkle() {
         var tk = TimeKeeper()
         var settings = TimeSettings()
-        tk.addPlay(seconds: 20 * 60, at: T.day1, calendar: cal)
+        tk.addPlay(seconds: 25 * 60, at: T.day1, calendar: cal)
         XCTAssertEqual(tk.block(at: T.day1, settings: settings, calendar: cal), .sleeping)
-        settings.setDailyLimit(25)
+        settings.setDailyLimit(30)
         XCTAssertNil(tk.block(at: T.day1, settings: settings, calendar: cal))
     }
 

@@ -133,29 +133,58 @@ struct PlacesProgress: View {
 struct MapView: View {
     @EnvironmentObject var model: AppModel
 
-    /// Later chapters not in the content yet still show as misty places.
-    private let futurePlaces = ["Bridge of Tens", "Goblin's Cave", "Royal Ball", "Fair Feast", "Moon Crystal"]
-    private var placeSize: CGFloat { model.content.chapters.count > 3 ? 120 : 170 }
+    /// Where each place stands on the map, as fractions of the screen (charter v1.3: a kingdom landscape).
+    static let spots: [ChapterID: CGPoint] = [
+        "prologue": CGPoint(x: 0.15, y: 0.30), "garden": CGPoint(x: 0.22, y: 0.72), "bridge": CGPoint(x: 0.47, y: 0.66),
+        "goblin": CGPoint(x: 0.70, y: 0.80), "ball": CGPoint(x: 0.55, y: 0.27), "feast": CGPoint(x: 0.80, y: 0.52),
+        "moon": CGPoint(x: 0.87, y: 0.20),
+    ]
+    static let castleSpot = CGPoint(x: 0.34, y: 0.46)
 
     var body: some View {
-        ZStack {
-            PaperStage(chapter: nil)
-            VStack(spacing: 28) {
-                Text("The Kingdom").font(Theme.title(40)).foregroundStyle(Theme.ink).padding(.top, 90)
-                HStack(alignment: .top, spacing: 18) {
-                    ForEach(model.content.chapters) { ch in place(ch) }
-                    ForEach(futurePlaces.dropFirst(max(0, model.content.chapters.count - 2)), id: \.self) { name in
-                        misty(name)
-                    }
+        GeometryReader { geo in
+            let size = geo.size
+            ZStack {
+                KingdomLandscape()
+                // Footpaths between places that lead on to each other (the skill map).
+                ForEach(paths, id: \.self) { pair in
+                    FootPath(from: point(pair[0], size), to: point(pair[1], size))
+                        .stroke(Theme.wood.opacity(0.7), style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: [2, 12]))
                 }
-                .padding(.horizontal, 30)
-                Spacer()
+                CastleArt().scaleEffect(0.42).frame(width: 220, height: 160).paperCut()
+                    .position(x: Self.castleSpot.x * size.width, y: Self.castleSpot.y * size.height)
+                    .accessibilityHidden(true)
+                ForEach(model.content.chapters) { ch in
+                    place(ch).position(point(ch.id, size))
+                }
+                Text("The Kingdom").font(Theme.title(38)).foregroundStyle(Theme.ink)
+                    .padding(.horizontal, 26).padding(.vertical, 6)
+                    .background(Banner().fill(Theme.card)).paperCut(0.5)
+                    .position(x: size.width / 2, y: 70)
+                PaperGrain()
+                ChildCorners(onCastle: { model.goCastle() }, onEar: { model.speech.say(mapIntro) },
+                             onLock: { model.openParentGate() })
             }
-            ChildCorners(onCastle: { model.goCastle() }, onEar: { model.speech.say(mapIntro) },
-                         onLock: { model.openParentGate() })
         }
         // Once per app open, and again whenever a new place has woken up since.
         .onAppear { model.sayIntroOnce("map." + newlyOpened.joined(separator: ","), [mapIntro]) }
+    }
+
+    private func point(_ id: String, _ size: CGSize) -> CGPoint {
+        let f = id == "castle" ? Self.castleSpot : (Self.spots[id] ?? CGPoint(x: 0.5, y: 0.5))
+        return CGPoint(x: f.x * size.width, y: f.y * size.height)
+    }
+
+    /// Paths from the castle to the Prologue, and from each place to the places it opens.
+    private var paths: [[String]] {
+        var out = [["castle", "prologue"]]
+        for ch in model.content.chapters {
+            for r in model.progression.requirements(of: ch.id) {
+                let from = model.content.scene(r)?.chapter ?? r
+                out.append([from, ch.id])
+            }
+        }
+        return out
     }
 
     private var newlyOpened: [ChapterID] { model.progression.newlyOpened(state: model.state) }
@@ -186,26 +215,34 @@ struct MapView: View {
         }
     }
 
+    /// One place on the map: its little paper set, a name banner and a dot per scene.
+    /// Locked places sit under paper mist; open ones glow; done ones fly a flag.
     @ViewBuilder
     private func place(_ ch: Chapter) -> some View {
         let st = model.progression.placeState(ch.id, state: model.state)
-        VStack(spacing: 12) {
+        VStack(spacing: 6) {
             Button { tap(ch, st) } label: {
                 ZStack {
-                    Circle().fill(ChapterLook.color(ch.id)).frame(width: placeSize, height: placeSize)
-                    ChapterLook.icon(ch.id, lit: st != .locked, size: placeSize * 0.55)
+                    PlaceSet(chapter: ch.id).frame(width: 150, height: 110)
                     if st == .locked {
-                        Circle().fill(Color.white.opacity(0.7)).frame(width: placeSize, height: placeSize)
+                        PaperMist().fill(Theme.card.opacity(0.92)).frame(width: 170, height: 120).paperCut(0.5)
+                    }
+                    if st == .done {
+                        Pennant().fill(Theme.sun).frame(width: 34, height: 44).paperCut(0.3).offset(x: 62, y: -48)
                     }
                 }
+                .frame(width: 170, height: 124)
+                .contentShape(Rectangle())
                 .glow(isGlowing(st))
             }
+            .buttonStyle(.plain)
             .accessibilityIdentifier("map.place.\(ch.id)")
             .accessibilityLabel(ch.place)
             .accessibilityValue(stateName(st))
+            Text(ch.place).font(Theme.title(17)).foregroundStyle(Theme.ink).lineLimit(1)
+                .padding(.horizontal, 12).padding(.vertical, 3)
+                .background(Banner().fill(st == .locked ? Theme.tan : Theme.card)).paperCut(0.3)
             sceneDots(ch)
-            Text(ch.place).font(Theme.title(18)).foregroundStyle(Theme.ink).lineLimit(2).multilineTextAlignment(.center)
-                .frame(width: placeSize + 20)
         }
     }
 
@@ -228,21 +265,11 @@ struct MapView: View {
     private func sceneDots(_ ch: Chapter) -> some View {
         HStack(spacing: 8) {
             ForEach(ch.scenes, id: \.self) { s in
-                Circle().fill(model.state.completedScenes.contains(s) ? Theme.gold : Color.white)
-                    .overlay(Circle().stroke(Theme.lavender, lineWidth: 2))
-                    .frame(width: 18, height: 18)
+                Circle().fill(model.state.completedScenes.contains(s) ? Theme.gold : Theme.card)
+                    .overlay(Circle().stroke(Theme.lavender, lineWidth: 1.5))
+                    .frame(width: 14, height: 14)
                     .accessibilityIdentifier("map.scene.\(s)")
             }
-        }
-    }
-
-    private func misty(_ name: String) -> some View {
-        VStack(spacing: 12) {
-            Button { model.speech.say(model.catalog.spoken("map.locked")) } label: {
-                Circle().fill(Color.white.opacity(0.75)).frame(width: 110, height: 110)
-                    .overlay(Image(systemName: "cloud.fill").font(.system(size: 44)).foregroundStyle(Theme.lilac))
-            }
-            Text(name).font(Theme.title(16)).foregroundStyle(Theme.muted)
         }
     }
 }
