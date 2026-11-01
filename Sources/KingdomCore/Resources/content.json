@@ -47,6 +47,30 @@
    "chapter": "garden",
    "name": "Make 10",
    "homeTip": "Fill an egg carton cut to 10 cups with 7 pebbles. How many more fill it?"
+  },
+  {
+   "id": "tensOnes",
+   "chapter": "bridge",
+   "name": "Ten and some more (11 to 20)",
+   "homeTip": "Bundle 10 straws with a hair tie, add a few loose straws, and count on from ten."
+  },
+  {
+   "id": "line20",
+   "chapter": "bridge",
+   "name": "Find numbers to 20 on the line",
+   "homeTip": "Chalk a number line to 20 and jump to the numbers she calls out."
+  },
+  {
+   "id": "bridgeAdd",
+   "chapter": "bridge",
+   "name": "Add within 20 by making ten",
+   "homeTip": "Put 8 spoons in an egg box of 10 and add 5 more. How many fill the box first, and how many are left over?"
+  },
+  {
+   "id": "hop20",
+   "chapter": "bridge",
+   "name": "Add on the number line to 20",
+   "homeTip": "Hop forward on the stairs, counting on from the step where you start."
   }
  ],
  "chapters": [
@@ -71,6 +95,18 @@
     "G3",
     "G4",
     "G5"
+   ]
+  },
+  {
+   "id": "bridge",
+   "title": "The Bridge of Tens",
+   "place": "Bridge of Tens",
+   "scenes": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5"
    ]
   }
  ],
@@ -587,6 +623,344 @@
     "g5.payoff2"
    ],
    "goodbye": "g5.goodbye"
+  },
+  {
+   "id": "B1",
+   "chapter": "bridge",
+   "title": "Planks in Bundles",
+   "open": [
+    "b1.open1",
+    "b1.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "b1-13",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "b1-15",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "b1-12",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 2,
+     "max": 20
+    },
+    {
+     "id": "b1-17",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 7,
+     "max": 20
+    },
+    {
+     "id": "b1-11",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 1,
+     "max": 20
+    },
+    {
+     "id": "b1-16",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "b1-18",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 8,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "b1.payoff"
+   ],
+   "goodbye": "b1.goodbye"
+  },
+  {
+   "id": "B2",
+   "chapter": "bridge",
+   "title": "Stepping Stones to 20",
+   "open": [
+    "b2.open1",
+    "b2.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "b2-12",
+     "skill": "line20",
+     "kind": "findOnLine",
+     "a": 12,
+     "max": 20
+    },
+    {
+     "id": "b2-15",
+     "skill": "line20",
+     "kind": "findOnLine",
+     "a": 15,
+     "max": 20
+    },
+    {
+     "id": "b2-18",
+     "skill": "line20",
+     "kind": "findOnLine",
+     "a": 18,
+     "max": 20
+    },
+    {
+     "id": "b2-11",
+     "skill": "line20",
+     "kind": "findOnLine",
+     "a": 11,
+     "max": 20
+    },
+    {
+     "id": "b2-20",
+     "skill": "line20",
+     "kind": "findOnLine",
+     "a": 20,
+     "max": 20
+    },
+    {
+     "id": "b2-14",
+     "skill": "line20",
+     "kind": "findOnLine",
+     "a": 14,
+     "max": 20
+    },
+    {
+     "id": "b2-17",
+     "skill": "line20",
+     "kind": "findOnLine",
+     "a": 17,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "b2.payoff"
+   ],
+   "goodbye": "b2.goodbye"
+  },
+  {
+   "id": "B3",
+   "chapter": "bridge",
+   "title": "Fill the Gap",
+   "open": [
+    "b3.open1",
+    "b3.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "b3-9+3",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 9,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "b3-8+4",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 8,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "b3-7+5",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 7,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "b3-9+5",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 9,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "b3-8+6",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 8,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "b3-6+5",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 6,
+     "b": 5,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "b3.payoff"
+   ],
+   "goodbye": "b3.goodbye"
+  },
+  {
+   "id": "B4",
+   "chapter": "bridge",
+   "title": "Long Hops",
+   "open": [
+    "b4.open1",
+    "b4.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "b4-12+4",
+     "skill": "hop20",
+     "kind": "hop",
+     "a": 12,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "b4-9+5",
+     "skill": "hop20",
+     "kind": "hop",
+     "a": 9,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "b4-14+3",
+     "skill": "hop20",
+     "kind": "hop",
+     "a": 14,
+     "b": 3,
+     "max": 20
+    },
+    {
+     "id": "b4-11+6",
+     "skill": "hop20",
+     "kind": "hop",
+     "a": 11,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "b4-15+4",
+     "skill": "hop20",
+     "kind": "hop",
+     "a": 15,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "b4-8+7",
+     "skill": "hop20",
+     "kind": "hop",
+     "a": 8,
+     "b": 7,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "b4.payoff"
+   ],
+   "goodbye": "b4.goodbye"
+  },
+  {
+   "id": "B5",
+   "chapter": "bridge",
+   "title": "The Bridge Opens",
+   "open": [
+    "b5.open1",
+    "b5.open2"
+   ],
+   "warmupCount": 3,
+   "items": [
+    {
+     "id": "b5-8+5",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 8,
+     "b": 5,
+     "max": 20
+    },
+    {
+     "id": "b5-1+4",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 4,
+     "max": 20
+    },
+    {
+     "id": "b5-7+6",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 7,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "b5-9+9",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 9,
+     "b": 9,
+     "max": 20
+    },
+    {
+     "id": "b5-1+9",
+     "skill": "tensOnes",
+     "kind": "tensOnes",
+     "a": 1,
+     "b": 9,
+     "max": 20
+    },
+    {
+     "id": "b5-6+6",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 6,
+     "b": 6,
+     "max": 20
+    },
+    {
+     "id": "b5-8+8",
+     "skill": "bridgeAdd",
+     "kind": "bridgeAdd",
+     "a": 8,
+     "b": 8,
+     "max": 20
+    }
+   ],
+   "payoff": [
+    "b5.payoff1",
+    "b5.payoff2"
+   ],
+   "goodbye": "b5.goodbye"
   }
  ],
  "lines": {
@@ -634,6 +1008,46 @@
    "speaker": "sparkle",
    "text": "Ten"
   },
+  "number.11": {
+   "speaker": "sparkle",
+   "text": "Eleven"
+  },
+  "number.12": {
+   "speaker": "sparkle",
+   "text": "Twelve"
+  },
+  "number.13": {
+   "speaker": "sparkle",
+   "text": "Thirteen"
+  },
+  "number.14": {
+   "speaker": "sparkle",
+   "text": "Fourteen"
+  },
+  "number.15": {
+   "speaker": "sparkle",
+   "text": "Fifteen"
+  },
+  "number.16": {
+   "speaker": "sparkle",
+   "text": "Sixteen"
+  },
+  "number.17": {
+   "speaker": "sparkle",
+   "text": "Seventeen"
+  },
+  "number.18": {
+   "speaker": "sparkle",
+   "text": "Eighteen"
+  },
+  "number.19": {
+   "speaker": "sparkle",
+   "text": "Nineteen"
+  },
+  "number.20": {
+   "speaker": "sparkle",
+   "text": "Twenty"
+  },
   "count.0": {
    "speaker": "sparkle",
    "text": "Zero!"
@@ -677,6 +1091,46 @@
   "count.10": {
    "speaker": "sparkle",
    "text": "Ten!"
+  },
+  "count.11": {
+   "speaker": "sparkle",
+   "text": "Eleven!"
+  },
+  "count.12": {
+   "speaker": "sparkle",
+   "text": "Twelve!"
+  },
+  "count.13": {
+   "speaker": "sparkle",
+   "text": "Thirteen!"
+  },
+  "count.14": {
+   "speaker": "sparkle",
+   "text": "Fourteen!"
+  },
+  "count.15": {
+   "speaker": "sparkle",
+   "text": "Fifteen!"
+  },
+  "count.16": {
+   "speaker": "sparkle",
+   "text": "Sixteen!"
+  },
+  "count.17": {
+   "speaker": "sparkle",
+   "text": "Seventeen!"
+  },
+  "count.18": {
+   "speaker": "sparkle",
+   "text": "Eighteen!"
+  },
+  "count.19": {
+   "speaker": "sparkle",
+   "text": "Nineteen!"
+  },
+  "count.20": {
+   "speaker": "sparkle",
+   "text": "Twenty!"
   },
   "castle.first": {
    "speaker": "sparkle",
@@ -922,9 +1376,17 @@
    "speaker": "sparkle",
    "text": "{a} flowers are awake. Let's plant {b} more seeds so I can find the path. Drag a seed into the flower box."
   },
-  "prompt.addMore.ask": {
+  "ask.addMore": {
    "speaker": "sparkle",
    "text": "How many flowers are there now?"
+  },
+  "ask.makeTen": {
+   "speaker": "sparkle",
+   "text": "The box is full! How many seeds did we plant to make ten?"
+  },
+  "ask.numberBond": {
+   "speaker": "sparkle",
+   "text": "How many flowers are in the other bed now?"
   },
   "prompt.addMore.pictorial": {
    "speaker": "sparkle",
@@ -1045,6 +1507,154 @@
   "tryAgain": {
    "speaker": "sparkle",
    "text": "Try again. You can do it."
+  },
+  "b1.open1": {
+   "speaker": "narrator",
+   "text": "Beyond the garden, an old bridge crossed a sparkling river. But its planks had fallen into the water."
+  },
+  "b1.open2": {
+   "speaker": "sparkle",
+   "text": "Look, Siara! A beaver keeps the planks tied in bundles of ten. Let's count how many we have."
+  },
+  "b1.payoff": {
+   "speaker": "sparkle",
+   "text": "Click! The first part of the bridge is back. Ten and some more makes a teen number!"
+  },
+  "b1.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned that thirteen is ten and three more. Goodnight, Siara!"
+  },
+  "b2.open1": {
+   "speaker": "narrator",
+   "text": "Stepping stones cross the shallow part of the river. Each one has a number, all the way to twenty."
+  },
+  "b2.open2": {
+   "speaker": "sparkle",
+   "text": "Help me find the right stone so I don't get my hooves wet!"
+  },
+  "b2.payoff": {
+   "speaker": "sparkle",
+   "text": "We crossed every stone! Twenty is two tens."
+  },
+  "b2.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you found numbers all the way to twenty. Goodnight, Siara!"
+  },
+  "b3.open1": {
+   "speaker": "narrator",
+   "text": "Each part of the bridge has two plank boxes. The first box must be full before the second one holds."
+  },
+  "b3.open2": {
+   "speaker": "sparkle",
+   "text": "Let's fill the first box to ten, then put the rest in the next box."
+  },
+  "b3.payoff": {
+   "speaker": "sparkle",
+   "text": "Another part of the bridge is fixed! Making ten first makes adding easy."
+  },
+  "b3.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you added by making ten first. Goodnight, Siara!"
+  },
+  "b4.open1": {
+   "speaker": "narrator",
+   "text": "A long log runs beside the bridge, marked with stones from zero to twenty."
+  },
+  "b4.open2": {
+   "speaker": "sparkle",
+   "text": "I can hop a long way today! Count my hops with me."
+  },
+  "b4.payoff": {
+   "speaker": "sparkle",
+   "text": "Boing! We hopped all the way along the log."
+  },
+  "b4.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you added by hopping on to twenty. Goodnight, Siara!"
+  },
+  "b5.open1": {
+   "speaker": "narrator",
+   "text": "Only the last part of the bridge is missing. The beaver has brought all the planks."
+  },
+  "b5.open2": {
+   "speaker": "sparkle",
+   "text": "Let's put the bridge together, Siara. You can use numbers now!"
+  },
+  "b5.payoff1": {
+   "speaker": "sparkle",
+   "text": "You rebuilt the whole bridge! Today you learned that teen numbers are ten and some more."
+  },
+  "b5.payoff2": {
+   "speaker": "sparkle",
+   "text": "Look, on the other side... is that a cave? I can hear someone grumbling about gems."
+  },
+  "b5.goodbye": {
+   "speaker": "sparkle",
+   "text": "Goodnight, Siara! We'll cross the bridge together next time."
+  },
+  "prompt.tensOnes.concrete": {
+   "speaker": "sparkle",
+   "text": "Here is a bundle of ten planks and some loose ones. Tap each loose plank and count on from ten."
+  },
+  "prompt.tensOnes.pictorial": {
+   "speaker": "sparkle",
+   "text": "A bundle of ten and {b} more planks. How many planks is that?"
+  },
+  "prompt.tensOnes": {
+   "speaker": "sparkle",
+   "text": "Ten and {b} more. How many is that?"
+  },
+  "ask.tensOnes": {
+   "speaker": "sparkle",
+   "text": "How many planks are there altogether?"
+  },
+  "hint.model.tensOnes": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look at the bundle. It already has ten planks inside."
+  },
+  "hint.worked.tensOnes": {
+   "speaker": "sparkle",
+   "text": "Let's start at ten and count on, one plank at a time."
+  },
+  "praise.tensOnes": {
+   "speaker": "sparkle",
+   "text": "Yes! Ten and {b} more is {answer}."
+  },
+  "prompt.findOnLine.concrete": {
+   "speaker": "sparkle",
+   "text": "Can you help me hop to {a}? Tap the stone where {a} lives."
+  },
+  "prompt.bridgeAdd.concrete": {
+   "speaker": "sparkle",
+   "text": "This span has {a} planks. Let's add {b} more. Fill the first box to ten, then use the next box."
+  },
+  "prompt.bridgeAdd.pictorial": {
+   "speaker": "sparkle",
+   "text": "{a} planks and {b} more. How many planks altogether?"
+  },
+  "prompt.bridgeAdd": {
+   "speaker": "sparkle",
+   "text": "{a} plus {b}. If you want help, tap the plank boxes."
+  },
+  "ask.bridgeAdd": {
+   "speaker": "sparkle",
+   "text": "How many planks are there now?"
+  },
+  "hint.model.bridgeAdd": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look at the first box. How many more fill it to ten?"
+  },
+  "hint.worked.bridgeAdd": {
+   "speaker": "sparkle",
+   "text": "Let's count on from {a}, filling the box to ten first."
+  },
+  "praise.bridgeAdd": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} and {b} make {answer}. You filled the ten first!"
+  },
+  "praise.findOnLine": {
+   "speaker": "sparkle",
+   "text": "Yes! That's where {a} lives."
   }
  }
 }

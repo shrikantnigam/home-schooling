@@ -23,8 +23,6 @@ struct ItemUIState: Equatable {
     var counted: [Int] = []
     /// Seeds planted into the flower box (addMore, makeTen concrete).
     var planted = 0
-    /// Flowers moved into bed two (numberBond concrete).
-    var moved = 0
     /// Hops Sparkle has made (hop concrete).
     var hopsDone = 0
     /// Quick look: stars are hidden behind the cloud.
@@ -66,18 +64,28 @@ final class SceneController: ObservableObject {
     var item: Item? { run.currentItem }
     var level: CPALevel { session?.level ?? .concrete }
 
-    /// Concrete pre-steps (tap, plant, move, hop) come before the numeral tiles.
+    /// Concrete pre-steps (tap, place, hop) come before the numeral tiles.
     var readyToAnswer: Bool {
         guard let item, mood != .correct else { return false }
         if case .hint(.showAnswer) = mood { return false }
         guard level == .concrete else { return true }
-        switch item.kind {
-        case .countTap: return false // answered by tapping every star
-        case .addMore: return ui.planted >= item.b
-        case .makeTen: return ui.planted >= 10 - item.a
-        case .numberBond: return ui.moved >= item.a - item.b
-        case .hop: return ui.hopsDone >= item.b
-        default: return true
+        switch item.concreteStep {
+        case .none: return true
+        case .tap(_, answers: true): return false // answered by tapping every object
+        case .tap(let n, answers: false): return ui.counted.count >= n
+        case .place(let n): return ui.planted >= n
+        case .hop(let n): return ui.hopsDone >= n
+        }
+    }
+
+    /// The concrete step still to do, for the QA play-through.
+    var concreteStepDescription: String {
+        guard let item, level == .concrete else { return "none" }
+        switch item.concreteStep {
+        case .none: return "none"
+        case .tap(let n, let answers): return answers ? "tapAnswers:\(n)" : "tap:\(n)"
+        case .place(let n): return "place:\(n)"
+        case .hop(let n): return "hop:\(n)"
         }
     }
 
@@ -165,45 +173,62 @@ final class SceneController: ObservableObject {
 
     // MARK: Interactions
 
-    /// Countable objects: tapping each one once counts it aloud (one-to-one, AC P1).
+    /// Countable objects: tapping each one once counts it aloud (one-to-one).
     func tapObject(_ index: Int, total: Int) {
         guard let item, mood != .correct, !ui.counted.contains(index) else { return }
+        if case .tap(let n, _) = item.concreteStep, level == .concrete, ui.counted.count >= n { return }
         ui.counted.append(index)
         let n = ui.counted.count
-        if item.kind == .countTap && level == .concrete && n == total {
-            model.speech.say(catalog.count(n)) { [weak self] in self?.submit(item.answer) }
+        let spoken = catalog.count(spokenCount(for: item, steps: n))
+        if case .tap(let need, answers: true) = item.concreteStep, level == .concrete, n == need {
+            model.speech.say(spoken) { [weak self] in self?.submit(item.answer) }
+        } else if case .tap(let need, answers: false) = item.concreteStep, level == .concrete, n == need {
+            model.speech.say([spoken, askLine(for: item)])
         } else {
-            model.speech.say(catalog.count(n))
+            model.speech.say(spoken)
         }
     }
 
-    func plantSeed() {
-        guard let item, mood != .correct else { return }
-        let need = item.kind == .makeTen ? 10 - item.a : item.b
-        guard ui.planted < need else { return }
-        ui.planted += 1
-        let total = item.kind == .makeTen ? item.a + ui.planted : item.a + ui.planted
-        if ui.planted == need, item.kind == .addMore {
-            lastInstruction = [catalog.spoken("prompt.addMore.ask")]
-            model.speech.say([catalog.count(total), catalog.spoken("prompt.addMore.ask")])
-        } else if ui.planted == need, item.kind == .makeTen {
-            let ask = catalog.spoken("prompt.makeTen", item: item)
-            model.speech.say([catalog.spoken("count.10"), ask])
-        } else {
-            model.speech.say(catalog.count(item.kind == .makeTen ? ui.planted : total))
-        }
-    }
-
+    /// Bond flowers: move the next one into bed two.
     func moveFlower() {
-        guard let item, mood != .correct, ui.moved < item.a - item.b else { return }
-        ui.moved += 1
-        model.speech.say(catalog.count(ui.moved))
+        guard let item else { return }
+        tapObject(ui.counted.count, total: item.a - item.b)
+    }
+
+    /// Places one seed, plank, treat or berry.
+    func plantSeed() {
+        guard let item, mood != .correct, case .place(let need) = item.concreteStep, ui.planted < need else { return }
+        ui.planted += 1
+        let spoken = catalog.count(spokenCount(for: item, steps: ui.planted))
+        if ui.planted == need {
+            model.speech.say([spoken, askLine(for: item)])
+        } else {
+            model.speech.say(spoken)
+        }
     }
 
     func hop() {
-        guard let item, mood != .correct, ui.hopsDone < item.b else { return }
+        guard let item, mood != .correct, case .hop(let need) = item.concreteStep, ui.hopsDone < need else { return }
         withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { ui.hopsDone += 1 }
-        model.speech.say(catalog.count(ui.hopsDone))
+        model.speech.say(catalog.count(spokenCount(for: item, steps: ui.hopsDone)))
+    }
+
+    /// What Sparkle says on each concrete step: counting on, skip counting or plain counting.
+    func spokenCount(for item: Item, steps n: Int) -> Int {
+        switch item.kind {
+        case .addMore, .bridgeAdd: return item.a + n
+        case .tensOnes: return 10 * item.a + n
+        case .array: return item.b * n
+        case .skipHop: return item.b * n
+        default: return n
+        }
+    }
+
+    /// The question asked once the hands-on step is done.
+    private func askLine(for item: Item) -> SpokenLine? {
+        let line = catalog.spoken("ask.\(item.kind.rawValue)", item: item) ?? catalog.prompt(for: item, level: .abstract)
+        lastInstruction = [line]
+        return line
     }
 
     func openHelp(_ h: HelpModel) {
@@ -277,9 +302,10 @@ final class SceneController: ObservableObject {
     /// Where counting on starts and how many steps, per activity.
     func countAlongRange(_ item: Item) -> (start: Int, count: Int) {
         switch item.kind {
-        case .addMore, .hop, .equation: return (item.a, item.b)
+        case .addMore, .hop, .equation, .bridgeAdd: return (item.a, item.b)
         case .makeTen: return (0, 10 - item.a)
         case .numberBond: return (0, item.a - item.b)
+        case .tensOnes: return (10 * item.a, item.b)
         default: return (0, item.answer)
         }
     }

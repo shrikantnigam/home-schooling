@@ -302,3 +302,88 @@ struct SeededDots {
         return Double((s >> 33) % 10_000) / 10_000
     }
 }
+
+/// The things counted in each chapter. `second` draws the added part in another colour.
+enum CounterStyle {
+    case flower, plank, gem, guest, treat, berry, crystal
+}
+
+struct CounterSprite: View {
+    var style: CounterStyle
+    var second = false
+    var size: CGFloat = 46
+    var body: some View {
+        switch style {
+        case .flower:
+            FlowerSprite(color: second ? Theme.gold : Theme.mane, size: size)
+        case .plank:
+            RoundedRectangle(cornerRadius: size * 0.12)
+                .fill(second ? Color(hex: 0xC98B52) : Theme.soil)
+                .overlay(RoundedRectangle(cornerRadius: size * 0.12).stroke(Theme.soilDark, lineWidth: 2))
+                .frame(width: size * 0.36, height: size)
+                .frame(width: size, height: size)
+        case .gem:
+            GemShape()
+                .fill(second ? Theme.lavender : Color(hex: 0x3FB6C8))
+                .overlay(GemShape().stroke(Color.white.opacity(0.8), lineWidth: 2))
+                .frame(width: size * 0.8, height: size * 0.8)
+                .frame(width: size, height: size)
+        case .guest:
+            VStack(spacing: 0) {
+                Circle().fill(Color(hex: 0xE8B48A)).frame(width: size * 0.38, height: size * 0.38)
+                Triangle().fill(second ? Theme.gold : Theme.lavender).frame(width: size * 0.6, height: size * 0.5)
+            }
+            .frame(width: size, height: size)
+        case .treat:
+            VStack(spacing: 0) {
+                Circle().fill(second ? Theme.gold : Theme.mane).frame(width: size * 0.55, height: size * 0.45)
+                Rectangle().fill(Theme.soil).frame(width: size * 0.45, height: size * 0.32)
+            }
+            .frame(width: size, height: size)
+        case .berry:
+            Circle().fill(second ? Theme.lavender : Color(hex: 0xD9435F))
+                .overlay(Circle().fill(Theme.garden).frame(width: size * 0.18).offset(y: -size * 0.3))
+                .frame(width: size * 0.6, height: size * 0.6)
+                .frame(width: size, height: size)
+        case .crystal:
+            GemShape().fill(second ? Theme.gold : Color(hex: 0xBFD8FF))
+                .frame(width: size * 0.7, height: size)
+                .frame(width: size, height: size)
+        }
+    }
+}
+
+struct GemShape: Shape {
+    func path(in r: CGRect) -> Path {
+        Path { p in
+            p.move(to: CGPoint(x: r.midX, y: r.minY))
+            p.addLine(to: CGPoint(x: r.maxX, y: r.minY + r.height * 0.38))
+            p.addLine(to: CGPoint(x: r.midX, y: r.maxY))
+            p.addLine(to: CGPoint(x: r.minX, y: r.minY + r.height * 0.38))
+            p.closeSubpath()
+        }
+    }
+}
+
+/// A bundle of ten planks tied with a band (Chapter 2).
+struct TenBundle: View {
+    var glow = false
+    var size: CGFloat = 120
+    var body: some View {
+        ZStack {
+            HStack(spacing: 1) {
+                ForEach(0..<10, id: \.self) { _ in
+                    RoundedRectangle(cornerRadius: 3).fill(Theme.soil)
+                        .overlay(RoundedRectangle(cornerRadius: 3).stroke(Theme.soilDark, lineWidth: 1))
+                        .frame(width: size * 0.085, height: size)
+                }
+            }
+            Rectangle().fill(Theme.mane).frame(width: size * 1.02, height: size * 0.1)
+            Text("10").font(Theme.numeral(size * 0.2)).foregroundStyle(.white)
+                .padding(4).background(Circle().fill(Theme.deepLavender)).offset(y: -size * 0.62)
+        }
+        .frame(width: size * 1.05, height: size * 1.3)
+        .shadow(color: glow ? Theme.gold : .clear, radius: 14)
+        .accessibilityIdentifier("tenBundle")
+    }
+}

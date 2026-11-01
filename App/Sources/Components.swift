@@ -129,6 +129,10 @@ struct FlowerBox: View {
     var countIndex: Int?
     var countStart = 0
     var labels = false
+    /// What sits in the cells: flowers in the Garden, planks on the Bridge, gems with the Goblin.
+    var style: CounterStyle = .flower
+    /// First cell's number, so a second ten-frame counts 11 to 20.
+    var labelOffset = 0
 
     var body: some View {
         VStack(spacing: 8) {
@@ -153,12 +157,12 @@ struct FlowerBox: View {
         return ZStack {
             RoundedRectangle(cornerRadius: 12).fill(Theme.soilDark.opacity(filled ? 0.5 : (hintGlow ? 0.2 : 0.65)))
             if filled {
-                FlowerSprite(color: i < first ? Theme.mane : Theme.gold, size: cellSize * 0.72)
+                CounterSprite(style: style, second: i >= first, size: cellSize * 0.72)
             } else if hintGlow {
                 RoundedRectangle(cornerRadius: 12).stroke(Theme.gold, style: StrokeStyle(lineWidth: 3, dash: [6, 5]))
             }
             if labels || counting {
-                Text("\(i + 1)").font(Theme.numeral(18)).foregroundStyle(.white)
+                Text("\(labelOffset + i + 1)").font(Theme.numeral(18)).foregroundStyle(.white)
                     .padding(4).background(Circle().fill(Theme.deepLavender))
                     .offset(x: cellSize * 0.3, y: -cellSize * 0.3)
             }
@@ -177,11 +181,15 @@ struct StoneLine: View {
     /// Hops drawn as dashed arcs from `hopFrom`.
     var hopFrom: Int?
     var hops: Int = 0
+    /// Stones per hop (skip counting hops several stones at once).
+    var hopSize: Int = 1
     var showNumbers: Set<Int>? = nil
     var showDots = false
     var glowStone: Int?
     var countStone: Int?
     var enabled = true
+    /// Custom stone labels, e.g. fractions on the moonbeam.
+    var label: ((Int) -> String)? = nil
     var onTap: (Int) -> Void
 
     var body: some View {
@@ -194,11 +202,11 @@ struct StoneLine: View {
                 if let from = hopFrom, hops > 0 {
                     Path { p in
                         for h in 0..<hops {
-                            let x0 = step * (CGFloat(from + h) + 0.5)
-                            let x1 = step * (CGFloat(from + h + 1) + 0.5)
+                            let x0 = step * (CGFloat(from + h * hopSize) + 0.5)
+                            let x1 = step * (CGFloat(from + (h + 1) * hopSize) + 0.5)
                             p.move(to: CGPoint(x: x0, y: baseY - stone * 0.45))
                             p.addQuadCurve(to: CGPoint(x: x1, y: baseY - stone * 0.45),
-                                           control: CGPoint(x: (x0 + x1) / 2, y: baseY - stone * 1.6))
+                                           control: CGPoint(x: (x0 + x1) / 2, y: baseY - stone * (1.2 + 0.4 * CGFloat(hopSize))))
                         }
                     }
                     .stroke(Theme.lavender, style: StrokeStyle(lineWidth: 4, lineCap: .round, dash: [8, 7]))
@@ -207,7 +215,8 @@ struct StoneLine: View {
                     Button { onTap(i) } label: {
                         VStack(spacing: 2) {
                             if showNumbers?.contains(i) ?? true {
-                                Text("\(i)").font(Theme.numeral(top > 10 ? 22 : 30)).foregroundStyle(Theme.ink)
+                                Text(label?(i) ?? "\(i)").font(Theme.numeral(top > 10 ? 22 : 30)).foregroundStyle(Theme.ink)
+                                    .minimumScaleFactor(0.5)
                             } else {
                                 Text(" ").font(Theme.numeral(30))
                             }

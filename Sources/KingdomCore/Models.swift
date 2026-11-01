@@ -62,6 +62,60 @@ public enum ActivityKind: String, Codable, CaseIterable, Sendable {
     case makeTen
     /// `a` plus `b` with numerals, models one tap away (G5). Answer: a + b.
     case equation
+
+    // Chapter 2: The Bridge of Tens
+    /// `a` bundles of ten and `b` loose planks; how many planks? Answer: 10a + b.
+    case tensOnes
+    /// `a` planks and `b` more, filling one ten-frame before the next. Answer: a + b.
+    case bridgeAdd
+
+    // Chapter 3: The Goblin's Gems
+    /// `a` gems, the goblin takes `b`; how many are left? Answer: a - b.
+    case takeAway
+    /// Sparkle on `a` hops back `b` times; where does she land? Answer: a - b.
+    case hopBack
+    /// Siara has `a` gems, the goblin has `b`; how many more does Siara have? Answer: a - b.
+    case compare
+    /// `a` minus `b` with numerals, models one tap away. Answer: a - b.
+    case subtraction
+
+    // Chapter 4: The Royal Ball
+    /// `a` tables with `b` guests at each; how many guests? Answer: a × b.
+    case groups
+    /// `a` rows of `b` chairs; how many chairs? Answer: a × b.
+    case array
+    /// Hop `a` times, `b` stones each hop; where does Sparkle land? Answer: a × b.
+    case skipHop
+    /// `a` times `b` with numerals, models one tap away. Answer: a × b.
+    case multiply
+
+    // Chapter 5: The Fair Feast
+    /// Share `a` treats fairly onto `b` plates; how many on each plate? Answer: a ÷ b.
+    case share
+    /// `a` berries, `b` in each basket; how many baskets? Answer: a ÷ b.
+    case groupInto
+    /// `a` divided by `b` with numerals, models one tap away. Answer: a ÷ b.
+    case divide
+
+    // Chapter 6: The Moon Crystal
+    /// The crystal is cut into `b` equal parts; how many parts? Answer: b.
+    case parts
+    /// A moonbeam from 0 to 1 cut into `b` equal steps; tap where `a`/`b` lives. Answer: a.
+    case fractionLine
+    /// One `b`th of `a` gems (one half, one quarter...); how many is that? Answer: a ÷ b.
+    case fractionOf
+}
+
+/// The hands-on step a concrete item asks for before the numeral tiles appear.
+public enum ConcreteStep: Equatable, Sendable {
+    /// Answer straight away (tiles or line).
+    case none
+    /// Tap `n` objects, each one once. When `answers` is true, tapping them all is the answer itself.
+    case tap(Int, answers: Bool)
+    /// Place `n` things (seeds, planks, treats) with drag or tap.
+    case place(Int)
+    /// Make `n` hops on the line.
+    case hop(Int)
 }
 
 public struct Item: Codable, Hashable, Identifiable, Sendable {
@@ -104,11 +158,64 @@ public struct Item: Codable, Hashable, Identifiable, Sendable {
         case .addMore, .hop, .equation: return a + b
         case .numberBond: return a - b
         case .makeTen: return 10 - a
+        case .tensOnes: return 10 * a + b
+        case .bridgeAdd: return a + b
+        case .takeAway, .hopBack, .compare, .subtraction: return a - b
+        case .groups, .array, .skipHop, .multiply: return a * b
+        case .share, .groupInto, .divide, .fractionOf: return b == 0 ? 0 : a / b
+        case .parts: return b
+        case .fractionLine: return a
         }
     }
 
     /// Whether the child answers by tapping a stone on the number line rather than a numeral tile.
-    public var answersOnLine: Bool { kind == .findOnLine || kind == .hop }
+    public var answersOnLine: Bool {
+        switch kind {
+        case .findOnLine, .hop, .hopBack, .skipHop, .fractionLine: return true
+        default: return false
+        }
+    }
+
+    /// Kinds whose answer is a count of things, so 0 is never offered as a choice.
+    public var answerIsCount: Bool {
+        switch kind {
+        case .countTap, .howMany, .quickLook, .tensOnes, .groups, .array, .share, .groupInto, .parts, .fractionOf, .divide, .multiply:
+            return true
+        default: return false
+        }
+    }
+
+    /// The symbol shown between the numbers at the abstract level.
+    public var operatorSymbol: String {
+        switch kind {
+        case .takeAway, .hopBack, .compare, .subtraction: return "−"
+        case .groups, .array, .skipHop, .multiply: return "×"
+        case .share, .groupInto, .divide: return "÷"
+        default: return "+"
+        }
+    }
+
+    /// The concrete step for this item (spec: concrete level means she handles the objects).
+    public var concreteStep: ConcreteStep {
+        switch kind {
+        case .countTap: return .tap(a, answers: true)
+        case .addMore: return .place(b)
+        case .makeTen: return .place(10 - a)
+        case .numberBond: return .tap(a - b, answers: false)
+        case .hop: return .hop(b)
+        case .tensOnes: return .tap(b, answers: false)
+        case .bridgeAdd: return .place(b)
+        case .takeAway: return .tap(b, answers: false)
+        case .hopBack: return .hop(b)
+        case .compare: return .tap(a - b, answers: false)
+        case .groups: return .tap(a * b, answers: false)
+        case .array: return .tap(a, answers: false)
+        case .skipHop: return .hop(a)
+        case .share, .groupInto, .fractionOf: return .place(a)
+        case .parts: return .tap(b, answers: false)
+        case .howMany, .findOnLine, .quickLook, .equation, .subtraction, .multiply, .divide, .fractionLine: return .none
+        }
+    }
 }
 
 public struct StoryScene: Codable, Hashable, Identifiable, Sendable {

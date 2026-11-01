@@ -58,6 +58,9 @@ final class QAPlayer {
         let b: Int
         let answer: Int
         let level: String
+        /// e.g. "tap:3", "tapAnswers:5", "place:2", "hop:3" or "none".
+        let steps: String
+        let onLine: Bool
     }
 
     /// The item on screen, read from its accessibility description.
@@ -76,29 +79,32 @@ final class QAPlayer {
         return ItemInfo(
             id: parts.count > 1 ? String(parts[1]) : ident,
             kind: f["kind"] ?? "", a: Int(f["a"] ?? "") ?? 0, b: Int(f["b"] ?? "") ?? 0,
-            answer: Int(f["answer"] ?? "") ?? 0, level: f["level"] ?? ""
+            answer: Int(f["answer"] ?? "") ?? 0, level: f["level"] ?? "",
+            steps: f["steps"] ?? "none", onLine: f["line"] == "true"
         )
     }
 
-    /// Does the hands-on part of a concrete item: tap stars, plant seeds, move flowers, hop.
+    /// Does the hands-on part of a concrete item: tap objects, place things, or hop.
     func doConcreteSteps(_ i: ItemInfo) {
-        guard i.level == "concrete" else { return }
-        switch i.kind {
-        case "countTap", "howMany":
-            for s in 0..<i.a { tap("star.\(s)") }
-        case "addMore":
-            for _ in 0..<i.b { tap("seed.0") }
-        case "makeTen":
-            for _ in 0..<(10 - i.a) { tap("seed.0") }
-        case "numberBond":
-            for _ in 0..<(i.a - i.b) { tap("pot.0") }
+        let parts = i.steps.split(separator: ":")
+        guard parts.count == 2, let n = Int(parts[1]) else { return }
+        switch parts[0] {
+        case "tap", "tapAnswers":
+            for k in 0..<n {
+                // Stars and gems are tapped by index; flowers waiting for a bed are always the first one.
+                if el("star.\(k)").exists { tap("star.\(k)") }
+                else if el("obj.\(k)").exists { tap("obj.\(k)") }
+                else { tap("pot.0") }
+            }
+        case "place":
+            for _ in 0..<n { tap(el("seed.0").exists ? "seed.0" : "source") }
         case "hop":
-            for h in 0..<i.b { tap("horseshoe.\(h)") }
+            for k in 0..<n { tap(el("horseshoe.\(k)").exists ? "horseshoe.\(k)" : "hopper") }
         default: break
         }
     }
 
-    var answersOnLine: (ItemInfo) -> Bool = { $0.kind == "findOnLine" || $0.kind == "hop" }
+    var answersOnLine: (ItemInfo) -> Bool = { $0.onLine }
 
     /// Gives an answer: a stone on the line, or a tile touched twice (hear, then choose).
     func answer(_ n: Int, for i: ItemInfo) {
@@ -121,7 +127,7 @@ final class QAPlayer {
     func solve(_ i: ItemInfo, wrongTries: Int = 0, snapEach: Bool = true) {
         if snapEach { snap("\(i.id) \(i.level) asks") }
         doConcreteSteps(i)
-        if i.kind == "countTap" && i.level == "concrete" {
+        if i.steps.hasPrefix("tapAnswers") {
             // Counting every star is the answer.
             if snapEach { snap("\(i.id) counted") }
             tapNext()

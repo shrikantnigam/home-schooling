@@ -4,7 +4,7 @@ import SwiftUI
 // One view per activity kind. Each shows the item at its CPA level:
 // concrete = objects she moves or taps, pictorial = pictures, abstract = numerals.
 
-private extension SceneController {
+extension SceneController {
     var hintStage: HintStage? { if case .hint(let s) = mood { return s } else { return nil } }
     var revealed: Bool { mood == .hint(.showAnswer) || mood == .correct }
 }
@@ -260,7 +260,7 @@ struct NumberBondActivity: View {
                         if level == .abstract { Text("\(other)").font(Theme.numeral(60)).foregroundStyle(Theme.ink) }
                         else { flowers(other, size: 34) }
                     } else if level == .concrete {
-                        flowers(controller.ui.moved, size: 34)
+                        flowers(controller.ui.counted.count, size: 34)
                     } else {
                         Text("?").font(Theme.numeral(60)).foregroundStyle(Theme.lavender)
                     }
@@ -268,10 +268,10 @@ struct NumberBondActivity: View {
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("bed.two")
             }
-            if level == .concrete && controller.ui.moved < other && !controller.revealed {
+            if level == .concrete && controller.ui.counted.count < other && !controller.revealed {
                 // Flowers waiting for a bed: tap each to move it into bed two.
                 HStack(spacing: 14) {
-                    ForEach(0..<(other - controller.ui.moved), id: \.self) { i in
+                    ForEach(0..<(other - controller.ui.counted.count), id: \.self) { i in
                         Button { controller.moveFlower() } label: {
                             FlowerSprite(color: Theme.gold, size: 54).frame(width: 70, height: 70)
                                 .background(Circle().fill(Color.white.opacity(0.6)))
@@ -438,5 +438,443 @@ struct EquationText: View {
             Text("\(n)").font(Theme.numeral(size))
             if showDots { DotPattern(n: n, dot: 12) }
         }
+    }
+}
+
+// MARK: Chapter 2: the Bridge of Tens
+
+/// Ten and some more: a bundle of ten plus loose planks (B1).
+struct TensOnesActivity: View {
+    let item: Item
+    @ObservedObject var controller: SceneController
+
+    var body: some View {
+        let level = controller.level
+        VStack(spacing: 24) {
+            if level == .abstract && controller.hintStage == nil {
+                EquationText(a: 10 * item.a, b: item.b, op: "and", showDots: false)
+            } else {
+                HStack(alignment: .bottom, spacing: 40) {
+                    HStack(spacing: 16) {
+                        ForEach(0..<item.a, id: \.self) { _ in TenBundle(glow: controller.hintStage == .modelHint) }
+                    }
+                    HStack(spacing: 10) {
+                        ForEach(0..<item.b, id: \.self) { i in
+                            let counted = controller.ui.counted.firstIndex(of: i)
+                            Button { controller.tapObject(i, total: item.b) } label: {
+                                ZStack(alignment: .top) {
+                                    CounterSprite(style: .plank, size: 110)
+                                        .frame(width: 60, height: 130)
+                                        .shadow(color: controller.ui.countAlong == i ? Theme.gold : .clear, radius: 12)
+                                    if let c = counted {
+                                        badge(10 * item.a + c + 1)
+                                    } else if controller.revealed || controller.ui.countAlong.map({ $0 >= i }) == true {
+                                        badge(10 * item.a + i + 1)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(level != .concrete || controller.revealed)
+                            .accessibilityIdentifier("obj.\(i)")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func badge(_ n: Int) -> some View {
+        Text("\(n)").font(Theme.numeral(20)).foregroundStyle(.white)
+            .padding(6).background(Circle().fill(Theme.deepLavender)).offset(y: -22)
+    }
+}
+
+/// A pile to drag or tap things from (planks, treats, berries).
+struct SourcePile: View {
+    let style: CounterStyle
+    let remaining: Int
+    let place: () -> Void
+    @State private var drag: CGSize = .zero
+
+    var body: some View {
+        ZStack {
+            ForEach(0..<min(remaining, 6), id: \.self) { i in
+                CounterSprite(style: style, second: true, size: 56)
+                    .offset(x: CGFloat(i % 3) * 14 - 14, y: CGFloat(i / 3) * -10)
+            }
+            if remaining > 0 {
+                Text("\(remaining)").font(Theme.numeral(18)).foregroundStyle(.white)
+                    .padding(5).background(Circle().fill(Theme.deepLavender)).offset(x: 44, y: -34)
+                    .accessibilityHidden(true)
+            }
+        }
+        .frame(width: 120, height: 90)
+        .background(RoundedRectangle(cornerRadius: 18).fill(Color.white.opacity(0.75)))
+        .offset(drag)
+        .gesture(
+            DragGesture(minimumDistance: 4)
+                .onChanged { drag = $0.translation }
+                .onEnded { v in
+                    drag = .zero
+                    if v.translation.height < -80 { place() }
+                }
+        )
+        .onTapGesture { place() }
+        .opacity(remaining > 0 ? 1 : 0.3)
+        .accessibilityElement()
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("source")
+    }
+}
+
+/// Two ten-frames side by side; the first fills before the second (AC-2b).
+struct DoubleFrame: View {
+    var first: Int
+    var second: Int
+    var style: CounterStyle
+    var hintGlow = false
+    var countIndex: Int?
+    var countStart = 0
+    var labels = false
+    var cellSize: CGFloat = 54
+
+    var body: some View {
+        let total = first + second
+        HStack(spacing: 18) {
+            FlowerBox(first: min(first, 10), second: max(0, min(total, 10) - min(first, 10)), cellSize: cellSize,
+                      hintGlow: hintGlow, countIndex: countIndex, countStart: countStart, labels: labels, style: style)
+            FlowerBox(first: max(0, first - 10), second: max(0, total - 10) - max(0, first - 10), cellSize: cellSize,
+                      countIndex: countIndex.map { $0 + countStart - 10 }, countStart: 0, labels: labels, style: style,
+                      labelOffset: 10)
+        }
+    }
+}
+
+/// Add within 20 by making ten (B3, B5).
+struct BridgeAddActivity: View {
+    let item: Item
+    @ObservedObject var controller: SceneController
+
+    var body: some View {
+        let level = controller.level
+        VStack(spacing: 22) {
+            if level == .abstract && controller.ui.help == nil && controller.hintStage == nil {
+                EquationText(a: item.a, b: item.b, op: "+", showDots: controller.showDots(for: item.a))
+                HelpButtons(controller: controller, line: false)
+            } else {
+                DoubleFrame(
+                    first: item.a,
+                    second: level == .concrete && controller.ui.help == nil ? controller.ui.planted : item.b,
+                    style: .plank,
+                    hintGlow: controller.hintStage == .modelHint,
+                    countIndex: controller.ui.countAlong,
+                    countStart: item.a,
+                    labels: controller.revealed
+                )
+                if level == .concrete && controller.ui.help == nil {
+                    SourcePile(style: .plank, remaining: max(0, item.b - controller.ui.planted)) { controller.plantSeed() }
+                }
+            }
+        }
+    }
+}
+
+// MARK: Chapters 3 to 6: shared counter and line activities
+
+extension Item {
+    /// What the counters look like in each chapter.
+    var counterStyle: CounterStyle {
+        switch kind {
+        case .takeAway, .compare, .subtraction, .hopBack, .fractionOf: return .gem
+        case .groups, .array, .multiply, .skipHop: return .guest
+        case .share, .divide: return .treat
+        case .groupInto: return .berry
+        case .parts, .fractionLine: return .crystal
+        case .tensOnes, .bridgeAdd: return .plank
+        default: return .flower
+        }
+    }
+}
+
+/// Counter activities for subtraction, multiplication, division and fractions of a set.
+/// Concrete: she taps or places the objects. Pictorial: the same picture, still. Abstract: numerals.
+struct CounterActivity: View {
+    let item: Item
+    @ObservedObject var controller: SceneController
+
+    var body: some View {
+        let level = controller.level
+        let abstractOnly = (level == .abstract || item.kind == .subtraction || item.kind == .multiply || item.kind == .divide)
+            && controller.ui.help == nil && controller.hintStage == nil
+        VStack(spacing: 20) {
+            if abstractOnly {
+                EquationText(a: item.a, b: item.b, op: item.operatorSymbol, showDots: false)
+                if item.kind == .parts || item.kind == .fractionOf {
+                    EmptyView()
+                } else {
+                    HelpButtons(controller: controller, line: false)
+                }
+            } else {
+                picture(level: level)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func picture(level: CPALevel) -> some View {
+        let concrete = level == .concrete && controller.ui.help == nil
+        switch item.kind {
+        case .takeAway, .subtraction:
+            // a gems; the goblin's sack takes b. Concrete: tap b gems to give them away.
+            VStack(spacing: 16) {
+                tapRow(count: item.a, crossed: concrete ? Set(controller.ui.counted) : Set(0..<item.b), tappable: concrete)
+                SackView(count: concrete ? controller.ui.counted.count : item.b)
+            }
+        case .compare:
+            VStack(alignment: .leading, spacing: 14) {
+                matchRow(count: item.a, matched: item.b, tappable: concrete, label: "Siara")
+                matchRow(count: item.b, matched: item.b, tappable: false, label: "Goblin")
+            }
+        case .groups, .multiply:
+            HStack(spacing: 22) {
+                ForEach(0..<item.a, id: \.self) { g in
+                    groupCircle(index: g, size: item.b, tappableOffset: g * item.b, tappable: concrete)
+                }
+            }
+        case .array:
+            VStack(spacing: 10) {
+                ForEach(0..<item.a, id: \.self) { r in
+                    Button { controller.tapObject(r, total: item.a) } label: {
+                        HStack(spacing: 6) {
+                            ForEach(0..<item.b, id: \.self) { _ in CounterSprite(style: .guest, second: controller.ui.counted.contains(r), size: 44) }
+                            if let k = controller.ui.counted.firstIndex(of: r) { badge(item.b * (k + 1)) }
+                        }
+                        .padding(6)
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white.opacity(controller.ui.countAlong == r ? 0.95 : 0.6)))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!concrete)
+                    .accessibilityIdentifier("obj.\(r)")
+                }
+            }
+        case .share, .divide, .groupInto, .fractionOf:
+            let containers = item.kind == .groupInto ? item.answer : item.b
+            let placed = concrete ? controller.ui.planted : item.a
+            VStack(spacing: 18) {
+                HStack(spacing: 18) {
+                    ForEach(0..<containers, id: \.self) { c in
+                        let inThis = item.kind == .groupInto
+                            ? max(0, min(item.b, placed - c * item.b))
+                            : placed / containers + (c < placed % containers ? 1 : 0)
+                        VStack(spacing: 4) {
+                            LazyVGrid(columns: Array(repeating: GridItem(.fixed(34), spacing: 2), count: 3), spacing: 2) {
+                                ForEach(0..<inThis, id: \.self) { _ in CounterSprite(style: item.counterStyle, size: 34) }
+                            }
+                            .frame(width: 112, height: 96)
+                            .background(Ellipse().fill(Color.white.opacity(0.85)))
+                            .overlay(Ellipse().stroke(c == 0 && controller.hintStage == .modelHint ? Theme.gold : Theme.lavender, lineWidth: 3))
+                            .shadow(color: c == 0 && controller.hintStage != nil ? Theme.gold : .clear, radius: 10)
+                        }
+                    }
+                }
+                if concrete {
+                    SourcePile(style: item.counterStyle, remaining: max(0, item.a - controller.ui.planted)) { controller.plantSeed() }
+                }
+            }
+        case .parts:
+            // The crystal cut into b equal parts; tap each part to count it.
+            HStack(spacing: 6) {
+                ForEach(0..<item.b, id: \.self) { i in
+                    Button { controller.tapObject(i, total: item.b) } label: {
+                        ZStack {
+                            Rectangle().fill(controller.ui.counted.contains(i) ? Theme.gold : Color(hex: 0xBFD8FF))
+                                .frame(width: 360 / CGFloat(item.b), height: 220)
+                            if let k = controller.ui.counted.firstIndex(of: i) { badge(k + 1) }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!concrete)
+                    .accessibilityIdentifier("obj.\(i)")
+                }
+            }
+            .clipShape(Circle())
+            .overlay(Circle().stroke(Color.white, lineWidth: 6))
+            .frame(width: 380, height: 260)
+        default:
+            EmptyView()
+        }
+    }
+
+    private func tapRow(count: Int, crossed: Set<Int>, tappable: Bool) -> some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.fixed(64), spacing: 8), count: min(count, 10)), spacing: 8) {
+            ForEach(0..<count, id: \.self) { i in
+                Button { controller.tapObject(i, total: item.b) } label: {
+                    CounterSprite(style: item.counterStyle, size: 52)
+                        .opacity(crossed.contains(i) ? 0.25 : 1)
+                        .overlay(crossed.contains(i) ? Image(systemName: "arrow.down").foregroundStyle(Theme.muted) : nil)
+                        .frame(width: 64, height: 64)
+                        .shadow(color: controller.ui.countAlong == i ? Theme.gold : .clear, radius: 10)
+                }
+                .buttonStyle(.plain)
+                .disabled(!tappable || crossed.contains(i))
+                .accessibilityIdentifier("obj.\(i)")
+            }
+        }
+    }
+
+    private func matchRow(count: Int, matched: Int, tappable: Bool, label: String) -> some View {
+        HStack(spacing: 8) {
+            Text(label).font(Theme.title(20)).foregroundStyle(Theme.ink).frame(width: 90, alignment: .leading)
+            ForEach(0..<count, id: \.self) { i in
+                let extra = i >= matched
+                let k = extra ? i - matched : -1
+                Button { if extra { controller.tapObject(k, total: count - matched) } } label: {
+                    ZStack(alignment: .top) {
+                        CounterSprite(style: .gem, second: label != "Siara", size: 48)
+                            .frame(width: 56, height: 60)
+                            .background(RoundedRectangle(cornerRadius: 10).fill(extra && controller.hintStage == .modelHint ? Theme.gold.opacity(0.35) : .clear))
+                        if extra, let c = controller.ui.counted.firstIndex(of: k) { badge(c + 1) }
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(!tappable || !extra)
+                .accessibilityIdentifier(extra && tappable ? "obj.\(k)" : "gem.\(label).\(i)")
+            }
+        }
+    }
+
+    private func groupCircle(index g: Int, size: Int, tappableOffset: Int, tappable: Bool) -> some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.fixed(40), spacing: 4), count: min(size, 3)), spacing: 4) {
+            ForEach(0..<size, id: \.self) { j in
+                let idx = tappableOffset + j
+                Button { controller.tapObject(idx, total: item.a * item.b) } label: {
+                    ZStack(alignment: .top) {
+                        CounterSprite(style: .guest, second: controller.ui.counted.contains(idx), size: 40)
+                        if let c = controller.ui.counted.firstIndex(of: idx) { badge(c + 1).scaleEffect(0.7) }
+                    }
+                }
+                .buttonStyle(.plain)
+                .disabled(!tappable)
+                .accessibilityIdentifier("obj.\(idx)")
+            }
+        }
+        .padding(14)
+        .background(Circle().fill(Color.white.opacity(0.8)))
+        .overlay(Circle().stroke(controller.hintStage == .modelHint && g == 0 ? Theme.gold : Theme.lavender, lineWidth: 3))
+    }
+
+    private func badge(_ n: Int) -> some View {
+        Text("\(n)").font(Theme.numeral(18)).foregroundStyle(.white)
+            .padding(5).background(Circle().fill(Theme.deepLavender)).offset(y: -18)
+    }
+}
+
+/// The goblin's sack, showing how many gems went in.
+struct SackView: View {
+    var count: Int
+    var body: some View {
+        ZStack {
+            Ellipse().fill(Theme.soil).frame(width: 120, height: 90)
+            Text("\(count)").font(Theme.numeral(30)).foregroundStyle(.white)
+        }
+        .accessibilityIdentifier("sack")
+    }
+}
+
+/// Line activities for hopping back, skip counting and fractions on the moonbeam.
+struct LineOpsActivity: View {
+    let item: Item
+    @ObservedObject var controller: SceneController
+
+    var body: some View {
+        let level = controller.level
+        let concrete = level == .concrete
+        let done = controller.ui.hopsDone
+        VStack(spacing: 12) {
+            HStack(spacing: 24) {
+                if item.kind == .fractionLine {
+                    FractionText(numerator: item.a, denominator: item.b)
+                } else if level == .abstract {
+                    EquationText(a: item.a, b: item.b, op: item.operatorSymbol, showDots: false, size: 56)
+                }
+                if concrete, case .hop(let n) = item.concreteStep {
+                    Button { controller.hop() } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: item.kind == .hopBack ? "arrow.uturn.left" : "arrow.right")
+                                .font(.system(size: 30, weight: .bold))
+                            Text("\(max(0, n - done))").font(Theme.numeral(30))
+                        }
+                        .foregroundStyle(Theme.ink)
+                        .frame(width: 120, height: 70)
+                        .background(Capsule().fill(Theme.gold))
+                    }
+                    .disabled(done >= n)
+                    .accessibilityIdentifier("hopper")
+                }
+            }
+            StoneLine(
+                top: item.top,
+                sparkleAt: controller.revealed ? item.answer : sparklePosition(done: done, level: level),
+                hopFrom: hopFrom(done: done, level: level),
+                hops: hopCount(done: done, level: level),
+                hopSize: item.kind == .skipHop ? item.b : 1,
+                showNumbers: level == .abstract && controller.hintStage == nil && item.kind != .fractionLine ? [0, item.top / 2, item.top] : nil,
+                showDots: false,
+                glowStone: controller.revealed ? item.answer : nil,
+                countStone: nil,
+                enabled: controller.readyToAnswer,
+                label: item.kind == .fractionLine ? fractionLabel : nil
+            ) { controller.touchStone($0) }
+            .frame(height: 300)
+        }
+        .padding(.trailing, 30)
+    }
+
+    private func fractionLabel(_ i: Int) -> String {
+        i == 0 ? "0" : (i == item.b ? "1" : "\(i)/\(item.b)")
+    }
+
+    private func sparklePosition(done: Int, level: CPALevel) -> Int {
+        switch item.kind {
+        case .hopBack: return item.a - (level == .concrete ? done : 0)
+        case .skipHop: return item.b * (level == .concrete ? done : 0)
+        default: return 0
+        }
+    }
+
+    private func hopCount(done: Int, level: CPALevel) -> Int {
+        let full = item.kind == .skipHop ? item.a : item.b
+        if item.kind == .fractionLine { return 0 }
+        if controller.revealed || controller.hintStage != nil { return full }
+        switch level {
+        case .concrete: return done
+        case .pictorial: return full
+        case .abstract: return 0
+        }
+    }
+
+    private func hopFrom(done: Int, level: CPALevel) -> Int? {
+        switch item.kind {
+        case .hopBack: return item.a - hopCount(done: done, level: level)
+        case .skipHop: return 0
+        default: return nil
+        }
+    }
+}
+
+struct FractionText: View {
+    let numerator: Int
+    let denominator: Int
+    var body: some View {
+        VStack(spacing: 0) {
+            Text("\(numerator)").font(Theme.numeral(48))
+            Rectangle().fill(Theme.ink).frame(width: 50, height: 4)
+            Text("\(denominator)").font(Theme.numeral(48))
+        }
+        .foregroundStyle(Theme.ink)
+        .padding(.horizontal, 24).padding(.vertical, 8)
+        .background(RoundedRectangle(cornerRadius: 20).fill(Color.white.opacity(0.9)))
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("fraction")
     }
 }

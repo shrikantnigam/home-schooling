@@ -85,6 +85,16 @@ public struct Content: Codable, Sendable {
                 if i.answer < 0 || i.answer > ActivityRules.maxNumber(for: i) {
                     errors.append("item \(i.id) answer \(i.answer) is out of range")
                 }
+                switch i.kind {
+                case .share, .groupInto, .divide, .fractionOf:
+                    if i.b == 0 || i.a % i.b != 0 { errors.append("item \(i.id) does not divide evenly") }
+                case .takeAway, .hopBack, .compare, .subtraction, .numberBond:
+                    if i.b > i.a { errors.append("item \(i.id) would go below zero") }
+                case .fractionLine:
+                    if i.top != i.b || i.a < 0 || i.a > i.b { errors.append("item \(i.id) needs max == b and a within 0...b") }
+                default: break
+                }
+                if i.answersOnLine && i.answer > i.top { errors.append("item \(i.id) lands past the end of the line") }
                 if LineCatalog.promptID(for: i.kind, level: .abstract, lines: lines) == nil {
                     errors.append("no prompt line for kind \(i.kind.rawValue)")
                 }
@@ -110,7 +120,7 @@ public enum ActivityRules {
         let offsets = seed % 2 == 0 ? [1, -1, 2, -2, 3, -3, 4, -4, 5, -5] : [-1, 1, -2, 2, -3, 3, -4, 4, 5, -5]
         for o in offsets where picks.count < count {
             let n = answer + o
-            if n >= (item.kind == .countTap || item.kind == .howMany || item.kind == .quickLook ? 1 : 0) && n <= maxN {
+            if n >= (item.answerIsCount ? 1 : 0) && n <= maxN {
                 picks.insert(n)
             }
         }

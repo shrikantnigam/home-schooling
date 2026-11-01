@@ -6,7 +6,8 @@ struct ScenePlayerView: View {
     @EnvironmentObject var model: AppModel
     @ObservedObject var controller: SceneController
 
-    private var isPrologue: Bool { controller.run.scene.chapter == "prologue" }
+    private var chapter: ChapterID { controller.run.scene.chapter }
+    private var isPrologue: Bool { chapter == "prologue" }
 
     var body: some View {
         ZStack {
@@ -23,7 +24,7 @@ struct ScenePlayerView: View {
                 onCastle: { model.goCastle() },
                 onEar: { controller.replay() },
                 onLock: { model.openParentGate() },
-                dark: isPrologue
+                dark: ChapterLook.isNight(chapter)
             )
             if controller.showNext {
                 VStack { Spacer(); HStack { Spacer(); NextButton { controller.next() } } }
@@ -35,8 +36,10 @@ struct ScenePlayerView: View {
     @ViewBuilder private var background: some View {
         if isPrologue {
             SkyBackground(night: true, litFraction: skyLit)
-        } else {
+        } else if chapter == "garden" {
             GardenBackground(bloom: gardenBloom)
+        } else {
+            LinearGradient(colors: ChapterLook.sky(chapter), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
         }
     }
 
@@ -64,7 +67,7 @@ struct StoryPanel: View {
         VStack(spacing: 24) {
             Text(scene.title)
                 .font(Theme.title(44))
-                .foregroundStyle(scene.chapter == "prologue" ? .white : Theme.ink)
+                .foregroundStyle(ChapterLook.isNight(scene.chapter) ? .white : Theme.ink)
                 .padding(.top, 96)
                 .accessibilityIdentifier("panel.\(kindName).\(scene.id)")
             Spacer()
@@ -75,7 +78,8 @@ struct StoryPanel: View {
                 } else if kind == .payoff, scene.chapter == "prologue" {
                     HStack { ForEach(0..<5, id: \.self) { _ in StarSprite(lit: true, size: 60) } }
                 } else if kind == .payoff {
-                    HStack { ForEach(0..<6, id: \.self) { i in FlowerSprite(color: i.isMultiple(of: 2) ? Theme.mane : Theme.gold, size: 60) } }
+                    HStack { ForEach(0..<6, id: \.self) { _ in ChapterLook.icon(scene.chapter, lit: true, size: 60) } }
+                        .accessibilityIdentifier("payoffArt")
                 }
                 SparkleView(mood: kind == .goodbye ? .happy : .happy, size: 260)
             }
@@ -143,7 +147,7 @@ struct ItemScreen: View {
 
     /// Lets the QA play-through act like a player who knows the answer.
     private var qaDescription: String {
-        "kind=\(item.kind.rawValue);a=\(item.a);b=\(item.b);answer=\(item.answer);level=\(levelName)"
+        "kind=\(item.kind.rawValue);a=\(item.a);b=\(item.b);answer=\(item.answer);level=\(levelName);steps=\(controller.concreteStepDescription);line=\(item.answersOnLine)"
     }
 
     private var isHint: Bool { if case .hint = controller.mood { return true } else { return false } }
@@ -189,6 +193,11 @@ struct ActivityArea: View {
         case .hop: HopActivity(item: item, controller: controller)
         case .makeTen: MakeTenActivity(item: item, controller: controller)
         case .equation: EquationActivity(item: item, controller: controller)
+        case .tensOnes: TensOnesActivity(item: item, controller: controller)
+        case .bridgeAdd: BridgeAddActivity(item: item, controller: controller)
+        case .hopBack, .skipHop, .fractionLine: LineOpsActivity(item: item, controller: controller)
+        case .takeAway, .compare, .subtraction, .groups, .array, .multiply, .share, .groupInto, .divide, .parts, .fractionOf:
+            CounterActivity(item: item, controller: controller)
         }
     }
 }

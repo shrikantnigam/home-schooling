@@ -1,29 +1,65 @@
-# Chapter process (v0, draft before the Chapter 1 retro)
+# Chapter process (v1)
 
 How one chapter of Kingdom of Numbers goes from idea to a playable, tested build.
-This version is the plan used for Chapter 1. The retro after each chapter updates it;
-see the changelog at the end.
+v0 was used for Chapter 1. The Chapter 1 retro ([retros/chapter-1-retro.md](retros/chapter-1-retro.md))
+produced v1. Every later retro updates this file; see the changelog at the end.
 
 ## Roles
 
 | Role | Owns | Signs off on |
 |---|---|---|
-| Product manager (PM) | Chapter brief, scope, acceptance criteria | Story problem = math problem; scope delivered; ACs met |
-| Child learning expert | Skills, CPA ladder, hint and praise scripts, home tips | Pedagogy in the built app matches the brief |
-| UX and graphic designer | Mocks per screen, art list, placeholder art | Screens match the mocks |
-| Developers | Content data, new activity kinds, engine changes, unit tests | Unit tests green; content validation green |
-| QA | Play-through in the iPad simulator, screenshot review, QA report | Every scene playable end to end; every AC checked |
+| Product manager (PM) | Chapter brief, scope, acceptance criteria, deviation log | Story problem = math problem; scope delivered; ACs met; every deviation accepted or ticketed |
+| Child learning expert (LE) | Skills, CPA ladder, hint and praise scripts, home tips, dose check | Pedagogy in the built app matches the brief |
+| UX and graphic designer | Scene layout notes, new components, art list | Screens match the layout notes and style frame |
+| Developers | Content data, activity kinds, engine changes, unit tests, QA hooks | Unit tests green; content validation green; definition of done below |
+| QA | Play-through tests in the iPad simulator, screenshot review, QA report | Every scene playable end to end; one wrong path per activity kind; every AC checked |
 
-## Stages
+## Stages and gates
 
-1. **Brief (PM).** Story problem, math goal, skills (3 to 5), scenes (4 to 6), new ACs.
-2. **Pedagogy (learning expert).** For each skill: what concrete, pictorial and abstract look like; the three hint steps; praise that names what she did; one off-screen home tip.
-3. **Design (UX and graphic).** One mock per scene plus any new shared screens, at 1180 x 820 landscape, with spoken lines in notes.
-4. **Build (developers).** Add skills, scenes, items and lines to `content.json`. Add any new activity kind (core answer rule plus one SwiftUI view). Write unit tests for every new rule.
-5. **QA play-through.** Extend the QA tests to play every new scene, with one wrong-answer path per activity kind, and save a screenshot of each step. Review screenshots against the mocks and ACs. File findings.
-6. **Fix.** Developers fix findings; QA re-runs.
-7. **Retro.** PM, learning expert and QA each sign off or raise gaps. Gaps become learnings, and learnings update this document before the next chapter starts.
+Each stage has an output in the repo. A stage starts only when the one before it has its output.
+
+1. **Brief (PM)** → `docs/chapters/chapter-N.md`, sections 1 and 2.
+   Story problem, math goal, 3 to 5 skills, 4 to 6 scenes, new acceptance criteria (IDs `AC-Nx`),
+   what the payoff changes in the world, and the teaser for the next chapter.
+2. **Pedagogy (LE)** → same file, section 3.
+   For each skill: concrete, pictorial and abstract forms; the 3 hint steps; praise that names what she did;
+   one off-screen home tip. **Dose check (new in v1):** count items per skill across scenes and confirm the
+   mastery rule (up a level at 4 of 5, mastery at 8 of last 10 abstract over 2 days) can be reached with
+   the scene items plus practice scenes, and say how many practice scenes that takes.
+3. **Design (UX and graphic)** → same file, section 4.
+   One layout note per scene using the shared component library (corners, tiles, ten-frame, stone line,
+   bond circles, story panel). Any new component gets a mock board in `mocks/` at 1180 x 820 first.
+   Art list for the chapter (placeholder shapes now, illustration later).
+4. **Build (developers)** → `content.json`, KingdomCore, App.
+   Definition of done (new in v1):
+   - Every new activity kind has: the answer rule in `Item.answer`, a unit test for it, prompt, hint
+     and praise lines at every CPA level, a SwiftUI view for each level, and QA solver support in `QAPlayer`.
+   - Every tappable element has an accessibility identifier; containers use
+     `.accessibilityElement(children: .contain)` so they don't hide their children's identifiers.
+   - Any change from the brief or mock goes in the **deviation log** (section 5 of the chapter file) when it is made, with the reason.
+   - `swift test` is green, including `ContentTests` (content validation, lines for every item at every level).
+5. **QA play-through** → `App/QATests/ChapterNPlaythroughTests.swift` and section 6 of the chapter file.
+   Play every new scene start to finish from a preset, one wrong-answer path per activity kind (all three hint
+   steps for at least one), every new parent-area element, and a screenshot of each step. Review screenshots
+   as contact sheets per scene against the layout notes and the ACs. File each finding with a screenshot name.
+6. **Fix and re-run** until QA has no open blocker. Cosmetic findings can be ticketed.
+7. **Retro** → `docs/retros/chapter-N-retro.md`.
+   PM, LE and QA each sign off, sign off with follow-ups, or block. Gaps become learnings; learnings change this
+   file (bump the version, add to the changelog) before the next chapter's brief starts.
+
+## How the cloud build works
+
+There is no Mac in the cloud session, so CI does the Mac work (`.github/workflows/ci.yml`):
+
+- `Developer unit tests` runs `swift test` on macOS.
+- `QA play-through` generates the Xcode project with XcodeGen, runs the UI tests on an iPad simulator,
+  and prints every screenshot into the job log (the session can read logs but not artifact downloads).
+  Rotate the device to landscape before launching the app, or screenshots come out cropped.
 
 ## Changelog
 
+- v1 (2026-11-01, after the Chapter 1 retro): added the dose check, the developer definition of done
+  (accessibility identifiers, QA solver support), the deviation log, landscape-before-launch for QA,
+  and the cloud CI notes. Design for later chapters is layout notes on the shared components, with new
+  mock boards only for new components.
 - v0 (2026-11-01): first draft, used for Chapter 1.

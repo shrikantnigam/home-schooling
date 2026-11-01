@@ -223,6 +223,12 @@ final class AppModel: ObservableObject {
         case "prologueScenesDone":
             for s in content.chapter("prologue")?.scenes ?? [] { state.completedScenes.insert(s) }
             state.hasMetSparkle = true
+        case "gardenScenesDone":
+            for ch in ["prologue", "garden"] {
+                for s in content.chapter(ch)?.scenes ?? [] { state.completedScenes.insert(s) }
+            }
+            masterChapter("prologue")
+            state.hasMetSparkle = true
         case "limitReached":
             state.time.addPlay(seconds: state.timeSettings.dailyLimitMinutes * 60, at: now, calendar: calendar)
             state.hasMetSparkle = true
