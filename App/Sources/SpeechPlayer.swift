@@ -33,8 +33,13 @@ final class SpeechPlayer: NSObject, ObservableObject {
         super.init()
         synth.delegate = self
         if !instant {
-            try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-            try? AVAudioSession.sharedInstance().setActive(true)
+            // Set up audio off the main thread. Activating the session on the main thread can stall
+            // the first frame (Xcode warns about this), which shows as a blank screen at launch.
+            Task.detached(priority: .userInitiated) {
+                let session = AVAudioSession.sharedInstance()
+                try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+                try? session.setActive(true)
+            }
         }
     }
 
