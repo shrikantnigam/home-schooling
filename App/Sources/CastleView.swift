@@ -9,7 +9,7 @@ struct CastleView: View {
     var body: some View {
         let block = model.block
         ZStack {
-            SkyBackground(night: block != nil, litFraction: litFraction)
+            PaperStage(chapter: block != nil ? "prologue" : nil, lit: litFraction)
             VStack(spacing: 0) {
                 Spacer()
                 HStack(alignment: .bottom, spacing: 30) {
@@ -139,7 +139,7 @@ struct MapView: View {
 
     var body: some View {
         ZStack {
-            SkyBackground(night: false)
+            PaperStage(chapter: nil)
             VStack(spacing: 28) {
                 Text("The Kingdom").font(Theme.title(40)).foregroundStyle(Theme.ink).padding(.top, 90)
                 HStack(alignment: .top, spacing: 18) {

@@ -7,6 +7,7 @@ struct ScenePlayerView: View {
     @ObservedObject var controller: SceneController
 
     private var chapter: ChapterID { controller.run.scene.chapter }
+    @State private var curtainOpen: Double = AppEnvironment.current.uiTesting ? 1 : 0
     private var isPrologue: Bool { chapter == "prologue" }
 
     var body: some View {
@@ -20,6 +21,7 @@ struct ScenePlayerView: View {
                 if let item = controller.item { ItemScreen(item: item, controller: controller).id(item.id + "\(controller.run.itemIndex ?? 0)") }
             case .finished: EmptyView()
             }
+            TheatreCurtain(open: curtainOpen)
             ChildCorners(
                 onCastle: { model.goCastle() },
                 onEar: { controller.replay() },
@@ -31,17 +33,17 @@ struct ScenePlayerView: View {
                     .padding(28)
             }
         }
+        .onAppear { withAnimation(.easeInOut(duration: 1.1)) { curtainOpen = curtainTarget } }
+        .onChange(of: curtainTarget) { _, t in withAnimation(.easeInOut(duration: 0.9)) { curtainOpen = t } }
     }
 
-    @ViewBuilder private var background: some View {
-        if isPrologue {
-            SkyBackground(night: true, litFraction: skyLit)
-        } else if chapter == "garden" {
-            GardenBackground(bloom: gardenBloom)
-        } else {
-            LinearGradient(colors: ChapterLook.sky(chapter), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
-        }
+    /// Each place is its own paper stage set; the Prologue's stars and the Garden's flowers wake as she plays.
+    private var background: some View {
+        PaperStage(chapter: chapter, lit: isPrologue ? skyLit : (chapter == "garden" ? gardenBloom : 1))
     }
+
+    /// The curtain rises as the scene starts and falls (partly, framing the stage) for the goodbye.
+    private var curtainTarget: Double { controller.run.phase == .goodbye ? 0.55 : 1 }
 
     private var skyLit: Double {
         let scenes = model.content.chapter("prologue")?.scenes ?? []

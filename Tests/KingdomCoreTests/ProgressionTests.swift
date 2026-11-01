@@ -134,7 +134,8 @@ final class ProgressionTests: XCTestCase {
 
     // L13: practice and replay never ask more than 3 of a kind in a row when there is a choice.
     func testInterleavedBreaksLongRunsOfOneKind() {
-        let items = content.items(in: "garden")
+        // Six adding items then six bond items: a mix without long runs is possible, so it must be found.
+        let items = content.scene("G1")!.items + content.scene("G2")!.items
         let mixed = Progression.interleaved(items)
         XCTAssertEqual(Set(mixed.map(\.id)), Set(items.map(\.id)))
         var run = 1
