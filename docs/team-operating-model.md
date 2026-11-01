@@ -1,4 +1,4 @@
-# Kingdom of Numbers: team operating model (v1)
+# Kingdom of Numbers: team operating model (v1.1)
 
 Date: 2026-11-01 · Owner: Product manager · Approved by: Shrikant (pending)
 
@@ -132,7 +132,7 @@ in the repo, and a pass rule. A stage starts only when the gate before it has pa
 | 1 | Spec | PM | Brief with ACs in `docs/chapters/` or `docs/features/` | ACs cover the story, the math, the journey (section 6) and narration (section 5A) |
 | 2 | Learning review | LE | Pedagogy section, dose check | Every item's story problem is its math problem; dose reaches the gate; praise and hints scripted |
 | 3 | UX and art | UX, graphic | Layout notes, mock boards, art list | Every new screen has a mock; navigation and progress covered |
-| 4 | Script | Story and voice | Line list per screen, marked intro or feedback | Narration rules in 5A hold on paper |
+| 4 | Script | Story and voice | Line list per screen, marked intro or feedback | `tools/narration_audit.py` has no FAIL; the rest of 5A holds on paper |
 | 5 | Build and unit tests | Developers | Code, content, tests | Definition of done met; CI unit tests green |
 | 6 | QA play-through | QA | UI tests, screenshots, QA report | Launch smoke test, every screen, wrong paths, screenshots match mocks, no blocker |
 | 7 | Narration and voice review | Story and voice, with QA | Transcript per screen from the play-through | Narration audit passes; transcript read in order sounds natural |
@@ -149,7 +149,8 @@ reads it and records the result in the QA report.
 
 ### 5A. Narration and voice (Story and voice director, QA)
 
-QA does not rely on anyone listening. The app records every utterance to a speech log in QA runs
+Rules 2 to 5 and 7 run from content alone with `python3 tools/narration_audit.py`, in any cloud session, at
+gate 4 and in CI. QA does not rely on anyone listening. The app records every utterance to a speech log in QA runs
 (screen id, scene id, line id, speaker, text, and whether it was an intro or feedback). The play-through writes
 one transcript per screen, and a checker runs these rules over it:
 
@@ -158,13 +159,16 @@ one transcript per screen, and a checker runs these rules over it:
 2. **Auto.** Siara's name appears only in the launch welcome. No other line contains "Siara".
 3. **Auto.** "The last number tells how many" (and every other teaching-rule phrase) is spoken at most once
    per scene.
-4. **Auto.** No identical line is spoken twice within 3 utterances, unless it answers a new tap.
-5. **Auto.** No line is longer than 14 words. Lines with more than one sentence are split into separate
-   utterances with a pause (at least 0.3 s) between them.
+4. **Auto.** A how-to sentence ("Tap each star to count it") is said in full at most twice per scene, then in a
+   short form. No identical line is spoken twice within 3 utterances unless it answers a new tap. A question
+   is asked once per item, not again after the hands-on step.
+5. **Auto.** No sentence over 12 words, and no more than 25 words before she can act on an item. Lines with
+   more than one sentence are spoken sentence by sentence with a pause (at least 0.3 s) between them.
 6. **Auto.** Every speaker resolves to a voice that is installed on a default iPad, with a fallback, and every
    utterance produces audio (the speech delegate reports `didFinish`, not `didCancel`, and the duration is above
    zero). Novelty and whisper voices are not used.
-7. **Auto.** Practice and story lines name the right place for the chapter (no garden lines in the cave).
+7. **Auto.** Lines shared by every chapter (practice, map, wrap-up, hints) name no chapter's place or objects
+   (no garden lines in the cave).
 8. **Review.** Read each screen's transcript in order, aloud, as she would hear it in one sitting. Flag anything
    repetitive, nagging, too long, or robotic. Record "read, passed" per screen in the QA report.
 9. **Review.** Pacing: speech rate is slow enough for a 6-year-old, and there is a beat of silence after a question
@@ -178,6 +182,12 @@ one transcript per screen, and a checker runs these rules over it:
 4. **Review.** Hints model the method and never just give the answer.
 5. **Review.** Nothing holds attention without teaching: no streaks, timers, loot, or rewards for their own sake.
 6. **Review.** The scene fits in 10 to 15 minutes, and the daily limit ends at a natural stop.
+7. **Review.** Order of ideas: no term, symbol or method is used before the scene that teaches it
+   (no "fraction" in the first equal-parts scene).
+8. **Review.** Vocabulary: every word the audit flags as hard for a pre-reader is kept on purpose (and taught)
+   or replaced.
+9. **Review.** The story never claims a success she didn't earn. If the daily limit cuts a scene short, the
+   wrap-up says "we'll finish tomorrow", and the scene resumes where she stopped.
 
 ### 5C. Journey and navigation (UX, QA)
 
@@ -186,12 +196,20 @@ one transcript per screen, and a checker runs these rules over it:
 3. **Auto.** From every screen the castle is one tap away, and there are no dead ends.
 4. **Review.** After finishing a place, she sees what changed in the kingdom and what is next.
 5. **Auto.** Every tappable element has an accessibility identifier and is at least 64 pt.
+6. **Review.** Every chapter unlock is marked on the map once (not only the garden), and anything the voice
+   offers ("visit a place again?") actually works.
+7. **Review, every release: edge-path walkthrough.** Walk these paths in the code and in the simulator, not
+   only the happy path: the daily limit mid-scene, quitting and resuming mid-item, replaying a finished place,
+   each chapter unlock, the ear button on every screen, leaving the parent area, and quiet hours.
 
 ### 5D. Screens and art (graphic designer, QA)
 
 1. **Review.** Every screenshot matches its mock or layout note (contact sheet per scene).
 2. **Review.** Math visuals are exact: equal parts equal, counts right, Numbers-level text right for each kind.
 3. **Review.** Nothing that should be tappable looks faded; look-only elements use `.allowsHitTesting(false)`.
+4. **Auto where possible, else review.** Speech and visuals stay in step. Any animation that goes with speech
+   (count-along lights, quick-look hiding, highlights) is driven by the speech player's callbacks, never by a
+   fixed timer. QA flags any `asyncAfter` or timer next to a `speech.say`.
 
 ### 5E. Launch and stability (developers, QA)
 
@@ -241,9 +259,15 @@ Shrikant talks to the PM. Nobody else asks him things.
 - The repo is public: never commit secrets, his daughter's photos, or personal data.
 - Change requests are collected in `/mnt/project-files/kingdom/change-requests.md` and built as one batch when
   Shrikant says go.
+- Every deferred or ticketed item has an owner and a line in the change list, and it stays in the digest until it
+  is built or Shrikant drops it. Nothing deferred drops out of sight.
 - If a thread stops on a usage or credit limit, retry and continue after it resets without asking.
 - Don't merge to `main` without Shrikant's approval of the release candidate.
 
 ## 9. Changelog
 
+- v1.1 (2026-11-01, after the dry run on the current app, see [audits/2026-11-01-dry-run.md](audits/2026-11-01-dry-run.md)):
+  the repeated-instruction rule and the per-sentence and per-turn word caps replace the per-line cap; shared lines
+  name no place; order of ideas, vocabulary and earned-success checks; the edge-path walkthrough; speech and
+  visuals in step; owners for deferred items; the cloud-runnable `tools/narration_audit.py`.
 - v1 (2026-11-01): first version, after Shrikant found the narration, progress and launch problems himself.
