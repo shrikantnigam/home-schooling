@@ -30,10 +30,15 @@ jobs:
           path: unit-tests.log
 
   qa-playthrough:
-    name: QA play-through (iPad simulator)
+    name: QA play-through, chapter ${{ matrix.chapter }} (iPad simulator)
     runs-on: macos-15
     needs: unit-tests
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # One job per chapter, in parallel, so total CI time stays flat as chapters are added.
+        chapter: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
@@ -61,6 +66,7 @@ jobs:
             -scheme KingdomOfNumbers \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -resultBundlePath ../QA.xcresult \
+            -only-testing:KingdomOfNumbersQA/Chapter${{ matrix.chapter }}PlaythroughTests \
             CODE_SIGNING_ALLOWED=NO > ../qa.log 2>&1 && status=0 || status=$?
           grep -E "error:|Test Case|\*\* " ../qa.log || true
           exit $status
@@ -78,7 +84,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: qa-playthrough
+          name: qa-playthrough-chapter-${{ matrix.chapter }}
           path: |
             qa.log
             qa-screenshots
