@@ -5,6 +5,33 @@ public struct SpokenLine: Equatable, Sendable {
     public let id: LineID
     public let speaker: Speaker
     public let text: String
+
+    public init(id: LineID, speaker: Speaker, text: String) {
+        self.id = id
+        self.speaker = speaker
+        self.text = text
+    }
+
+    /// The line cut into sentences, so the voice can pause between them like a storyteller.
+    /// "Five stars! The last number tells how many." becomes two parts.
+    public var sentences: [SpokenLine] {
+        var parts: [String] = []
+        var current = ""
+        let chars = Array(text)
+        for (i, ch) in chars.enumerated() {
+            current.append(ch)
+            let ends = ch == "." || ch == "!" || ch == "?"
+            let nextIsSpace = i + 1 < chars.count && chars[i + 1] == " "
+            if ends && nextIsSpace {
+                parts.append(current.trimmingCharacters(in: .whitespaces))
+                current = ""
+            }
+        }
+        let rest = current.trimmingCharacters(in: .whitespaces)
+        if !rest.isEmpty { parts.append(rest) }
+        if parts.count <= 1 { return [self] }
+        return parts.map { SpokenLine(id: id, speaker: speaker, text: $0) }
+    }
 }
 
 /// Resolves line IDs to text, fills in numbers, and picks the most specific

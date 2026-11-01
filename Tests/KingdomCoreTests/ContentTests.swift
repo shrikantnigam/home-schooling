@@ -227,3 +227,12 @@ final class TeachingPraiseTests: XCTestCase {
         }
     }
 }
+
+final class SentenceSplitTests: XCTestCase {
+    func testLinesSplitIntoSentencesForPauses() {
+        let line = SpokenLine(id: "x", speaker: .sparkle, text: "Five stars! The last number tells how many. Ready?")
+        XCTAssertEqual(line.sentences.map(\.text), ["Five stars!", "The last number tells how many.", "Ready?"])
+        XCTAssertEqual(SpokenLine(id: "n", speaker: .sparkle, text: "3.5 is fine").sentences.count, 1)
+        XCTAssertEqual(SpokenLine(id: "y", speaker: .narrator, text: "Hello").sentences.map(\.text), ["Hello"])
+    }
+}

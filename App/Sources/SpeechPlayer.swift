@@ -20,7 +20,7 @@ final class SpeechPlayer: NSObject, ObservableObject {
     private var token = 0
     private var currentUtterance: AVSpeechUtterance?
 
-    private(set) lazy var narratorVoice: AVSpeechSynthesisVoice? = Self.pickVoice(prefer: ["Ava", "Zoe", "Samantha", "Allison"], avoid: nil)
+    private(set) lazy var narratorVoice: AVSpeechSynthesisVoice? = Self.pickVoice(prefer: ["Ava", "Zoe", "Samantha", "Allison", "Serena"], avoid: nil)
     private(set) lazy var sparkleVoice: AVSpeechSynthesisVoice? = Self.pickVoice(prefer: ["Nicky", "Evan", "Joelle", "Karen", "Susan"], avoid: narratorVoice?.identifier)
 
     /// AC-A8: false when no enhanced or premium English voice is downloaded.
@@ -46,7 +46,8 @@ final class SpeechPlayer: NSObject, ObservableObject {
     /// Speaks lines in order, then calls `then`. Stops anything already playing.
     func say(_ lines: [SpokenLine?], then: (() -> Void)? = nil) {
         stop()
-        queue = lines.compactMap { $0 }
+        // One utterance per sentence, so each can end with a natural pause (see playNext).
+        queue = lines.compactMap { $0 }.flatMap(\.sentences)
         completion = then
         token += 1
         playNext(token: token)
@@ -79,18 +80,28 @@ final class SpeechPlayer: NSObject, ObservableObject {
             return
         }
         let u = AVSpeechUtterance(string: line.text)
-        u.rate = rate
         u.volume = volume
+        let last = line.text.last
+        // Storyteller delivery: questions a little slower and rising, exclamations a little brighter,
+        // and a real pause after each sentence so she has time to look and think.
+        let pitchLift: Float = last == "!" ? 1.06 : (last == "?" ? 1.04 : 1.0)
+        u.rate = last == "?" ? rate * 0.94 : rate
         switch line.speaker {
         case .narrator:
             u.voice = narratorVoice
-            u.pitchMultiplier = 1.0
+            u.pitchMultiplier = 1.0 * pitchLift
         case .sparkle:
             u.voice = sparkleVoice
             // Higher and brighter so Sparkle sounds different even with one default voice.
-            u.pitchMultiplier = 1.35
+            u.pitchMultiplier = 1.3 * pitchLift
         }
-        u.postUtteranceDelay = 0.25
+        let lastInLine = queue.first.map { $0.id != line.id } ?? true
+        switch last {
+        case "?": u.postUtteranceDelay = 0.7
+        case "!": u.postUtteranceDelay = lastInLine ? 0.55 : 0.4
+        case ".": u.postUtteranceDelay = lastInLine ? 0.5 : 0.35
+        default: u.postUtteranceDelay = 0.25
+        }
         currentUtterance = u
         synth.speak(u)
     }
