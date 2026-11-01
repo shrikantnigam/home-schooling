@@ -65,7 +65,7 @@ public struct WarmupPicker: Sendable {
 }
 
 /// The five phases of every scene (AC-S2).
-public enum ScenePhase: Equatable, Sendable {
+public enum StoryPhase: Equatable, Sendable {
     case open
     case warmup(index: Int)
     case core(index: Int)
@@ -78,7 +78,7 @@ public enum ScenePhase: Equatable, Sendable {
 public struct SceneRun: Equatable, Sendable {
     public let scene: StoryScene
     public let warmups: [Item]
-    public private(set) var phase: ScenePhase = .open
+    public private(set) var phase: StoryPhase = .open
     /// Set when the daily limit is reached: finish the current item, then go to the payoff (AC-P3).
     public private(set) var wrappingUp = false
 

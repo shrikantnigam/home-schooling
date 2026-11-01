@@ -131,7 +131,7 @@ final class SceneRunTests: XCTestCase {
         let scene = content.scene("P2")!
         let warm = Array(content.scene("P1")!.items.prefix(2))
         var run = SceneRun(scene: scene, warmups: warm)
-        var phases: [ScenePhase] = [run.phase]
+        var phases: [StoryPhase] = [run.phase]
         while run.phase != .finished { run.advance(); phases.append(run.phase) }
         XCTAssertEqual(phases.first, .open)
         XCTAssertEqual(phases[1], .warmup(index: 0))

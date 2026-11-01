@@ -1,0 +1,304 @@
+import SwiftUI
+
+// Placeholder art drawn with SwiftUI shapes, following mocks/Sparkle, Siara and Style.
+// Final illustrations can replace these views one by one without touching the activities.
+
+struct StarShape: Shape {
+    var points = 5
+    var inner: CGFloat = 0.45
+    func path(in rect: CGRect) -> Path {
+        let c = CGPoint(x: rect.midX, y: rect.midY)
+        let r = min(rect.width, rect.height) / 2
+        var p = Path()
+        for i in 0..<(points * 2) {
+            let a = Double(i) * .pi / Double(points) - .pi / 2
+            let rr = i.isMultiple(of: 2) ? r : r * inner
+            let pt = CGPoint(x: c.x + CGFloat(cos(a)) * rr, y: c.y + CGFloat(sin(a)) * rr)
+            if i == 0 { p.move(to: pt) } else { p.addLine(to: pt) }
+        }
+        p.closeSubpath()
+        return p
+    }
+}
+
+struct Triangle: Shape {
+    func path(in r: CGRect) -> Path {
+        Path { p in
+            p.move(to: CGPoint(x: r.midX, y: r.minY))
+            p.addLine(to: CGPoint(x: r.maxX, y: r.maxY))
+            p.addLine(to: CGPoint(x: r.minX, y: r.maxY))
+            p.closeSubpath()
+        }
+    }
+}
+
+/// A star counter. Asleep (grey-blue) until counted, then gold with a face.
+struct StarSprite: View {
+    var lit: Bool
+    var highlighted = false
+    var size: CGFloat = 76
+    var body: some View {
+        ZStack {
+            StarShape()
+                .fill(lit ? Theme.gold : Color(hex: 0x6E6A9E))
+                .overlay(StarShape().stroke(Color.white.opacity(lit ? 0.9 : 0.3), lineWidth: 3))
+                .shadow(color: lit ? Theme.gold.opacity(0.8) : .clear, radius: 14)
+            HStack(spacing: size * 0.14) {
+                eye
+                eye
+            }
+            .offset(y: size * 0.02)
+        }
+        .frame(width: size, height: size)
+        .scaleEffect(highlighted ? 1.2 : 1)
+        .animation(.spring(response: 0.3), value: highlighted)
+    }
+
+    private var eye: some View {
+        Group {
+            if lit {
+                Circle().fill(Theme.ink).frame(width: size * 0.08, height: size * 0.08)
+            } else {
+                Capsule().fill(Theme.ink.opacity(0.6)).frame(width: size * 0.1, height: size * 0.03)
+            }
+        }
+    }
+}
+
+struct FlowerSprite: View {
+    var bloom = true
+    var color: Color = Theme.mane
+    var size: CGFloat = 46
+    var body: some View {
+        ZStack {
+            if bloom {
+                ForEach(0..<5, id: \.self) { i in
+                    Circle()
+                        .fill(color)
+                        .frame(width: size * 0.46, height: size * 0.46)
+                        .offset(y: -size * 0.26)
+                        .rotationEffect(.degrees(Double(i) * 72))
+                }
+                Circle().fill(Theme.gold).frame(width: size * 0.36, height: size * 0.36)
+            } else {
+                Capsule().fill(Theme.garden).frame(width: size * 0.3, height: size * 0.5)
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+struct SeedSprite: View {
+    var size: CGFloat = 40
+    var body: some View {
+        Ellipse()
+            .fill(Theme.soil)
+            .overlay(Ellipse().stroke(Theme.soilDark, lineWidth: 2))
+            .frame(width: size * 0.7, height: size)
+            .rotationEffect(.degrees(20))
+            .frame(width: size, height: size)
+    }
+}
+
+/// Sparkle the unicorn: white body, pink mane, gold horn.
+struct SparkleView: View {
+    enum Mood { case happy, thinking, sleeping }
+    var mood: Mood = .happy
+    var size: CGFloat = 200
+    var body: some View {
+        ZStack {
+            // Legs
+            HStack(spacing: size * 0.14) {
+                ForEach(0..<3, id: \.self) { _ in
+                    Capsule().fill(Color.white).frame(width: size * 0.09, height: size * 0.26)
+                        .overlay(Capsule().stroke(Theme.lilac, lineWidth: 2))
+                }
+            }
+            .offset(x: -size * 0.04, y: size * 0.28)
+            // Body
+            Ellipse().fill(Color.white).frame(width: size * 0.62, height: size * 0.38)
+                .overlay(Ellipse().stroke(Theme.lilac, lineWidth: 3))
+                .offset(x: -size * 0.05, y: size * 0.1)
+            // Tail
+            ForEach(0..<3, id: \.self) { i in
+                Circle().fill([Theme.mane, Theme.lavender, Theme.gold][i])
+                    .frame(width: size * 0.13, height: size * 0.13)
+                    .offset(x: -size * (0.36 + Double(i) * 0.03), y: size * (0.04 + Double(i) * 0.08))
+            }
+            // Head
+            Ellipse().fill(Color.white).frame(width: size * 0.34, height: size * 0.3)
+                .overlay(Ellipse().stroke(Theme.lilac, lineWidth: 3))
+                .offset(x: size * 0.24, y: -size * 0.12)
+            // Mane
+            ForEach(0..<4, id: \.self) { i in
+                Circle().fill(i.isMultiple(of: 2) ? Theme.mane : Theme.lavender)
+                    .frame(width: size * 0.12, height: size * 0.12)
+                    .offset(x: size * (0.1 - Double(i) * 0.025), y: -size * (0.2 - Double(i) * 0.07))
+            }
+            // Horn
+            Triangle().fill(Theme.gold).frame(width: size * 0.07, height: size * 0.2)
+                .rotationEffect(.degrees(18))
+                .offset(x: size * 0.3, y: -size * 0.34)
+            // Eye
+            Group {
+                switch mood {
+                case .sleeping:
+                    Capsule().fill(Theme.ink).frame(width: size * 0.07, height: size * 0.018)
+                case .thinking:
+                    Circle().fill(Theme.ink).frame(width: size * 0.05, height: size * 0.05).offset(y: -size * 0.01)
+                case .happy:
+                    Circle().fill(Theme.ink).frame(width: size * 0.055, height: size * 0.055)
+                }
+            }
+            .offset(x: size * 0.28, y: -size * 0.13)
+            // Cheek
+            Circle().fill(Theme.mane.opacity(0.5)).frame(width: size * 0.06).offset(x: size * 0.33, y: -size * 0.06)
+            if mood == .sleeping {
+                Text("z z z").font(Theme.title(size * 0.12)).foregroundStyle(Theme.lavender)
+                    .offset(x: size * 0.42, y: -size * 0.4)
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityElement()
+        .accessibilityLabel("Sparkle the unicorn")
+    }
+}
+
+/// Princess Siara, the child's character (placeholder look from the Siara mock).
+struct SiaraView: View {
+    var size: CGFloat = 180
+    var waving = false
+    var body: some View {
+        ZStack {
+            // Dress
+            Triangle().fill(Theme.mane).frame(width: size * 0.5, height: size * 0.5)
+                .offset(y: size * 0.2)
+            // Arm
+            Capsule().fill(Color(hex: 0x8D5A3B)).frame(width: size * 0.06, height: size * 0.22)
+                .rotationEffect(.degrees(waving ? -140 : -20), anchor: .top)
+                .offset(x: size * 0.15, y: size * 0.02)
+            // Hair back
+            Circle().fill(Color(hex: 0x2B1B14)).frame(width: size * 0.34).offset(y: -size * 0.17)
+            // Face
+            Circle().fill(Color(hex: 0x8D5A3B)).frame(width: size * 0.28).offset(y: -size * 0.15)
+            HStack(spacing: size * 0.07) {
+                Circle().fill(Theme.ink).frame(width: size * 0.03)
+                Circle().fill(Theme.ink).frame(width: size * 0.03)
+            }
+            .offset(y: -size * 0.16)
+            Capsule().fill(Theme.mane.opacity(0.9)).frame(width: size * 0.07, height: size * 0.02).offset(y: -size * 0.09)
+            // Crown
+            HStack(spacing: 0) {
+                ForEach(0..<3, id: \.self) { _ in Triangle().fill(Theme.gold).frame(width: size * 0.06, height: size * 0.07) }
+            }
+            .offset(y: -size * 0.33)
+        }
+        .frame(width: size, height: size)
+        .accessibilityElement()
+        .accessibilityLabel("Princess Siara")
+    }
+}
+
+struct CastleArt: View {
+    var night = false
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            HStack(alignment: .bottom, spacing: 0) {
+                tower(h: 220)
+                Rectangle().fill(Theme.lilac).frame(width: 220, height: 170)
+                    .overlay(alignment: .bottom) {
+                        RoundedRectangle(cornerRadius: 40).fill(Theme.deepLavender).frame(width: 70, height: 100)
+                    }
+                tower(h: 220)
+            }
+        }
+    }
+
+    private func tower(h: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            Triangle().fill(Theme.mane).frame(width: 100, height: 80)
+            Rectangle().fill(Color.white).frame(width: 80, height: h)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12).fill(night ? Theme.gold : Theme.daySky)
+                        .frame(width: 26, height: 40).offset(y: -40)
+                )
+        }
+    }
+}
+
+/// Dot pattern under a numeral (dice-like up to 5, then two rows).
+struct DotPattern: View {
+    let n: Int
+    var dot: CGFloat = 9
+    var color: Color = Theme.lavender
+    var body: some View {
+        let top = min(n, 5)
+        let bottom = max(0, min(n - 5, 15))
+        VStack(spacing: 3) {
+            HStack(spacing: 3) { ForEach(0..<top, id: \.self) { _ in Circle().fill(color).frame(width: dot, height: dot) } }
+            if bottom > 0 {
+                HStack(spacing: 3) { ForEach(0..<min(bottom, 5), id: \.self) { _ in Circle().fill(Theme.mane).frame(width: dot, height: dot) } }
+            }
+            if bottom > 5 {
+                HStack(spacing: 3) { ForEach(0..<(bottom - 5), id: \.self) { _ in Circle().fill(Theme.gold).frame(width: dot, height: dot) } }
+            }
+        }
+        .frame(minHeight: dot)
+    }
+}
+
+/// Night or day sky background.
+struct SkyBackground: View {
+    var night = true
+    var litFraction: Double = 0
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: night ? [Theme.night, Color(hex: 0x3B3578)] : [Theme.daySky, Color(hex: 0xEAF7FC)],
+                startPoint: .top, endPoint: .bottom
+            )
+            if night {
+                Canvas { ctx, size in
+                    var g = SeededDots(seed: 7)
+                    for _ in 0..<60 {
+                        let x = g.next() * size.width, y = g.next() * size.height * 0.8
+                        let r = 1 + g.next() * 2
+                        let bright = g.next() < litFraction
+                        ctx.fill(Path(ellipseIn: CGRect(x: x, y: y, width: r, height: r)),
+                                 with: .color(Color.white.opacity(bright ? 0.95 : 0.25)))
+                    }
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct GardenBackground: View {
+    var bloom: Double = 0
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            LinearGradient(colors: [Theme.daySky, Color(hex: 0xEAF7FC)], startPoint: .top, endPoint: .bottom)
+            Ellipse().fill(Theme.garden.opacity(0.85)).frame(height: 300).offset(y: 140).scaleEffect(x: 1.6)
+            Canvas { ctx, size in
+                var g = SeededDots(seed: 3)
+                let count = Int(40 * bloom)
+                for _ in 0..<count {
+                    let x = g.next() * size.width, y = size.height - g.next() * 120
+                    ctx.fill(Path(ellipseIn: CGRect(x: x, y: y, width: 10, height: 10)),
+                             with: .color([Theme.mane, Theme.gold, Theme.lavender][Int(g.next() * 3) % 3]))
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+struct SeededDots {
+    private var s: UInt64
+    init(seed: UInt64) { s = seed &* 2654435761 &+ 1 }
+    mutating func next() -> Double {
+        s = s &* 6364136223846793005 &+ 1442695040888963407
+        return Double((s >> 33) % 10_000) / 10_000
+    }
+}
