@@ -21,11 +21,12 @@ struct CastleView: View {
             }
             .ignoresSafeArea()
 
-            VStack {
+            VStack(spacing: 14) {
                 Text("Kingdom of Numbers")
                     .font(Theme.title(46))
                     .foregroundStyle(block == nil ? Theme.ink : .white)
                     .padding(.top, 90)
+                PlacesProgress(dark: block != nil)
                 Spacer()
             }
 
@@ -41,6 +42,18 @@ struct CastleView: View {
                 .accessibilityIdentifier("castle.play")
                 .accessibilityLabel("Play")
                 .offset(y: -40)
+
+                // A second, quieter way in: straight to the kingdom map, even mid-scene.
+                Button { model.goMap() } label: {
+                    ZStack {
+                        Circle().fill(Color.white.opacity(0.9)).frame(width: 96, height: 96)
+                            .overlay(Circle().stroke(Theme.lavender, lineWidth: 4))
+                        Image(systemName: "map.fill").font(.system(size: 40, weight: .bold)).foregroundStyle(Theme.deepLavender)
+                    }
+                }
+                .accessibilityIdentifier("castle.map")
+                .accessibilityLabel("Kingdom map")
+                .offset(x: 170, y: -40)
             } else {
                 Text(block == .sleeping ? "Sparkle is sleeping" : "Sparkle is resting")
                     .font(Theme.title(40))
@@ -51,12 +64,12 @@ struct CastleView: View {
 
             ChildCorners(
                 onCastle: nil,
-                onEar: { speakWelcome() },
+                onEar: { speakWelcome(replay: true) },
                 onLock: { model.openParentGate() },
                 dark: block != nil
             )
         }
-        .onAppear { speakWelcome() }
+        .onAppear { speakWelcome(replay: false) }
     }
 
     private var litFraction: Double {
@@ -64,23 +77,59 @@ struct CastleView: View {
         return total == 0 ? 0 : Double(model.state.completedScenes.count) / Double(total)
     }
 
-    private func speakWelcome() {
+    /// The castle's spoken welcome: once after the app opens, or again when she taps the ear.
+    private func speakWelcome(replay: Bool) {
+        let key: String
+        let line: SpokenLine?
         switch model.block {
-        case .sleeping: model.speech.say(model.catalog.spoken("sleeping"))
-        case .quietHours: model.speech.say(model.catalog.spoken("quiet"))
+        case .sleeping: key = "castle.sleeping"; line = model.catalog.spoken("sleeping")
+        case .quietHours: key = "castle.quiet"; line = model.catalog.spoken("quiet")
         case nil:
-            if model.state.hasMetSparkle {
-                model.speech.say(model.catalog.spoken("castle.back"))
-            } else {
-                model.speech.say(model.catalog.spoken("castle.first"))
-                model.state.hasMetSparkle = true
-                model.save()
-            }
+            key = "castle"
+            line = model.catalog.spoken(model.state.hasMetSparkle ? "castle.back" : "castle.first")
+        }
+        if replay {
+            model.speech.say(line)
+        } else {
+            model.sayIntroOnce(key, [line])
+        }
+        if model.block == nil, !model.state.hasMetSparkle {
+            model.state.hasMetSparkle = true
+            model.save()
         }
     }
 }
 
 /// 2. Kingdom map. Lit places are done, the next scene glows, later lands sit under mist.
+/// "3 of 7": the kingdom's places, lit once every scene in them is finished.
+struct PlacesProgress: View {
+    @EnvironmentObject var model: AppModel
+    var dark = false
+
+    var body: some View {
+        let chapters = model.content.chapters
+        let done = chapters.filter { model.progression.allScenesDone($0.id, state: model.state) }.count
+        HStack(spacing: 10) {
+            ForEach(chapters) { ch in
+                let finished = model.progression.allScenesDone(ch.id, state: model.state)
+                ZStack {
+                    Circle().fill(finished ? ChapterLook.color(ch.id) : Color.white.opacity(0.5)).frame(width: 40, height: 40)
+                    ChapterLook.icon(ch.id, lit: finished, size: 22).opacity(finished ? 1 : 0.35)
+                }
+            }
+            Text("\(done) of \(chapters.count)")
+                .font(Theme.title(24))
+                .foregroundStyle(dark ? .white : Theme.ink)
+                .padding(.leading, 6)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 8)
+        .background(Capsule().fill(Color.white.opacity(dark ? 0.15 : 0.6)))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(done) of \(chapters.count) places done")
+        .accessibilityIdentifier("castle.progress")
+    }
+}
+
 struct MapView: View {
     @EnvironmentObject var model: AppModel
 
@@ -102,13 +151,15 @@ struct MapView: View {
                 .padding(.horizontal, 30)
                 Spacer()
             }
-            ChildCorners(onCastle: { model.goCastle() }, onEar: { model.speech.say(model.catalog.spoken("map.pick")) },
+            ChildCorners(onCastle: { model.goCastle() }, onEar: { model.speech.say(mapIntro) },
                          onLock: { model.openParentGate() })
         }
-        .onAppear {
-            let gardenOpen = model.progression.isChapterUnlocked("garden", state: model.state)
-            model.speech.say(model.catalog.spoken(gardenOpen && !model.state.completedScenes.contains("G1") ? "map.gardenAwake" : "map.pick"))
-        }
+        .onAppear { model.sayIntroOnce("map", [mapIntro]) }
+    }
+
+    private var mapIntro: SpokenLine? {
+        let gardenOpen = model.progression.isChapterUnlocked("garden", state: model.state)
+        return model.catalog.spoken(gardenOpen && !model.state.completedScenes.contains("G1") ? "map.gardenAwake" : "map.pick")
     }
 
     @ViewBuilder

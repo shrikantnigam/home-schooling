@@ -69,7 +69,13 @@ final class ContentTests: XCTestCase {
 
     func testHeroNameCanChange() {
         let c = LineCatalog(lines: content.lines, heroName: "Maya")
-        XCTAssertEqual(c.spoken("p1.goodbye")?.text.contains("Maya"), true)
+        XCTAssertEqual(c.spoken("castle.back")?.text.contains("Maya"), true)
+    }
+
+    /// Shrikant: her name is said only in the castle welcome when the app opens.
+    func testNameOnlyInCastleWelcome() {
+        let named = content.lines.filter { $0.value.text.contains("Siara") }.map(\.key).sorted()
+        XCTAssertEqual(named, ["castle.back", "castle.first"])
     }
 
     func testAnswers() {

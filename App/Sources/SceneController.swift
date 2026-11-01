@@ -102,7 +102,14 @@ final class SceneController: ObservableObject {
         showNext = false
         switch run.phase {
         case .open:
-            speak(run.scene.open.map { catalog.spoken($0) }, thenShowNext: true)
+            if model.firstTimeThisSession("open.\(run.scene.id)") {
+                speak(run.scene.open.map { catalog.spoken($0) }, thenShowNext: true)
+            } else if run.scene.id.hasPrefix("practice-") {
+                speak([catalog.spoken("practice.short")], thenShowNext: true)
+            } else {
+                // Heard already since the app opened: stay quiet; the ear replays it.
+                quiet(lines: run.scene.open.map { catalog.spoken($0) })
+            }
         case .warmup, .core:
             beginItem()
         case .payoff:
@@ -110,7 +117,11 @@ final class SceneController: ObservableObject {
             if run.wrappingUp { lines.insert(catalog.spoken("wrapup"), at: 0) }
             speak(lines, thenShowNext: true)
         case .goodbye:
-            speak([catalog.spoken(run.scene.goodbye)], thenShowNext: true)
+            if model.firstTimeThisSession("goodbye.\(run.scene.id)") {
+                speak([catalog.spoken(run.scene.goodbye)], thenShowNext: true)
+            } else {
+                quiet(lines: [catalog.spoken(run.scene.goodbye)])
+            }
         case .finished:
             model.sceneFinished(run)
         }
@@ -316,6 +327,12 @@ final class SceneController: ObservableObject {
     private func finishItem(_ s: ItemSession, lines: [SpokenLine?]) {
         model.record(s.result(at: model.now))
         speak(lines, thenShowNext: true)
+    }
+
+    /// Shows the Next button without speaking; the ear button still replays `lines`.
+    private func quiet(lines: [SpokenLine?]) {
+        lastInstruction = lines
+        withAnimation { showNext = true }
     }
 
     private func speak(_ lines: [SpokenLine?], thenShowNext: Bool) {

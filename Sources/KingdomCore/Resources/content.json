@@ -2376,7 +2376,7 @@
   },
   "castle.back": {
    "speaker": "sparkle",
-   "text": "Hi Siara! I'm so happy to see you. Tap the big glowing button!"
+   "text": "Welcome back, Siara! Tap the big glowing button!"
   },
   "map.pick": {
    "speaker": "sparkle",
@@ -2424,7 +2424,7 @@
   },
   "p1.open2": {
    "speaker": "sparkle",
-   "text": "Hi Siara, I'm Sparkle! Oh no, the stars fell asleep. Will you help me wake them up?"
+   "text": "Hi, I'm Sparkle! Oh no, the stars fell asleep. Will you help me wake them up?"
   },
   "p1.payoff": {
    "speaker": "sparkle",
@@ -2432,7 +2432,7 @@
   },
   "p1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned to count each star just once. Goodnight, Siara!"
+   "text": "Today you learned to count each star just once. Goodnight!"
   },
   "p2.open1": {
    "speaker": "narrator",
@@ -2448,7 +2448,7 @@
   },
   "p2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned that the last number you say tells how many. Goodnight, Siara!"
+   "text": "Today you learned that the last number you say tells how many. Goodnight!"
   },
   "p3.open1": {
    "speaker": "narrator",
@@ -2464,7 +2464,7 @@
   },
   "p3.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned where numbers live on the line. Goodnight, Siara!"
+   "text": "Today you learned where numbers live on the line. Goodnight!"
   },
   "p4.open1": {
    "speaker": "narrator",
@@ -2484,7 +2484,7 @@
   },
   "p4.goodbye": {
    "speaker": "sparkle",
-   "text": "Goodnight, Siara! Tomorrow we can visit the garden."
+   "text": "Goodnight! Tomorrow we can visit the garden."
   },
   "g1.open1": {
    "speaker": "narrator",
@@ -2500,7 +2500,7 @@
   },
   "g1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned that adding means putting more together. Goodnight, Siara!"
+   "text": "Today you learned that adding means putting more together. Goodnight!"
   },
   "g2.open1": {
    "speaker": "narrator",
@@ -2516,7 +2516,7 @@
   },
   "g2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned that a number can be split into two parts in many ways. Goodnight, Siara!"
+   "text": "Today you learned that a number can be split into two parts in many ways. Goodnight!"
   },
   "g3.open1": {
    "speaker": "narrator",
@@ -2532,7 +2532,7 @@
   },
   "g3.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned to add by hopping on the number line. Goodnight, Siara!"
+   "text": "Today you learned to add by hopping on the number line. Goodnight!"
   },
   "g4.open1": {
    "speaker": "narrator",
@@ -2548,7 +2548,7 @@
   },
   "g4.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned how many more make ten. Goodnight, Siara!"
+   "text": "Today you learned how many more make ten. Goodnight!"
   },
   "g5.open1": {
    "speaker": "narrator",
@@ -2568,7 +2568,7 @@
   },
   "g5.goodbye": {
    "speaker": "sparkle",
-   "text": "Goodnight, Siara! I can't wait to see you again."
+   "text": "Goodnight! I can't wait to see you again."
   },
   "practice.open1": {
    "speaker": "narrator",
@@ -2578,13 +2578,17 @@
    "speaker": "sparkle",
    "text": "Let's practice together. Practice makes our brains strong!"
   },
+  "practice.short": {
+   "speaker": "sparkle",
+   "text": "Let's practice!"
+  },
   "practice.payoff": {
    "speaker": "sparkle",
    "text": "You worked so hard! The flowers are standing up tall."
   },
   "practice.goodbye": {
    "speaker": "sparkle",
-   "text": "Thank you for practicing with me. Goodnight, Siara!"
+   "text": "Thank you for practicing with me. Goodnight!"
   },
   "prompt.countTap.concrete": {
    "speaker": "sparkle",
@@ -2712,7 +2716,7 @@
   },
   "praise.2": {
    "speaker": "sparkle",
-   "text": "That's right! Great thinking, Siara!"
+   "text": "That's right! Great thinking!"
   },
   "praise.3": {
    "speaker": "sparkle",
@@ -2752,7 +2756,7 @@
   },
   "b1.open2": {
    "speaker": "sparkle",
-   "text": "Look, Siara! A beaver keeps the planks tied in bundles of ten. Let's count how many we have."
+   "text": "Look! A beaver keeps the planks tied in bundles of ten. Let's count how many we have."
   },
   "b1.payoff": {
    "speaker": "sparkle",
@@ -2760,7 +2764,7 @@
   },
   "b1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned that thirteen is ten and three more. Goodnight, Siara!"
+   "text": "Today you learned that thirteen is ten and three more. Goodnight!"
   },
   "b2.open1": {
    "speaker": "narrator",
@@ -2776,7 +2780,7 @@
   },
   "b2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you found numbers all the way to twenty. Goodnight, Siara!"
+   "text": "Today you found numbers all the way to twenty. Goodnight!"
   },
   "b3.open1": {
    "speaker": "narrator",
@@ -2792,7 +2796,7 @@
   },
   "b3.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you added by making ten first. Goodnight, Siara!"
+   "text": "Today you added by making ten first. Goodnight!"
   },
   "b4.open1": {
    "speaker": "narrator",
@@ -2808,7 +2812,7 @@
   },
   "b4.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you added by hopping on to twenty. Goodnight, Siara!"
+   "text": "Today you added by hopping on to twenty. Goodnight!"
   },
   "b5.open1": {
    "speaker": "narrator",
@@ -2816,7 +2820,7 @@
   },
   "b5.open2": {
    "speaker": "sparkle",
-   "text": "Let's put the bridge together, Siara. You can use numbers now!"
+   "text": "Let's put the bridge together. You can use numbers now!"
   },
   "b5.payoff1": {
    "speaker": "sparkle",
@@ -2828,7 +2832,7 @@
   },
   "b5.goodbye": {
    "speaker": "sparkle",
-   "text": "Goodnight, Siara! We'll cross the bridge together next time."
+   "text": "Goodnight! We'll cross the bridge together next time."
   },
   "prompt.tensOnes.concrete": {
    "speaker": "sparkle",
@@ -2900,7 +2904,7 @@
   },
   "k1.open2": {
    "speaker": "sparkle",
-   "text": "Oh no, Siara! Grub is taking the kingdom's gems. Let's find out how many are left each time."
+   "text": "Oh no! Grub is taking the kingdom's gems. Let's find out how many are left each time."
   },
   "k1.payoff": {
    "speaker": "sparkle",
@@ -2908,7 +2912,7 @@
   },
   "k1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned that taking away means some are gone. Goodnight, Siara!"
+   "text": "Today you learned that taking away means some are gone. Goodnight!"
   },
   "k2.open1": {
    "speaker": "narrator",
@@ -2924,11 +2928,11 @@
   },
   "k2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you subtracted by hopping back on the line. Goodnight, Siara!"
+   "text": "Today you subtracted by hopping back on the line. Goodnight!"
   },
   "k3.open1": {
    "speaker": "narrator",
-   "text": "Grub says he has more gems than Siara. Is that true?"
+   "text": "Grub says he has more gems than you. Is that true?"
   },
   "k3.open2": {
    "speaker": "sparkle",
@@ -2940,7 +2944,7 @@
   },
   "k3.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you found how many more by matching. Goodnight, Siara!"
+   "text": "Today you found how many more by matching. Goodnight!"
   },
   "k4.open1": {
    "speaker": "narrator",
@@ -2956,7 +2960,7 @@
   },
   "k4.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you took away from numbers up to twenty. Goodnight, Siara!"
+   "text": "Today you took away from numbers up to twenty. Goodnight!"
   },
   "k5.open1": {
    "speaker": "narrator",
@@ -2976,7 +2980,7 @@
   },
   "k5.goodbye": {
    "speaker": "sparkle",
-   "text": "Goodnight, Siara! Even grumpy goblins can be friends."
+   "text": "Goodnight! Even grumpy goblins can be friends."
   },
   "prompt.takeAway.concrete": {
    "speaker": "sparkle",
@@ -3084,7 +3088,7 @@
   },
   "r1.open2": {
    "speaker": "sparkle",
-   "text": "Every table must have the same number of guests. Let's count the seats, Siara!"
+   "text": "Every table must have the same number of guests. Let's count the seats!"
   },
   "r1.payoff": {
    "speaker": "sparkle",
@@ -3092,7 +3096,7 @@
   },
   "r1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you counted equal groups. Goodnight, Siara!"
+   "text": "Today you counted equal groups. Goodnight!"
   },
   "r2.open1": {
    "speaker": "narrator",
@@ -3108,7 +3112,7 @@
   },
   "r2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you counted rows of chairs. Goodnight, Siara!"
+   "text": "Today you counted rows of chairs. Goodnight!"
   },
   "r3.open1": {
    "speaker": "narrator",
@@ -3124,15 +3128,15 @@
   },
   "r3.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you skip counted. Goodnight, Siara!"
+   "text": "Today you skip counted. Goodnight!"
   },
   "r4.open1": {
    "speaker": "narrator",
-   "text": "The Ball begins! The Queen asks Siara to help with the last seating plans."
+   "text": "The Ball begins! The Queen asks you to help with the last seating plans."
   },
   "r4.open2": {
    "speaker": "sparkle",
-   "text": "You can use numbers now, Siara. Times means groups of!"
+   "text": "You can use numbers now. Times means groups of!"
   },
   "r4.payoff1": {
    "speaker": "sparkle",
@@ -3144,7 +3148,7 @@
   },
   "r4.goodbye": {
    "speaker": "sparkle",
-   "text": "Goodnight, Siara! Save some energy for the feast."
+   "text": "Goodnight! Save some energy for the feast."
   },
   "prompt.groups.concrete": {
    "speaker": "sparkle",
@@ -3260,7 +3264,7 @@
   },
   "f1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you shared things fairly. Goodnight, Siara!"
+   "text": "Today you shared things fairly. Goodnight!"
   },
   "f2.open1": {
    "speaker": "narrator",
@@ -3276,7 +3280,7 @@
   },
   "f2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you made equal groups. Goodnight, Siara!"
+   "text": "Today you made equal groups. Goodnight!"
   },
   "f3.open1": {
    "speaker": "narrator",
@@ -3292,7 +3296,7 @@
   },
   "f3.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you shared even bigger piles. Goodnight, Siara!"
+   "text": "Today you shared even bigger piles. Goodnight!"
   },
   "f4.open1": {
    "speaker": "narrator",
@@ -3300,7 +3304,7 @@
   },
   "f4.open2": {
    "speaker": "sparkle",
-   "text": "You can use numbers now, Siara. Divide means share fairly!"
+   "text": "You can use numbers now. Divide means share fairly!"
   },
   "f4.payoff1": {
    "speaker": "sparkle",
@@ -3312,7 +3316,7 @@
   },
   "f4.goodbye": {
    "speaker": "sparkle",
-   "text": "Goodnight, Siara! The moon is waiting for us."
+   "text": "Goodnight! The moon is waiting for us."
   },
   "prompt.share.concrete": {
    "speaker": "sparkle",
@@ -3400,7 +3404,7 @@
   },
   "m1.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you learned about halves, thirds and quarters. Goodnight, Siara!"
+   "text": "Today you learned about halves, thirds and quarters. Goodnight!"
   },
   "m2.open1": {
    "speaker": "narrator",
@@ -3416,7 +3420,7 @@
   },
   "m2.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you found half and a quarter of a group. Goodnight, Siara!"
+   "text": "Today you found half and a quarter of a group. Goodnight!"
   },
   "m3.open1": {
    "speaker": "narrator",
@@ -3432,7 +3436,7 @@
   },
   "m3.goodbye": {
    "speaker": "sparkle",
-   "text": "Today you found fractions on a line. Goodnight, Siara!"
+   "text": "Today you found fractions on a line. Goodnight!"
   },
   "m4.open1": {
    "speaker": "narrator",
@@ -3440,11 +3444,11 @@
   },
   "m4.open2": {
    "speaker": "sparkle",
-   "text": "Use everything you know, Siara. Let's mend the moon!"
+   "text": "Use everything you know. Let's mend the moon!"
   },
   "m4.payoff1": {
    "speaker": "sparkle",
-   "text": "You mended the Moon Crystal! The whole kingdom is shining. You learned so much, Siara."
+   "text": "You mended the Moon Crystal! The whole kingdom is shining. You learned so much."
   },
   "m4.payoff2": {
    "speaker": "sparkle",
@@ -3452,7 +3456,7 @@
   },
   "m4.goodbye": {
    "speaker": "sparkle",
-   "text": "Goodnight, Siara. I'll always be here when you want to play."
+   "text": "Goodnight. I'll always be here when you want to play."
   },
   "prompt.parts.concrete": {
    "speaker": "sparkle",

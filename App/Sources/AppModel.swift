@@ -26,6 +26,9 @@ final class AppModel: ObservableObject {
     private var ticker: Timer?
     private var lastTick = Date()
     private(set) var isActive = true
+    /// Screen intros already spoken since the app was opened. Shrikant: a screen's intro plays the first
+    /// time it appears after the app opens; after that it stays quiet and the ear button replays it.
+    private var introsSpoken: Set<String> = []
 
     var calendar: Calendar { engine.calendar }
 
@@ -51,6 +54,15 @@ final class AppModel: ObservableObject {
         if let preset = env.preset { applyPreset(preset) }
         applySound()
         startTicker()
+    }
+
+    /// True the first time `key` is asked for since the app opened, false after that.
+    func firstTimeThisSession(_ key: String) -> Bool { introsSpoken.insert(key).inserted }
+
+    /// Speaks a screen's intro only the first time the screen appears after the app opens.
+    func sayIntroOnce(_ key: String, _ lines: [SpokenLine?]) {
+        guard firstTimeThisSession(key) else { return }
+        speech.say(lines)
     }
 
     // MARK: Persistence

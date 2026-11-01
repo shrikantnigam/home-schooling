@@ -224,4 +224,17 @@ final class Chapter1PlaythroughTests: XCTestCase {
         p.wait("next")
         p.snap("chosen on second touch")
     }
+
+    /// Play-test changes: the castle shows "N of 7" places done and has a map button.
+    func test10_CastleProgressAndMapButton() {
+        let p = QAPlayer(self, prefix: "10")
+        p.launch(preset: "prologueDone")
+        p.wait("castle.progress")
+        XCTAssertEqual(p.el("castle.progress").label, "1 of 7 places done")
+        XCTAssertGreaterThanOrEqual(p.el("castle.map").frame.width, 60)
+        p.snap("castle with progress and map button")
+        p.tap("castle.map")
+        p.wait("map.place.prologue")
+        p.snap("map from the castle map button")
+    }
 }
