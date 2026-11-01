@@ -361,10 +361,10 @@ final class SceneController: ObservableObject {
         for i in 0..<count { lines.append(catalog.count(start + i + 1)) }
         if item.kind == .quickLook { ui.hidden = false }
         ui.countAlong = nil
-        model.speech.say(lines, each: { [weak self] index in
+        model.speech.say(lines, then: { [weak self] in self?.ui.countAlong = nil }, each: { [weak self] index in
             guard index >= 1 else { return }
             withAnimation(.easeOut(duration: 0.15)) { self?.ui.countAlong = index - 1 }
-        }, then: { [weak self] in self?.ui.countAlong = nil })
+        })
     }
 
     /// Where counting on starts and how many steps, per activity.

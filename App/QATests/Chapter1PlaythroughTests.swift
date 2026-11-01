@@ -296,9 +296,7 @@ final class Chapter1PlaythroughTests: XCTestCase {
         }
         let name = p.el("setup.name")
         name.tap()
-        name.press(forDuration: 1.2)
-        if p.app.menuItems["Select All"].waitForExistence(timeout: 2) { p.app.menuItems["Select All"].tap() }
-        name.typeText(XCUIKeyboardKey.delete.rawValue)
+        name.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 12))
         name.typeText("Maya")
         p.tap("setup.companion.gnome")
         p.tap("setup.limit.plus")

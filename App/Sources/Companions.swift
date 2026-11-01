@@ -56,7 +56,7 @@ private struct Eye: View {
 struct UnicornArt: View {
     var mood: SparkleView.Mood
     var body: some View {
-        let body = Theme.card
+        let coat = Theme.card
         let line = Theme.tan
         ZStack {
             // Tail: three paper curls
@@ -78,14 +78,14 @@ struct UnicornArt: View {
                 RoundedRectangle(cornerRadius: 3).fill(Theme.clay).frame(width: 13, height: 8).position(x: x, y: 186)
             }
             // Body
-            Ellipse().fill(body).frame(width: 104, height: 58).position(x: 88, y: 122).paperCut(0.6)
+            Ellipse().fill(coat).frame(width: 104, height: 58).position(x: 88, y: 122).paperCut(0.6)
             // Front legs
             ForEach([108, 126] as [CGFloat], id: \.self) { x in
-                RoundedRectangle(cornerRadius: 5).fill(body).frame(width: 13, height: 60).position(x: x, y: 158)
+                RoundedRectangle(cornerRadius: 5).fill(coat).frame(width: 13, height: 60).position(x: x, y: 158)
                 RoundedRectangle(cornerRadius: 3).fill(Theme.clay).frame(width: 13, height: 8).position(x: x, y: 187)
             }
             // Long neck
-            poly([(108, 112), (124, 62), (148, 56), (142, 118)]).fill(body)
+            poly([(108, 112), (124, 62), (148, 56), (142, 118)]).fill(coat)
             // Head with a long muzzle, nose to the right
             Path { p in
                 p.move(to: CGPoint(x: 126, y: 60))
@@ -94,10 +94,10 @@ struct UnicornArt: View {
                 p.addQuadCurve(to: CGPoint(x: 168, y: 84), control: CGPoint(x: 184, y: 86))
                 p.addQuadCurve(to: CGPoint(x: 134, y: 78), control: CGPoint(x: 150, y: 82))
                 p.closeSubpath()
-            }.fill(body).paperCut(0.4)
+            }.fill(coat).paperCut(0.4)
             Circle().fill(Theme.tan).frame(width: 5, height: 5).position(x: 178, y: 70) // nostril
             // Ear
-            poly([(140, 44), (146, 22), (154, 42)]).fill(body)
+            poly([(140, 44), (146, 22), (154, 42)]).fill(coat)
             poly([(143, 41), (147, 28), (151, 40)]).fill(Theme.rose.opacity(0.6))
             // Horn: a gold spiral cone
             poly([(152, 40), (176, 6), (162, 44)]).fill(Theme.sun).paperCut(0.3)

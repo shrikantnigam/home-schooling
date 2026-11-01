@@ -51,7 +51,7 @@ final class SpeechPlayer: NSObject, ObservableObject {
     }
 
     /// Speaks lines in order, then calls `then`. Stops anything already playing.
-    func say(_ lines: [SpokenLine?], each: ((Int) -> Void)? = nil, then: (() -> Void)? = nil) {
+    func say(_ lines: [SpokenLine?], then: (() -> Void)? = nil, each: ((Int) -> Void)? = nil) {
         stop()
         // One utterance per sentence, so each can end with a natural pause (see playNext).
         queue = lines.enumerated().flatMap { i, line in (line?.sentences ?? []).map { (line: $0, index: i) } }
