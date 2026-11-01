@@ -102,7 +102,11 @@ final class SpeechPlayer: NSObject, ObservableObject {
     }
 
     private static func pickVoice(prefer names: [String], avoid: String?) -> AVSpeechSynthesisVoice? {
-        let english = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix("en") && $0.identifier != avoid }
+        // Skip novelty voices (Whisper, Bubbles, Bells and so on). On a simulator or an iPad with no
+        // downloaded voices, the old ranking could hand Sparkle one of these, and Whisper is nearly silent.
+        let english = AVSpeechSynthesisVoice.speechVoices().filter {
+            $0.language.hasPrefix("en") && $0.identifier != avoid && !$0.voiceTraits.contains(.isNoveltyVoice)
+        }
         let ranked = english.sorted { a, b in
             if a.quality != b.quality { return a.quality.rawValue > b.quality.rawValue }
             return (a.language == "en-US" ? 0 : 1) < (b.language == "en-US" ? 0 : 1)
@@ -110,6 +114,8 @@ final class SpeechPlayer: NSObject, ObservableObject {
         for name in names {
             if let v = ranked.first(where: { $0.name.hasPrefix(name) && $0.quality != .default }) { return v }
         }
+        // No good named voice: Sparkle shares the plain system voice and is told apart by pitch alone.
+        if avoid != nil { return AVSpeechSynthesisVoice(language: "en-US") }
         return ranked.first ?? AVSpeechSynthesisVoice(language: "en-US")
     }
 }
