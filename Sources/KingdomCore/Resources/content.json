@@ -1,0 +1,1050 @@
+{
+ "skills": [
+  {
+   "id": "count",
+   "chapter": "prologue",
+   "name": "Count to 10, one by one",
+   "homeTip": "Count the spoons in a drawer together, touching each one as you say its number."
+  },
+  {
+   "id": "cardinality",
+   "chapter": "prologue",
+   "name": "Last number tells how many",
+   "homeTip": "Count 6 grapes, then ask \"so how many grapes?\" and listen for the last number."
+  },
+  {
+   "id": "lineFind",
+   "chapter": "prologue",
+   "name": "Find numbers on the line",
+   "homeTip": "Chalk a number line from 0 to 10 outside and jump to the number you call out."
+  },
+  {
+   "id": "subitize",
+   "chapter": "prologue",
+   "name": "Quick look up to 5",
+   "homeTip": "Flash a few fingers for a moment and ask how many she saw without counting."
+  },
+  {
+   "id": "add",
+   "chapter": "garden",
+   "name": "Add within 10",
+   "homeTip": "Put 3 spoons on the table, add 2 more, and count them all together."
+  },
+  {
+   "id": "bonds",
+   "chapter": "garden",
+   "name": "Number pairs to 5",
+   "homeTip": "Split 5 grapes onto two plates in as many ways as you can."
+  },
+  {
+   "id": "lineAdd",
+   "chapter": "garden",
+   "name": "Add on the number line",
+   "homeTip": "Stand on a number on a chalk line and hop forward 2 or 3 steps. Where did you land?"
+  },
+  {
+   "id": "makeTen",
+   "chapter": "garden",
+   "name": "Make 10",
+   "homeTip": "Fill an egg carton cut to 10 cups with 7 pebbles. How many more fill it?"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "prologue",
+   "title": "Counting Stars",
+   "place": "Night Sky",
+   "scenes": [
+    "P1",
+    "P2",
+    "P3",
+    "P4"
+   ]
+  },
+  {
+   "id": "garden",
+   "title": "The Flower Garden",
+   "place": "Flower Garden",
+   "scenes": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5"
+   ]
+  }
+ ],
+ "scenes": [
+  {
+   "id": "P1",
+   "chapter": "prologue",
+   "title": "Meet Sparkle",
+   "open": [
+    "p1.open1",
+    "p1.open2"
+   ],
+   "warmupCount": 0,
+   "items": [
+    {
+     "id": "p1-3",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 3
+    },
+    {
+     "id": "p1-4",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 4
+    },
+    {
+     "id": "p1-5",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 5
+    },
+    {
+     "id": "p1-2",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 2
+    },
+    {
+     "id": "p1-5b",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 5
+    }
+   ],
+   "payoff": [
+    "p1.payoff"
+   ],
+   "goodbye": "p1.goodbye"
+  },
+  {
+   "id": "P2",
+   "chapter": "prologue",
+   "title": "How many?",
+   "open": [
+    "p2.open1",
+    "p2.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "p2-4",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 4
+    },
+    {
+     "id": "p2-6",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 6
+    },
+    {
+     "id": "p2-3",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 3
+    },
+    {
+     "id": "p2-7c",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 7
+    },
+    {
+     "id": "p2-7",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 7
+    },
+    {
+     "id": "p2-5",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 5
+    },
+    {
+     "id": "p2-9c",
+     "skill": "count",
+     "kind": "countTap",
+     "a": 9
+    },
+    {
+     "id": "p2-8",
+     "skill": "cardinality",
+     "kind": "howMany",
+     "a": 8
+    }
+   ],
+   "payoff": [
+    "p2.payoff"
+   ],
+   "goodbye": "p2.goodbye"
+  },
+  {
+   "id": "P3",
+   "chapter": "prologue",
+   "title": "Star Path",
+   "open": [
+    "p3.open1",
+    "p3.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "p3-4",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 4
+    },
+    {
+     "id": "p3-2",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 2
+    },
+    {
+     "id": "p3-7",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 7
+    },
+    {
+     "id": "p3-5",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 5
+    },
+    {
+     "id": "p3-9",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 9
+    },
+    {
+     "id": "p3-6",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 6
+    },
+    {
+     "id": "p3-10",
+     "skill": "lineFind",
+     "kind": "findOnLine",
+     "a": 10
+    }
+   ],
+   "payoff": [
+    "p3.payoff"
+   ],
+   "goodbye": "p3.goodbye"
+  },
+  {
+   "id": "P4",
+   "chapter": "prologue",
+   "title": "Quick Look",
+   "open": [
+    "p4.open1",
+    "p4.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "p4-3",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 3
+    },
+    {
+     "id": "p4-2",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 2
+    },
+    {
+     "id": "p4-5",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 5
+    },
+    {
+     "id": "p4-1",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 1
+    },
+    {
+     "id": "p4-4",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 4
+    },
+    {
+     "id": "p4-3b",
+     "skill": "subitize",
+     "kind": "quickLook",
+     "a": 3
+    }
+   ],
+   "payoff": [
+    "p4.payoff1",
+    "p4.payoff2"
+   ],
+   "goodbye": "p4.goodbye"
+  },
+  {
+   "id": "G1",
+   "chapter": "garden",
+   "title": "More Flowers",
+   "open": [
+    "g1.open1",
+    "g1.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "g1-3+2",
+     "skill": "add",
+     "kind": "addMore",
+     "a": 3,
+     "b": 2
+    },
+    {
+     "id": "g1-2+2",
+     "skill": "add",
+     "kind": "addMore",
+     "a": 2,
+     "b": 2
+    },
+    {
+     "id": "g1-4+1",
+     "skill": "add",
+     "kind": "addMore",
+     "a": 4,
+     "b": 1
+    },
+    {
+     "id": "g1-3+3",
+     "skill": "add",
+     "kind": "addMore",
+     "a": 3,
+     "b": 3
+    },
+    {
+     "id": "g1-5+2",
+     "skill": "add",
+     "kind": "addMore",
+     "a": 5,
+     "b": 2
+    },
+    {
+     "id": "g1-1+3",
+     "skill": "add",
+     "kind": "addMore",
+     "a": 1,
+     "b": 3
+    }
+   ],
+   "payoff": [
+    "g1.payoff"
+   ],
+   "goodbye": "g1.goodbye"
+  },
+  {
+   "id": "G2",
+   "chapter": "garden",
+   "title": "Flower Pairs",
+   "open": [
+    "g2.open1",
+    "g2.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "g2-5-1",
+     "skill": "bonds",
+     "kind": "numberBond",
+     "a": 5,
+     "b": 1
+    },
+    {
+     "id": "g2-5-2",
+     "skill": "bonds",
+     "kind": "numberBond",
+     "a": 5,
+     "b": 2
+    },
+    {
+     "id": "g2-5-3",
+     "skill": "bonds",
+     "kind": "numberBond",
+     "a": 5,
+     "b": 3
+    },
+    {
+     "id": "g2-5-4",
+     "skill": "bonds",
+     "kind": "numberBond",
+     "a": 5,
+     "b": 4
+    },
+    {
+     "id": "g2-4-1",
+     "skill": "bonds",
+     "kind": "numberBond",
+     "a": 4,
+     "b": 1
+    },
+    {
+     "id": "g2-4-2",
+     "skill": "bonds",
+     "kind": "numberBond",
+     "a": 4,
+     "b": 2
+    }
+   ],
+   "payoff": [
+    "g2.payoff"
+   ],
+   "goodbye": "g2.goodbye"
+  },
+  {
+   "id": "G3",
+   "chapter": "garden",
+   "title": "Hopping Path",
+   "open": [
+    "g3.open1",
+    "g3.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "g3-4+3",
+     "skill": "lineAdd",
+     "kind": "hop",
+     "a": 4,
+     "b": 3
+    },
+    {
+     "id": "g3-2+3",
+     "skill": "lineAdd",
+     "kind": "hop",
+     "a": 2,
+     "b": 3
+    },
+    {
+     "id": "g3-5+2",
+     "skill": "lineAdd",
+     "kind": "hop",
+     "a": 5,
+     "b": 2
+    },
+    {
+     "id": "g3-1+4",
+     "skill": "lineAdd",
+     "kind": "hop",
+     "a": 1,
+     "b": 4
+    },
+    {
+     "id": "g3-6+3",
+     "skill": "lineAdd",
+     "kind": "hop",
+     "a": 6,
+     "b": 3
+    },
+    {
+     "id": "g3-3+2",
+     "skill": "lineAdd",
+     "kind": "hop",
+     "a": 3,
+     "b": 2
+    }
+   ],
+   "payoff": [
+    "g3.payoff"
+   ],
+   "goodbye": "g3.goodbye"
+  },
+  {
+   "id": "G4",
+   "chapter": "garden",
+   "title": "Make Ten",
+   "open": [
+    "g4.open1",
+    "g4.open2"
+   ],
+   "warmupCount": 2,
+   "items": [
+    {
+     "id": "g4-7",
+     "skill": "makeTen",
+     "kind": "makeTen",
+     "a": 7
+    },
+    {
+     "id": "g4-8",
+     "skill": "makeTen",
+     "kind": "makeTen",
+     "a": 8
+    },
+    {
+     "id": "g4-5",
+     "skill": "makeTen",
+     "kind": "makeTen",
+     "a": 5
+    },
+    {
+     "id": "g4-9",
+     "skill": "makeTen",
+     "kind": "makeTen",
+     "a": 9
+    },
+    {
+     "id": "g4-6",
+     "skill": "makeTen",
+     "kind": "makeTen",
+     "a": 6
+    },
+    {
+     "id": "g4-4",
+     "skill": "makeTen",
+     "kind": "makeTen",
+     "a": 4
+    }
+   ],
+   "payoff": [
+    "g4.payoff"
+   ],
+   "goodbye": "g4.goodbye"
+  },
+  {
+   "id": "G5",
+   "chapter": "garden",
+   "title": "Garden Festival",
+   "open": [
+    "g5.open1",
+    "g5.open2"
+   ],
+   "warmupCount": 3,
+   "items": [
+    {
+     "id": "g5-3+4",
+     "skill": "add",
+     "kind": "equation",
+     "a": 3,
+     "b": 4
+    },
+    {
+     "id": "g5-2+5",
+     "skill": "add",
+     "kind": "equation",
+     "a": 2,
+     "b": 5
+    },
+    {
+     "id": "g5-6+2",
+     "skill": "add",
+     "kind": "equation",
+     "a": 6,
+     "b": 2
+    },
+    {
+     "id": "g5-4+4",
+     "skill": "add",
+     "kind": "equation",
+     "a": 4,
+     "b": 4
+    },
+    {
+     "id": "g5-5+3",
+     "skill": "add",
+     "kind": "equation",
+     "a": 5,
+     "b": 3
+    },
+    {
+     "id": "g5-1+6",
+     "skill": "add",
+     "kind": "equation",
+     "a": 1,
+     "b": 6
+    },
+    {
+     "id": "g5-3+3",
+     "skill": "add",
+     "kind": "equation",
+     "a": 3,
+     "b": 3
+    }
+   ],
+   "payoff": [
+    "g5.payoff1",
+    "g5.payoff2"
+   ],
+   "goodbye": "g5.goodbye"
+  }
+ ],
+ "lines": {
+  "number.0": {
+   "speaker": "sparkle",
+   "text": "Zero"
+  },
+  "number.1": {
+   "speaker": "sparkle",
+   "text": "One"
+  },
+  "number.2": {
+   "speaker": "sparkle",
+   "text": "Two"
+  },
+  "number.3": {
+   "speaker": "sparkle",
+   "text": "Three"
+  },
+  "number.4": {
+   "speaker": "sparkle",
+   "text": "Four"
+  },
+  "number.5": {
+   "speaker": "sparkle",
+   "text": "Five"
+  },
+  "number.6": {
+   "speaker": "sparkle",
+   "text": "Six"
+  },
+  "number.7": {
+   "speaker": "sparkle",
+   "text": "Seven"
+  },
+  "number.8": {
+   "speaker": "sparkle",
+   "text": "Eight"
+  },
+  "number.9": {
+   "speaker": "sparkle",
+   "text": "Nine"
+  },
+  "number.10": {
+   "speaker": "sparkle",
+   "text": "Ten"
+  },
+  "count.0": {
+   "speaker": "sparkle",
+   "text": "Zero!"
+  },
+  "count.1": {
+   "speaker": "sparkle",
+   "text": "One!"
+  },
+  "count.2": {
+   "speaker": "sparkle",
+   "text": "Two!"
+  },
+  "count.3": {
+   "speaker": "sparkle",
+   "text": "Three!"
+  },
+  "count.4": {
+   "speaker": "sparkle",
+   "text": "Four!"
+  },
+  "count.5": {
+   "speaker": "sparkle",
+   "text": "Five!"
+  },
+  "count.6": {
+   "speaker": "sparkle",
+   "text": "Six!"
+  },
+  "count.7": {
+   "speaker": "sparkle",
+   "text": "Seven!"
+  },
+  "count.8": {
+   "speaker": "sparkle",
+   "text": "Eight!"
+  },
+  "count.9": {
+   "speaker": "sparkle",
+   "text": "Nine!"
+  },
+  "count.10": {
+   "speaker": "sparkle",
+   "text": "Ten!"
+  },
+  "castle.first": {
+   "speaker": "sparkle",
+   "text": "Hi Siara! The stars need our help. Tap the big glowing button!"
+  },
+  "castle.back": {
+   "speaker": "sparkle",
+   "text": "Hi Siara! I'm so happy to see you. Tap the big glowing button!"
+  },
+  "map.pick": {
+   "speaker": "sparkle",
+   "text": "Tap the place that is glowing."
+  },
+  "map.locked": {
+   "speaker": "sparkle",
+   "text": "Not yet. We'll get there together."
+  },
+  "map.gardenAwake": {
+   "speaker": "sparkle",
+   "text": "The garden is awake now! Let's plant flowers."
+  },
+  "map.practice": {
+   "speaker": "sparkle",
+   "text": "The garden wants a little more practice. Tap the glowing flowers!"
+  },
+  "map.done": {
+   "speaker": "sparkle",
+   "text": "You helped the whole kingdom so far! Want to visit a place again?"
+  },
+  "sleeping": {
+   "speaker": "narrator",
+   "text": "Sparkle is sleeping. She'll be ready to play tomorrow."
+  },
+  "quiet": {
+   "speaker": "narrator",
+   "text": "Sparkle is resting now. Let's play together another time."
+  },
+  "warmup.intro": {
+   "speaker": "sparkle",
+   "text": "Let's warm up with something we did before!"
+  },
+  "core.intro": {
+   "speaker": "sparkle",
+   "text": "Now let's help the kingdom!"
+  },
+  "wrapup": {
+   "speaker": "sparkle",
+   "text": "That was a lot of great thinking. Let's finish our story for today."
+  },
+  "p1.open1": {
+   "speaker": "narrator",
+   "text": "Once upon a time, in the Kingdom of Numbers, the night sky went dark."
+  },
+  "p1.open2": {
+   "speaker": "sparkle",
+   "text": "Hi Siara, I'm Sparkle! Oh no, the stars fell asleep. Will you help me wake them up?"
+  },
+  "p1.payoff": {
+   "speaker": "sparkle",
+   "text": "Five stars! The last number tells how many. Look, the sky is starting to glow!"
+  },
+  "p1.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned to count each star just once. Goodnight, Siara!"
+  },
+  "p2.open1": {
+   "speaker": "narrator",
+   "text": "The stars are waking up, but some are hiding in the clouds."
+  },
+  "p2.open2": {
+   "speaker": "sparkle",
+   "text": "Let's find out how many stars are in each cloud!"
+  },
+  "p2.payoff": {
+   "speaker": "sparkle",
+   "text": "You found every star in the clouds! The sky is getting brighter."
+  },
+  "p2.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned that the last number you say tells how many. Goodnight, Siara!"
+  },
+  "p3.open1": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to walk across the sky on a path of star stones."
+  },
+  "p3.open2": {
+   "speaker": "sparkle",
+   "text": "Every stone has a number. Will you show me where to hop?"
+  },
+  "p3.payoff": {
+   "speaker": "sparkle",
+   "text": "We crossed the whole star path! Every number has its own place."
+  },
+  "p3.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned where numbers live on the line. Goodnight, Siara!"
+  },
+  "p4.open1": {
+   "speaker": "narrator",
+   "text": "The last stars are very shy. They only peek out for a moment."
+  },
+  "p4.open2": {
+   "speaker": "sparkle",
+   "text": "Look quickly, and tell me how many stars you see!"
+  },
+  "p4.payoff1": {
+   "speaker": "sparkle",
+   "text": "You counted every star back into the sky!"
+  },
+  "p4.payoff2": {
+   "speaker": "sparkle",
+   "text": "Look, the kingdom map is glowing. Today you learned that the last number you say tells how many."
+  },
+  "p4.goodbye": {
+   "speaker": "sparkle",
+   "text": "Goodnight, Siara! Tomorrow we can visit the garden."
+  },
+  "g1.open1": {
+   "speaker": "narrator",
+   "text": "Morning came to the kingdom, but the flower garden was still asleep."
+  },
+  "g1.open2": {
+   "speaker": "sparkle",
+   "text": "I can't find the path through the garden. Can we plant some flowers?"
+  },
+  "g1.payoff": {
+   "speaker": "sparkle",
+   "text": "Look at all the flowers! I can see the start of the path."
+  },
+  "g1.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned that adding means putting more together. Goodnight, Siara!"
+  },
+  "g2.open1": {
+   "speaker": "narrator",
+   "text": "The garden bees have two flower beds, and they want flowers in both."
+  },
+  "g2.open2": {
+   "speaker": "sparkle",
+   "text": "Let's share the flowers between the beds in different ways!"
+  },
+  "g2.payoff": {
+   "speaker": "sparkle",
+   "text": "The bees are buzzing happily in both beds!"
+  },
+  "g2.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned that a number can be split into two parts in many ways. Goodnight, Siara!"
+  },
+  "g3.open1": {
+   "speaker": "narrator",
+   "text": "Stepping stones lead deeper into the garden."
+  },
+  "g3.open2": {
+   "speaker": "sparkle",
+   "text": "I love hopping! Count my hops with me."
+  },
+  "g3.payoff": {
+   "speaker": "sparkle",
+   "text": "We hopped all the way along the path! Hopping forward is adding."
+  },
+  "g3.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned to add by hopping on the number line. Goodnight, Siara!"
+  },
+  "g4.open1": {
+   "speaker": "narrator",
+   "text": "In the middle of the garden there is a sleeping fountain."
+  },
+  "g4.open2": {
+   "speaker": "sparkle",
+   "text": "The fountain wakes up when a flower box has ten flowers!"
+  },
+  "g4.payoff": {
+   "speaker": "sparkle",
+   "text": "Splash! The fountain is awake! Ten is a very special number."
+  },
+  "g4.goodbye": {
+   "speaker": "sparkle",
+   "text": "Today you learned how many more make ten. Goodnight, Siara!"
+  },
+  "g5.open1": {
+   "speaker": "narrator",
+   "text": "Today is the garden festival, and everyone has come to see the flowers."
+  },
+  "g5.open2": {
+   "speaker": "sparkle",
+   "text": "Let's add the festival flowers together. You can use numbers now!"
+  },
+  "g5.payoff1": {
+   "speaker": "sparkle",
+   "text": "You made the whole garden bloom! Today you learned that adding means putting together."
+  },
+  "g5.payoff2": {
+   "speaker": "sparkle",
+   "text": "And look... a bridge! I wonder what's across it."
+  },
+  "g5.goodbye": {
+   "speaker": "sparkle",
+   "text": "Goodnight, Siara! I can't wait to see you again."
+  },
+  "practice.open1": {
+   "speaker": "narrator",
+   "text": "Sparkle wants to play in the garden a little more."
+  },
+  "practice.open2": {
+   "speaker": "sparkle",
+   "text": "Let's practice together. Practice makes our brains strong!"
+  },
+  "practice.payoff": {
+   "speaker": "sparkle",
+   "text": "You worked so hard! The flowers are standing up tall."
+  },
+  "practice.goodbye": {
+   "speaker": "sparkle",
+   "text": "Thank you for practicing with me. Goodnight, Siara!"
+  },
+  "prompt.countTap.concrete": {
+   "speaker": "sparkle",
+   "text": "Tap each star to wake it up. Let's count together."
+  },
+  "prompt.countTap": {
+   "speaker": "sparkle",
+   "text": "How many stars are there? Touch a number to hear it. Touch it again to choose."
+  },
+  "prompt.howMany.concrete": {
+   "speaker": "sparkle",
+   "text": "How many stars are in the cloud? Tap each star to count it, then touch a number. Touch it again to choose."
+  },
+  "prompt.howMany": {
+   "speaker": "sparkle",
+   "text": "How many stars are in the cloud? Touch a number to hear it. Touch it again to choose."
+  },
+  "prompt.findOnLine": {
+   "speaker": "sparkle",
+   "text": "Can you help me hop to {a}? Tap the stone where {a} lives."
+  },
+  "prompt.quickLook": {
+   "speaker": "sparkle",
+   "text": "Look quickly! How many stars did you see? Touch a number, then touch it again to choose."
+  },
+  "prompt.addMore.concrete": {
+   "speaker": "sparkle",
+   "text": "{a} flowers are awake. Let's plant {b} more seeds so I can find the path. Drag a seed into the flower box."
+  },
+  "prompt.addMore.ask": {
+   "speaker": "sparkle",
+   "text": "How many flowers are there now?"
+  },
+  "prompt.addMore.pictorial": {
+   "speaker": "sparkle",
+   "text": "{a} flowers are awake, and {b} more just bloomed. How many flowers are there now?"
+  },
+  "prompt.addMore": {
+   "speaker": "sparkle",
+   "text": "{a} flowers and {b} more. How many flowers?"
+  },
+  "prompt.numberBond": {
+   "speaker": "sparkle",
+   "text": "The bees want flowers in both beds. We have {a} flowers, and this bed has {b}. How many go in the other bed?"
+  },
+  "prompt.hop": {
+   "speaker": "sparkle",
+   "text": "I'm on {a}. I'll hop {b} times. Count my hops with me! Where will I land?"
+  },
+  "prompt.makeTen": {
+   "speaker": "sparkle",
+   "text": "The fountain wakes up when the box has ten flowers. We have {a}. How many more do we need?"
+  },
+  "prompt.equation": {
+   "speaker": "sparkle",
+   "text": "{a} plus {b}. If you want help, tap the flower box or the hopping path."
+  },
+  "hint.model": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Let's look again. Touch each one and count."
+  },
+  "hint.model.addMore": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Let's count them together. Touch each flower."
+  },
+  "hint.model.makeTen": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Look at the empty spots in the box. Each empty spot needs a flower."
+  },
+  "hint.model.hop": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Let's hop again, one stone for each horseshoe."
+  },
+  "hint.model.findOnLine": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Let's start at zero and count the stones."
+  },
+  "hint.model.numberBond": {
+   "speaker": "sparkle",
+   "text": "Hmm, not quite. Count the flowers that still need a bed."
+  },
+  "hint.worked": {
+   "speaker": "sparkle",
+   "text": "Let's count on together. Start at {a}, and count {b} more."
+  },
+  "hint.worked.countTap": {
+   "speaker": "sparkle",
+   "text": "Let's count together slowly. Watch each star light up."
+  },
+  "hint.worked.howMany": {
+   "speaker": "sparkle",
+   "text": "Let's count together slowly. Watch each star light up."
+  },
+  "hint.worked.quickLook": {
+   "speaker": "sparkle",
+   "text": "Let's look one more time and count together."
+  },
+  "hint.worked.findOnLine": {
+   "speaker": "sparkle",
+   "text": "Let's count the stones together, from zero to {a}."
+  },
+  "hint.worked.makeTen": {
+   "speaker": "sparkle",
+   "text": "Let's count the empty spots together."
+  },
+  "hint.worked.numberBond": {
+   "speaker": "sparkle",
+   "text": "Let's count the flowers that are left, together."
+  },
+  "reveal": {
+   "speaker": "sparkle",
+   "text": "It's {answer}! Let's see why together. We'll practice this again soon."
+  },
+  "praise.1": {
+   "speaker": "sparkle",
+   "text": "Yes! You did it!"
+  },
+  "praise.2": {
+   "speaker": "sparkle",
+   "text": "That's right! Great thinking, Siara!"
+  },
+  "praise.3": {
+   "speaker": "sparkle",
+   "text": "Wonderful! You figured it out!"
+  },
+  "praise.countTap": {
+   "speaker": "sparkle",
+   "text": "{a} stars! The last number tells how many."
+  },
+  "praise.addMore": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} and {b} more make {answer}!"
+  },
+  "praise.makeTen": {
+   "speaker": "sparkle",
+   "text": "You made ten by adding {answer}!"
+  },
+  "praise.hop": {
+   "speaker": "sparkle",
+   "text": "We landed on {answer}! {a} and {b} more make {answer}."
+  },
+  "praise.numberBond": {
+   "speaker": "sparkle",
+   "text": "Yes! {b} and {answer} make {a}."
+  },
+  "praise.equation": {
+   "speaker": "sparkle",
+   "text": "Yes! {a} plus {b} is {answer}."
+  },
+  "tryAgain": {
+   "speaker": "sparkle",
+   "text": "Try again. You can do it."
+  }
+ }
+}
