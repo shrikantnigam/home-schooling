@@ -15,3 +15,6 @@ with speech are driven by speech callbacks, never fixed timers.
 a whole run). A closure that callers write as a trailing closure is the last parameter. New saved fields are
 optional and decode with a default, so old installs keep working. Static textures render once to an image, never
 per frame.
+Syncing to Shrikant's Mac: if a sync adds, removes or renames any file under `App/`, or changes `App/project.yml`,
+the message that announces the sync says "run `cd App && xcodegen generate` first". The app target's pre-build check
+stops a stale project with the same instruction (escape on 2026-11-02: "Cannot find 'SetupView' in scope").

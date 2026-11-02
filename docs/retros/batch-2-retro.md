@@ -91,3 +91,11 @@ progress, and the map speaks only what changed since she last saw it.
 6. **formulas:** every build ends with a `retro` step across all seven agents, and its learnings change the pack
    before the next build starts (Shrikant, 2026-11-01).
 7. **charter v1.4:** the retro rule, and our reading of "locked" recorded where Shrikant sees it.
+
+## Escape after sign-off (2026-11-02)
+
+Shrikant's build on his Mac failed with "Cannot find 'SetupView' in scope". The sync was complete; his Xcode
+project had been generated before this batch added four source files, and our sync message didn't say to run
+`xcodegen generate`. CI never sees this because it generates a fresh project every run. Fixes: a pre-build check in
+`App/project.yml` that stops a stale project with the exact command, and a dev rule that every sync touching `App/`
+says to regenerate.

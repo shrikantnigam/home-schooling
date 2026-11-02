@@ -23,8 +23,24 @@ targets:
       - path: Sources
     dependencies:
       - package: KingdomCore
+    preBuildScripts:
+      # Stops a build from a project that was generated before a source file was added
+      # (Xcode then says "Cannot find 'X' in scope"). The fix is always: cd App && xcodegen generate.
+      - name: Check the Xcode project lists every source file
+        basedOnDependencyAnalysis: false
+        script: |
+          missing=""
+          for f in "$SRCROOT"/Sources/*.swift; do
+            n=$(basename "$f")
+            grep -q "$n" "$PROJECT_FILE_PATH/project.pbxproj" || missing="$missing $n"
+          done
+          if [ -n "$missing" ]; then
+            echo "error: The Xcode project is out of date. Missing:$missing. In Terminal run: cd App && xcodegen generate, then build again."
+            exit 1
+          fi
     settings:
       base:
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
         PRODUCT_BUNDLE_IDENTIFIER: com.nigam.kingdom.KingdomOfNumbers
         PRODUCT_NAME: Kingdom of Numbers
         TARGETED_DEVICE_FAMILY: "2"
