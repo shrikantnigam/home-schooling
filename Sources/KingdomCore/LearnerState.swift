@@ -65,6 +65,8 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public var sheets: [String: SheetRecord] = [:]
     /// The jigsaw widget (issue #25).
     public var jigsaw = JigsawRecord()
+    /// The cup shuffle widget (issue #27).
+    public var cupShuffle = CupShuffleRecord()
 
     public init() {}
 
@@ -83,7 +85,8 @@ public struct LearnerState: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
-             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup, wroteDown, board, sheets, jigsaw
+             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup, wroteDown, board, sheets, jigsaw,
+             cupShuffle
     }
 
     public init(from decoder: Decoder) throws {
@@ -106,6 +109,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
         board = try c.decodeIfPresent(BoardRecord.self, forKey: .board) ?? BoardRecord()
         sheets = try c.decodeIfPresent([String: SheetRecord].self, forKey: .sheets) ?? [:]
         jigsaw = try c.decodeIfPresent(JigsawRecord.self, forKey: .jigsaw) ?? JigsawRecord()
+        cupShuffle = try c.decodeIfPresent(CupShuffleRecord.self, forKey: .cupShuffle) ?? CupShuffleRecord()
     }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }

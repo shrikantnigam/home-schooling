@@ -1,17 +1,19 @@
 import XCTest
 
 /// QA play-through for the Home School hub (#30) and the jigsaw widget (#25, docs/features/jigsaw.md).
+/// The cup shuffle widget has its own chapter (Chapter9PlaythroughTests).
 final class Chapter8PlaythroughTests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-H1 to AC-H4: the app opens on the home screen; the Kingdom tile opens the castle and the house
-    /// button comes back; the jigsaw opens from its tile.
+    /// button comes back; the jigsaw opens from its tile on the puzzle map (J13, AC-H7).
     func test01_HomeScreen_Widgets() {
         let p = QAPlayer(self, prefix: "c8-01")
         p.launch()
         p.wait("home.title", timeout: 15)
         p.wait("home.widget.kingdom")
         p.wait("home.widget.jigsaw")
+        p.wait("home.widget.cups")
         p.snap("home school home screen")
         XCTAssertGreaterThanOrEqual(p.el("home.widget.kingdom").frame.width, 200)
         p.tap("home.widget.kingdom")
@@ -20,21 +22,24 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.tap("corner.home")
         p.wait("home.title")
         p.tap("home.widget.jigsaw")
-        p.wait("jig.choose.picture")
-        p.wait("jig.choose.line")
-        p.snap("jigsaw chooser")
+        p.wait("jig.map")
+        for id in ["castle", "garden", "companion", "ballet", "karate", "ball", "night", "rainbow"] {
+            XCTAssertEqual(p.wait("jig.map.\(id)").value as? String, id == "castle" ? "new;suggested" : "new")
+        }
+        XCTAssertFalse(p.el("jig.choose.line").exists, "the number-line puzzle is gone")
+        p.snap("puzzle map, nothing finished yet")
         p.tap("corner.home")
         p.wait("home.title")
     }
 
-    /// J1 to J4, J10: the first picture puzzle is the 10-piece quick check. A wrong drop does not place the
+    /// J1 to J4, J10, J14: the first picture puzzle is the 10-piece quick check. A wrong drop does not place the
     /// piece; the hint ladder goes strategy, area, outline, then slides the piece home; the explain moment
-    /// comes halfway; the finished picture ends with Next.
+    /// comes halfway; the finished picture ends with Next, and the map shows it with a tick.
     func test02_PicturePuzzle_Hints_Explain() {
         let p = QAPlayer(self, prefix: "c8-02")
         p.launch()
         p.tap("home.widget.jigsaw")
-        p.tap("jig.choose.picture")
+        p.tap("jig.map.castle")
         p.wait("jig.size.10")
         XCTAssertFalse(p.el("jig.size.20").exists, "the quick check offers one size only")
         p.snap("size picker, quick check")
@@ -75,9 +80,14 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.wait("jig.done", timeout: 10)
         p.snap("finished picture")
         p.tapNext()
-        p.wait("jig.choose.picture")
-        // J9: never the same picture twice in a row.
-        XCTAssertNotEqual(p.el("jig.choose.picture").value as? String, "castle")
+        // J14: the finished picture has a tick with its size; the suggestion moves on (J13).
+        XCTAssertEqual(p.wait("jig.map.castle").value as? String, "done=10")
+        XCTAssertEqual(p.el("jig.map.garden").value as? String, "new;suggested")
+        p.snap("puzzle map with the castle ticked")
+        // A finished picture stays open to play again.
+        p.tap("jig.map.castle")
+        p.wait("jig.size.20")
+        p.snap("the castle again, now at 20 pieces")
     }
 
     /// J5, J10: an easy 10-piece quick check moves her up to 20 pieces. On that second puzzle the companion
@@ -86,9 +96,9 @@ final class Chapter8PlaythroughTests: XCTestCase {
         let p = QAPlayer(self, prefix: "c8-03")
         p.launch()
         p.tap("home.widget.jigsaw")
-        playPicture(p, size: 10)
+        playPicture(p, "castle", size: 10)
         p.tapNext()
-        p.tap("jig.choose.picture")
+        p.tap("jig.map.garden")
         p.wait("jig.size.20")
         XCTAssertFalse(p.el("jig.size.10").exists, "an easy quick check moves up a size")
         p.snap("quick check moved up to 20")
@@ -112,33 +122,12 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.snap("second puzzle finished")
     }
 
-    /// J12: the number-line puzzle, 1 to 10 with dots, placed in order.
-    func test04_NumberLine() {
-        let p = QAPlayer(self, prefix: "c8-04")
-        p.launch()
-        p.tap("home.widget.jigsaw")
-        p.tap("jig.choose.line")
-        p.wait("jig.board")
-        p.snap("number line puzzle")
-        p.tap("jig.hint")
-        p.snap("number line hint")
-        for i in 0..<10 {
-            drag(p, i, to: i)
-            if p.el("jig.explain.order").waitForExistence(timeout: 1) {
-                p.snap("number line explain")
-                p.tap("jig.explain.order")
-            }
-        }
-        p.wait("jig.done", timeout: 10)
-        p.snap("number line finished")
-    }
-
     /// J8, J11: the grown-ups' jigsaw page shows how she plays and sets the range of sizes.
     func test05_ParentArea_JigsawRange() {
         let p = QAPlayer(self, prefix: "c8-05")
         p.launch()
         p.tap("home.widget.jigsaw")
-        playPicture(p, size: 10)
+        playPicture(p, "castle", size: 10)
         p.tap("corner.lock")
         p.tap("gate.qaHold")
         p.wait("gate.year")
@@ -162,7 +151,7 @@ final class Chapter8PlaythroughTests: XCTestCase {
         // Back where the grown-up came from: the jigsaw is a widget, so that is the home screen.
         p.wait("home.title")
         p.tap("home.widget.jigsaw")
-        p.tap("jig.choose.picture")
+        p.tap("jig.map.garden")
         p.wait("jig.size.20")
         XCTAssertFalse(p.el("jig.size.10").exists)
         p.snap("only 20 pieces offered")
@@ -212,8 +201,8 @@ final class Chapter8PlaythroughTests: XCTestCase {
     }
 
     /// Plays one picture puzzle straight through, answering the explain moment if it comes.
-    private func playPicture(_ p: QAPlayer, size: Int) {
-        p.tap("jig.choose.picture")
+    private func playPicture(_ p: QAPlayer, _ picture: String, size: Int) {
+        p.tap("jig.map.\(picture)")
         p.tap("jig.size.\(size)")
         p.wait("jig.board")
         for i in 0..<size {

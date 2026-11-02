@@ -25,6 +25,7 @@ struct RootView: View {
             switch model.route {
             case .home: HomeView()
             case .jigsaw: JigsawView()
+            case .cups: CupShuffleView()
             case .castle: CastleView()
             case .map: MapView()
             case .scene:

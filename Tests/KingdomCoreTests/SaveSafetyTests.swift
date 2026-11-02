@@ -39,8 +39,12 @@ final class SaveSafetyTests: XCTestCase {
         s.sheets["garden"] = SheetRecord(finished: T.day2, firstTry: 5, checked: 8, feedback: .easy)
         s.jigsaw.finishPicture(JigsawResult(kind: "picture", pictureID: "castle", pieces: 10, firstFits: 9,
                                             hintsUsed: 1, maxHintStep: 1, strategy: "edges", date: T.day1))
-        s.jigsaw.finishNumberLine(JigsawResult(kind: "line", pictureID: nil, pieces: 10, firstFits: 10,
-                                               hintsUsed: 0, maxHintStep: 0, strategy: nil, date: T.day2))
+        // The fixture also holds a number-line puzzle (finished with the J12 code, removed later the same day). Its
+        // result stays in her history, so the state the fixture must load to includes it.
+        s.jigsaw.results.append(JigsawResult(kind: "line", pictureID: nil, pieces: 10, firstFits: 10,
+                                             hintsUsed: 0, maxHintStep: 0, strategy: nil, date: T.day2))
+        s.jigsaw.puzzlesDone += 1
+        s.jigsaw.lastPuzzle = "line"
         return s
     }
 

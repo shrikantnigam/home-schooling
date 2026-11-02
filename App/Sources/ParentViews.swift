@@ -103,6 +103,7 @@ struct ParentAreaView: View {
         case progress = "Progress"
         case scrolls = "Puzzle scrolls"
         case jigsaw = "Jigsaw"
+        case cups = "Cup shuffle"
         case time = "Time limits"
         case sound = "Sound and voice"
         case screenTime = "Screen Time help"
@@ -142,6 +143,7 @@ struct ParentAreaView: View {
                     case .progress: progress
                     case .scrolls: scrolls
                     case .jigsaw: jigsaw
+                    case .cups: cups
                     case .time: time
                     case .sound: sound
                     case .screenTime: screenTime
@@ -271,7 +273,7 @@ struct ParentAreaView: View {
         let strategies = j.strategyCounts.sorted { $0.value > $1.value }
         return VStack(alignment: .leading, spacing: 18) {
             Text("Jigsaw").font(Theme.title(32))
-            Text("Picture puzzles train shapes and parts of a whole; the number-line puzzle trains number order. The app picks the size from how she plays; you can set the range.")
+            Text("Picture puzzles train shapes and parts of a whole. The app picks the size from how she plays; you can set the range. Finished pictures get a green tick on her puzzle map.")
                 .font(Theme.body(16)).foregroundStyle(Theme.muted)
             card {
                 Text("Pieces she can be offered").font(Theme.body(17).bold())
@@ -308,6 +310,67 @@ struct ParentAreaView: View {
                 Text("Try at home").font(Theme.body(17).bold())
                 Text(j.homeIdea).font(Theme.body())
                     .accessibilityIdentifier("parent.jig.homeIdea")
+            }
+        }
+    }
+
+    // MARK: Cup shuffle (#27, C10)
+
+    private var cups: some View {
+        let c = model.state.cupShuffle
+        let recent = Array(c.rounds.suffix(10))
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("Cup shuffle").font(Theme.title(32))
+            Text("Trains attention: keeping her eyes on one moving cup until it stops. She chooses 3 or 5 cups and speed 1 to 3; after three finds in a row the next setting gets a gentle sun ring.")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+            card {
+                Text("Last ten rounds").font(Theme.body(17).bold())
+                if recent.isEmpty {
+                    Text("No rounds played yet.").font(Theme.body()).foregroundStyle(Theme.muted)
+                } else {
+                    Text("Found the bird: \(recent.filter(\.found).count) of \(recent.count)").font(Theme.body())
+                        .accessibilityIdentifier("parent.cups.recent")
+                    HStack(spacing: 6) {
+                        ForEach(Array(recent.enumerated()), id: \.offset) { _, r in
+                            Text("\(r.cups)·\(r.speed)").font(Theme.body(13).bold())
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 30)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(r.found ? Theme.sageDeep : Theme.muted))
+                        }
+                    }
+                    Text("Each box is cups · speed. Green means she found the bird.").font(Theme.body(14))
+                        .foregroundStyle(Theme.muted)
+                }
+                Text("Rounds played: \(c.roundsPlayed)").font(Theme.body())
+            }
+            if !c.bySetting.isEmpty {
+                card {
+                    Text("By setting").font(Theme.body(17).bold())
+                    ForEach(Array(c.bySetting.enumerated()), id: \.offset) { _, row in
+                        Text("\(row.settings.cups) cups, speed \(row.settings.speed): found \(row.found) of \(row.played)")
+                            .font(Theme.body())
+                    }
+                }
+            }
+            card {
+                Text("First-time tutorial").font(Theme.body(17).bold())
+                Text(c.tutorialDone ? "She has done it. Show it again next time she opens the cups?"
+                                    : "It will show the next time she opens the cups.")
+                    .font(Theme.body()).foregroundStyle(Theme.muted)
+                if c.tutorialDone {
+                    Button {
+                        model.state.cupShuffle.tutorialDone = false
+                        model.save()
+                    } label: {
+                        Text("Show the tutorial again").font(Theme.body(17).bold())
+                    }
+                    .accessibilityIdentifier("parent.cups.tutorialAgain")
+                }
+            }
+            card {
+                Text("Try at home").font(Theme.body(17).bold())
+                Text(c.homeIdea).font(Theme.body())
+                    .accessibilityIdentifier("parent.cups.homeIdea")
             }
         }
     }

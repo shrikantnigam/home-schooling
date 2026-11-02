@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 
 mark=yes   # a hand-picked list may skip chapters the change needs, so it never moves the marker
 case "${1:-}" in
-  all) chapters="1,2,3,4,5,6,7,8" ;;
+  all) chapters="1,2,3,4,5,6,7,8,9" ;;
   "")  chapters=$(python3 tools/qa_plan.py) ;;
   *)   chapters="$1"; mark=no ;;
 esac

@@ -9,6 +9,8 @@ final class AppModel: ObservableObject {
         case home
         /// The jigsaw widget (#25).
         case jigsaw
+        /// The cup shuffle widget (#27).
+        case cups
         case castle
         case map
         case scene
@@ -25,7 +27,7 @@ final class AppModel: ObservableObject {
         /// Screens where play time counts toward the daily limit.
         var isPlay: Bool {
             switch self {
-            case .scene, .writeItDown, .board, .sheet, .jigsaw: return true
+            case .scene, .writeItDown, .board, .sheet, .jigsaw, .cups: return true
             default: return false
             }
         }
@@ -152,7 +154,7 @@ final class AppModel: ObservableObject {
         if state.time.limitReached(at: now, settings: state.timeSettings, calendar: calendar) {
             if route == .scene {
                 scene?.beginWrapUp()
-            } else if route == .jigsaw {
+            } else if route == .jigsaw || route == .cups {
                 goHome()
             } else {
                 // Off the story path there is no scene to wrap up: back to the sleeping castle.
@@ -179,13 +181,26 @@ final class AppModel: ObservableObject {
         switch widget.id {
         case "kingdom": route = .castle
         case "jigsaw": if block == nil { route = .jigsaw }
+        case "cups": if block == nil { route = .cups }
         default: break
         }
     }
 
     /// Records a finished jigsaw and moves the levels (J10 quick check, J2 adapts).
-    func finishJigsaw(_ r: JigsawResult, line: Bool) {
-        if line { state.jigsaw.finishNumberLine(r) } else { state.jigsaw.finishPicture(r) }
+    func finishJigsaw(_ r: JigsawResult) {
+        state.jigsaw.finishPicture(r)
+        save()
+    }
+
+    /// Records a finished cup shuffle round (C4, C5) and remembers her setting (C1).
+    func finishCupRound(_ settings: CupSettings, found: Bool) {
+        state.cupShuffle.finish(settings, found: found, at: now)
+        save()
+    }
+
+    /// Marks the first-time tutorial as done (C7).
+    func finishCupTutorial() {
+        state.cupShuffle.tutorialDone = true
         save()
     }
 
@@ -374,7 +389,7 @@ final class AppModel: ObservableObject {
 
     func openParentGate() {
         speech.stop()
-        returnRoute = (route == .home || route == .jigsaw) ? .home : .castle
+        returnRoute = (route == .home || route == .jigsaw || route == .cups) ? .home : .castle
         scene?.saveResume()
         scene = nil
         route = .gate
@@ -424,7 +439,7 @@ final class AppModel: ObservableObject {
     }
 
     enum DebugTarget: String, CaseIterable, Identifiable {
-        case home, castle, map, board, jigsaw
+        case home, castle, map, board, jigsaw, cups
         var id: String { rawValue }
     }
 
@@ -441,6 +456,7 @@ final class AppModel: ObservableObject {
         case .map: route = .map
         case .board: route = .board
         case .jigsaw: route = .jigsaw
+        case .cups: route = .cups
         }
     }
 
@@ -479,6 +495,12 @@ final class AppModel: ObservableObject {
 
     private func applyPreset(_ name: String) {
         switch name {
+        case "cupsTutorialDone":
+            state.cupShuffle.tutorialDone = true
+        case "cupsThreeFinds":
+            // C9: three finds in a row at 3 cups, speed 1, so speed 2 is suggested.
+            state.cupShuffle.tutorialDone = true
+            for _ in 0..<3 { state.cupShuffle.finish(.first, found: true, at: now) }
         case "prologueDone":
             for s in content.chapter("prologue")?.scenes ?? [] { state.completedScenes.insert(s) }
             masterChapter("prologue")

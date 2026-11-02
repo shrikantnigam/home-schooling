@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import KingdomCore
 
-/// Jigsaw widget rules J1 to J12 (docs/features/jigsaw.md).
+/// Jigsaw widget rules J1 to J14 (docs/features/jigsaw.md).
 final class JigsawTests: XCTestCase {
     private func result(pieces: Int, firstFits: Int, hints: Int = 0, maxStep: Int = 0, kind: String = "picture",
                         picture: String? = "castle") -> JigsawResult {
@@ -89,7 +89,7 @@ final class JigsawTests: XCTestCase {
         XCTAssertEqual(j.level(pieces: 40).cut, .wavy)
     }
 
-    // J9: never the same picture twice in a row; otherwise the least recently played.
+    // J13: the map's suggestion is never the picture just played; otherwise the least recently played.
     func testNextPictureNeverRepeats() {
         var j = JigsawRecord()
         let ids = ["a", "b", "c"]
@@ -103,19 +103,24 @@ final class JigsawTests: XCTestCase {
         XCTAssertEqual(Set(seen.prefix(3)), Set(ids))
     }
 
-    // J12: the number line goes concrete, then pictures, then numerals, and counts by 1, 2, 5 and 10.
-    func testNumberLineLadder() {
-        let r = NumberLineLevel.rungs
-        XCTAssertEqual(r.first, NumberLineLevel(step: 1, look: .dots))
-        XCTAssertEqual(r.map(\.step), r.map(\.step).sorted())
-        XCTAssertEqual(Set(r.map(\.step)), [1, 2, 5, 10])
-        XCTAssertEqual(NumberLineLevel(step: 5, look: .numerals).values, [5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+    // J14: a finished picture gets a tick, with the most pieces she has done it in. Old saves rebuild the ticks.
+    func testCompletedPictures() throws {
         var j = JigsawRecord()
-        j.finishNumberLine(result(pieces: 10, firstFits: 10, kind: "line", picture: nil))
-        XCTAssertEqual(j.lineRung, 1)
-        XCTAssertEqual(j.lastPuzzle, "line")
-        j.finishNumberLine(result(pieces: 10, firstFits: 6, kind: "line", picture: nil))
-        XCTAssertTrue(j.lineCalibrated)
+        XCTAssertFalse(j.isCompleted("castle"))
+        j.finishPicture(result(pieces: 20, firstFits: 15, picture: "castle"))
+        j.finishPicture(result(pieces: 10, firstFits: 10, picture: "castle"))
+        XCTAssertTrue(j.isCompleted("castle"))
+        XCTAssertEqual(j.completed["castle"], 20)
+        XCTAssertFalse(j.isCompleted("garden"))
+
+        // A save from before J14 has results but no ticks; number-line results don't count.
+        var old = JigsawRecord()
+        old.results = [result(pieces: 30, firstFits: 20, picture: "ballet"),
+                       result(pieces: 10, firstFits: 10, kind: "line", picture: nil)]
+        var obj = try JSONSerialization.jsonObject(with: JSONEncoder().encode(old)) as! [String: Any]
+        obj.removeValue(forKey: "completed")
+        let decoded = try JSONDecoder().decode(JigsawRecord.self, from: JSONSerialization.data(withJSONObject: obj))
+        XCTAssertEqual(decoded.completed, ["ballet": 30])
     }
 
     // J5: the companion slips on every third puzzle.
@@ -145,8 +150,8 @@ final class JigsawTests: XCTestCase {
     // J7: every jigsaw line exists and is companion-neutral.
     func testLines() throws {
         let content = try Content.bundled()
-        for id in ["home.hello", "jig.intro.picture", "jig.intro.line", "jig.hint.edges", "jig.hint.area", "jig.hint.outline",
-                   "jig.hint.slide", "jig.hint.line", "jig.explain", "jig.slip.ask", "jig.slip.caught"] {
+        for id in ["home.hello", "jig.intro.picture", "jig.hint.edges", "jig.hint.area", "jig.hint.outline",
+                   "jig.hint.slide", "jig.explain", "jig.slip.ask", "jig.slip.caught"] {
             XCTAssertNotNil(content.lines[id], id)
         }
     }

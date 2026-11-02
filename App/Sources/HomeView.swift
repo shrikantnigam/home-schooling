@@ -10,7 +10,8 @@ struct HubWidget: Identifiable, Equatable {
 
     static let all: [HubWidget] = [
         HubWidget(id: "kingdom", name: "Kingdom of Numbers", skill: "Numbers through a story"),
-        HubWidget(id: "jigsaw", name: "Jigsaw", skill: "Shapes, parts and wholes, and number order"),
+        HubWidget(id: "jigsaw", name: "Jigsaw", skill: "Shapes, and parts of a whole"),
+        HubWidget(id: "cups", name: "Cup shuffle", skill: "Attention: following one moving thing"),
     ]
 }
 
@@ -34,7 +35,7 @@ struct HomeView: View {
                     .foregroundStyle(block == nil ? Theme.ink : .white)
                     .padding(.top, 104)
                     .accessibilityIdentifier("home.title")
-                HStack(alignment: .bottom, spacing: 40) {
+                HStack(alignment: .bottom, spacing: 32) {
                     ForEach(HubWidget.all) { w in tile(w, resting: block != nil) }
                 }
                 if let block {
@@ -67,7 +68,7 @@ struct HomeView: View {
                     RoundedRectangle(cornerRadius: 28).fill(Theme.card).paperCut()
                     art(w).padding(18)
                 }
-                .frame(width: 280, height: 230)
+                .frame(width: 260, height: 220)
                 Text(w.name).font(Theme.title(28)).foregroundStyle(resting ? .white : Theme.ink)
             }
             // Kingdom still opens while resting, to its sleeping castle; other widgets wait for tomorrow.
@@ -92,6 +93,8 @@ struct HomeView: View {
                 }
                 .offset(y: 70)
             }
+        case "cups":
+            CupTileArt()
         default:
             JigsawTileArt()
         }

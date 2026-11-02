@@ -28,7 +28,7 @@ jobs:
           if [ -n "$sel" ] && [ "${{ github.ref }}" != "refs/heads/main" ]; then
             echo "chapters=[${sel}]" >> "$GITHUB_OUTPUT"
           else
-            echo "chapters=[1,2,3,4,5,6,7,8]" >> "$GITHUB_OUTPUT"
+            echo "chapters=[1,2,3,4,5,6,7,8,9]" >> "$GITHUB_OUTPUT"
           fi
           cat "$GITHUB_OUTPUT"
 

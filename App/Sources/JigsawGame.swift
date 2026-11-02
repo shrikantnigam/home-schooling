@@ -5,7 +5,6 @@ import UIKit
 /// One jigsaw being played: where each piece is, the hint ladder, the explain moment and the companion's slip.
 @MainActor
 final class JigsawGame: ObservableObject {
-    enum Kind: Equatable { case picture(String), line(NumberLineLevel) }
 
     struct Piece: Identifiable, Equatable {
         let id: Int
@@ -17,10 +16,10 @@ final class JigsawGame: ObservableObject {
 
     enum Overlay: Equatable { case none, explain, slipAsk, slipWhy, done }
 
-    let kind: Kind
+    let pictureID: String
     let level: JigsawLevel
     let plan: JigsawCutPlan
-    let image: UIImage?
+    let image: UIImage
     let slipDue: Bool
     @Published var pieces: [Piece]
     /// Tray slots, in order: edge pieces first when the edges are sorted.
@@ -38,34 +37,26 @@ final class JigsawGame: ObservableObject {
     private(set) var slipped = false
     private(set) var strategy: String?
 
-    init(kind: Kind, level: JigsawLevel, seed: UInt64, slipDue: Bool, image: UIImage?) {
-        self.kind = kind
+    init(picture: String, level: JigsawLevel, seed: UInt64, slipDue: Bool, image: UIImage) {
+        self.pictureID = picture
         self.level = level
         self.image = image
         self.slipDue = slipDue
-        if case .line = kind {
-            plan = JigsawCutPlan(cols: 10, rows: 1, seed: seed)
-        } else {
-            plan = JigsawCutPlan(pieces: level.pieces, seed: seed)
-        }
+        plan = JigsawCutPlan(pieces: level.pieces, seed: seed)
         var rng = SeededRandom(seed: seed &+ 99)
         let n = plan.count
         let turning = level.turning
         pieces = (0..<n).map { i in Piece(id: i, rotation: turning ? [90, 180, 270, 0, 90][Int.random(in: 0..<5, using: &rng)] : 0) }
         var order = Array(0..<n).shuffled(using: &rng)
-        if level.edgesSorted, case .picture = kind {
+        if level.edgesSorted {
             let p = plan
             order = order.filter { p.isEdge($0) } + order.filter { !p.isEdge($0) }
         }
         trayOrder = order
     }
 
-    var isLine: Bool { if case .line = kind { return true } else { return false } }
     var placedCount: Int { pieces.filter(\.placed).count }
     var isFinished: Bool { placedCount == pieces.count }
-
-    /// Number-line values, one per piece in order.
-    var values: [Int] { if case .line(let l) = kind { return l.values } else { return [] } }
 
     // MARK: Moves
 
@@ -110,7 +101,6 @@ final class JigsawGame: ObservableObject {
     func nextHintTarget(lastTouched: Int?) -> Int? {
         if let t = hintTarget, !pieces[t].placed { return t }
         if let l = lastTouched, !pieces[l].placed { return l }
-        if isLine { return pieces.first { !$0.placed }?.id }
         return trayOrder.first { !pieces[$0].placed }
     }
 
@@ -135,18 +125,8 @@ final class JigsawGame: ObservableObject {
 
     /// The spoken strategy for the first hint step.
     func strategyLine(for piece: Int) -> LineID {
-        if isLine { return placedCount == 0 ? "jig.hint.lineFirst" : "jig.hint.line" }
         if pieces[piece].rotation != 0 { return "jig.hint.turn" }
         return plan.isEdge(piece) ? "jig.hint.edges" : "jig.hint.colour"
-    }
-
-    /// For the number-line hint: the last value placed in order from the start.
-    var countOnFrom: Int {
-        // Picture puzzles have no values: reading values[i] here crashed on the last hint step (QA c8-02).
-        guard isLine else { return 0 }
-        var last = 0
-        for (i, p) in pieces.enumerated() where p.placed { if i == 0 || pieces[i - 1].placed { last = values[i] } else { break } }
-        return last
     }
 
     // MARK: Explain moment (J4) and the companion's slip (J5)
@@ -180,9 +160,7 @@ final class JigsawGame: ObservableObject {
     }
 
     func result(at date: Date) -> JigsawResult {
-        let pictureID: String?
-        if case .picture(let id) = kind { pictureID = id } else { pictureID = nil }
-        return JigsawResult(kind: isLine ? "line" : "picture", pictureID: pictureID, pieces: pieces.count,
+        return JigsawResult(kind: "picture", pictureID: pictureID, pieces: pieces.count,
                             firstFits: pieces.filter { $0.firstDropFit == true }.count, hintsUsed: hintsUsed,
                             maxHintStep: maxHintStep, strategy: strategy, date: date)
     }

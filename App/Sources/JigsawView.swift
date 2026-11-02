@@ -2,7 +2,7 @@ import KingdomCore
 import SwiftUI
 import UIKit
 
-/// The jigsaw widget (#25): choose a puzzle, pick a size, then drag pieces into place.
+/// The jigsaw widget (#25): pick a picture on the puzzle map (J13), pick a size, then drag pieces into place.
 /// Quiet by default (J7): it speaks only a one-time intro per variation, hints, the explain moment and the slip.
 /// No timers, points or stickers (J8): the reward is the finished picture.
 struct JigsawView: View {
@@ -17,7 +17,7 @@ struct JigsawView: View {
         ZStack {
             PaperStage(chapter: nil, showSky: false)
             switch stage {
-            case .choose: chooser
+            case .choose: JigsawMap(suggested: nextPicture) { stage = .sizes($0) }
             case .sizes(let picture): sizePicker(picture)
             case .play:
                 if let game { JigsawBoard(game: game, onNext: { stage = .choose; self.game = nil }) }
@@ -29,50 +29,6 @@ struct JigsawView: View {
 
     private var nextPicture: String {
         model.state.jigsaw.nextPicture(from: JigsawPictures.all.map(\.id)) ?? "castle"
-    }
-
-    // MARK: Choose a puzzle
-
-    private var chooser: some View {
-        VStack(spacing: 30) {
-            Text("Jigsaw").font(Theme.title(44)).foregroundStyle(Theme.ink).padding(.top, 104)
-            HStack(spacing: 40) {
-                Button { stage = .sizes(nextPicture) } label: {
-                    card(title: "Picture puzzle") {
-                        JigsawScene(id: nextPicture, companion: model.state.companion)
-                            .frame(width: 260, height: 170)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("jig.choose.picture")
-                .accessibilityValue(nextPicture)
-
-                Button { startLine() } label: {
-                    card(title: "Number line") {
-                        HStack(spacing: 4) {
-                            ForEach(1...5, id: \.self) { n in
-                                Text("\(n * model.state.jigsaw.lineLevel.step)").font(Theme.numeral(26)).foregroundStyle(Theme.ink)
-                                    .frame(width: 48, height: 56).background(RoundedRectangle(cornerRadius: 8).fill(Theme.sun))
-                            }
-                        }
-                        .frame(width: 260, height: 170)
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("jig.choose.line")
-            }
-            Spacer()
-        }
-    }
-
-    private func card<C: View>(title: String, @ViewBuilder _ content: () -> C) -> some View {
-        VStack(spacing: 14) {
-            content()
-            Text(title).font(Theme.title(28)).foregroundStyle(Theme.ink)
-        }
-        .padding(22)
-        .background(RoundedRectangle(cornerRadius: 26).fill(Theme.card).paperCut())
     }
 
     // MARK: Pick a size (she stays in charge, from 2 or 3 around her level)
@@ -128,7 +84,7 @@ struct JigsawView: View {
         let cell = JigsawBoard.cell(cols: g.cols, rows: g.rows)
         let image = JigsawPictures.render(picture, companion: model.state.companion,
                                           size: CGSize(width: cell * CGFloat(g.cols), height: cell * CGFloat(g.rows)))
-        game = JigsawGame(kind: .picture(picture), level: level, seed: seed(),
+        game = JigsawGame(picture: picture, level: level, seed: seed(),
                           slipDue: model.state.jigsaw.companionSlipDue, image: image)
         stage = .play
         var intros: [LineID] = []
@@ -137,22 +93,94 @@ struct JigsawView: View {
         model.speech.say(intros.map { model.catalog.spoken($0) })
     }
 
-    private func startLine() {
-        let level = JigsawLevel(pieces: 10, cut: .squares, turning: false, guide: .full, edgesSorted: false)
-        game = JigsawGame(kind: .line(model.state.jigsaw.lineLevel), level: level, seed: seed(),
-                          slipDue: model.state.jigsaw.companionSlipDue, image: nil)
-        stage = .play
-        if model.jigsawFirstTime("line") { model.speech.say([model.catalog.spoken("jig.intro.line")]) }
+    private func replayIntro() {
+        model.speech.say([model.catalog.spoken("jig.intro.picture")])
+    }
+}
+
+/// The puzzle map (J13, charter AC-H7): every picture on one paper board, joined by a dotted path. Finished pictures
+/// keep their colours and get a green tick with the most pieces she has done (J14). The suggestion wears a sun ring.
+struct JigsawMap: View {
+    @EnvironmentObject var model: AppModel
+    let suggested: String
+    let pick: (String) -> Void
+
+    private static let cols = 4
+    private static let cardSize = CGSize(width: 220, height: 196)
+    private static let gap = CGSize(width: 34, height: 40)
+
+    var body: some View {
+        VStack(spacing: 18) {
+            Text("Jigsaw").font(Theme.title(44)).foregroundStyle(Theme.ink).padding(.top, 96)
+            ZStack(alignment: .topLeading) {
+                path
+                ForEach(Array(JigsawPictures.all.enumerated()), id: \.element.id) { i, pic in
+                    card(pic)
+                        .position(center(i))
+                }
+            }
+            .frame(width: Self.boardSize.width, height: Self.boardSize.height)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("jig.map")
+            Spacer()
+        }
     }
 
-    private func replayIntro() {
-        switch stage {
-        case .play:
-            let id: LineID = game?.isLine == true ? "jig.intro.line" : "jig.intro.picture"
-            model.speech.say([model.catalog.spoken(id)])
-        default:
-            model.speech.say([model.catalog.spoken("jig.intro.picture")])
+    private static var rows: Int { (JigsawPictures.all.count + cols - 1) / cols }
+    private static var boardSize: CGSize {
+        CGSize(width: CGFloat(cols) * cardSize.width + CGFloat(cols - 1) * gap.width,
+               height: CGFloat(rows) * cardSize.height + CGFloat(rows - 1) * gap.height)
+    }
+
+    /// Cards run left to right on the first row and right to left on the next, like a path on a map.
+    private func center(_ i: Int) -> CGPoint {
+        let r = i / Self.cols
+        let c = r % 2 == 0 ? i % Self.cols : Self.cols - 1 - i % Self.cols
+        return CGPoint(x: (CGFloat(c) + 0.5) * Self.cardSize.width + CGFloat(c) * Self.gap.width,
+                       y: (CGFloat(r) + 0.5) * Self.cardSize.height + CGFloat(r) * Self.gap.height)
+    }
+
+    private var path: some View {
+        Path { p in
+            let n = JigsawPictures.all.count
+            guard n > 1 else { return }
+            p.move(to: center(0))
+            for i in 1..<n { p.addLine(to: center(i)) }
         }
+        .stroke(Theme.clay.opacity(0.45), style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: [2, 14]))
+        .allowsHitTesting(false)
+    }
+
+    private func card(_ pic: JigsawPictures.Picture) -> some View {
+        let best = model.state.jigsaw.completed[pic.id]
+        let isSuggested = pic.id == suggested
+        return Button { pick(pic.id) } label: {
+            VStack(spacing: 8) {
+                JigsawScene(id: pic.id, companion: model.state.companion)
+                    .frame(width: 192, height: 124)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                Text(pic.name).font(Theme.body(17).bold()).foregroundStyle(Theme.ink).lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(best.map { "\($0) pieces" } ?? " ").font(Theme.body(14)).foregroundStyle(Theme.sageDeep)
+            }
+            .padding(10)
+            .frame(width: Self.cardSize.width - 6, height: Self.cardSize.height - 6)
+            .background(RoundedRectangle(cornerRadius: 20).fill(Theme.card).paperCut(0.7))
+            .overlay(isSuggested ? RoundedRectangle(cornerRadius: 20).stroke(Theme.sun, lineWidth: 5) : nil)
+            .overlay(alignment: .topTrailing) { if best != nil { tick.offset(x: 12, y: -12) } }
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("jig.map.\(pic.id)")
+        .accessibilityLabel(pic.name + (best != nil ? ", finished" : ""))
+        .accessibilityValue("\(best.map { "done=\($0)" } ?? "new")\(isSuggested ? ";suggested" : "")")
+    }
+
+    private var tick: some View {
+        ZStack {
+            Circle().fill(Theme.sageDeep).frame(width: 46, height: 46).paperCut(0.5)
+            Image(systemName: "checkmark").font(.system(size: 24, weight: .heavy)).foregroundStyle(.white)
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -176,9 +204,9 @@ struct JigsawBoard: View {
     }
 
     private var cell: CGFloat {
-        game.isLine ? 86 : Self.cell(cols: game.plan.cols, rows: game.plan.rows)
+        Self.cell(cols: game.plan.cols, rows: game.plan.rows)
     }
-    private var margin: CGFloat { game.level.cut == .squares && !game.isLine ? cell * 0.04 : cell * 0.24 }
+    private var margin: CGFloat { game.level.cut == .squares ? cell * 0.04 : cell * 0.24 }
     private var boardSize: CGSize { CGSize(width: cell * CGFloat(game.plan.cols), height: cell * CGFloat(game.plan.rows)) }
     private var boardRect: CGRect { CGRect(origin: Self.boardOrigin, size: boardSize) }
 
@@ -217,17 +245,14 @@ struct JigsawBoard: View {
             RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.75))
                 .frame(width: boardSize.width, height: boardSize.height)
                 .paperCut(0.5)
-            if let image = game.image {
-                Image(uiImage: image).resizable().frame(width: boardSize.width, height: boardSize.height)
-                    .opacity(game.overlay == .done ? 1 : guideOpacity)
-            }
-            if game.isLine { numberLine }
+            Image(uiImage: game.image).resizable().frame(width: boardSize.width, height: boardSize.height)
+                .opacity(game.overlay == .done ? 1 : guideOpacity)
             gridLines
             ForEach(game.pieces.filter(\.placed)) { p in
                 let (c, r) = game.plan.position(p.id)
                 pieceView(p.id)
                     .position(x: (CGFloat(c) + 0.5) * cell, y: (CGFloat(r) + 0.5) * cell)
-                    .opacity(game.overlay == .done && game.image != nil ? 0 : 1)
+                    .opacity(game.overlay == .done ? 0 : 1)
             }
             hintMarks
             slipMark
@@ -275,19 +300,6 @@ struct JigsawBoard: View {
         .allowsHitTesting(false)
     }
 
-    /// The number line under the slots: ticks, with the start marked.
-    private var numberLine: some View {
-        ZStack(alignment: .topLeading) {
-            Rectangle().fill(Theme.ink).frame(width: boardSize.width, height: 3).offset(y: cell + 14)
-            ForEach(0..<10, id: \.self) { i in
-                Rectangle().fill(Theme.ink).frame(width: 3, height: 16).offset(x: (CGFloat(i) + 0.5) * cell - 1.5, y: cell + 7)
-            }
-            Image(systemName: "arrowtriangle.right.fill").font(.system(size: 22)).foregroundStyle(Theme.clay)
-                .offset(x: -30, y: cell / 2 - 12)
-        }
-        .allowsHitTesting(false)
-    }
-
     @ViewBuilder
     private var hintMarks: some View {
         if let t = game.hintTarget {
@@ -327,7 +339,7 @@ struct JigsawBoard: View {
     // MARK: Pieces
 
     private func shape(_ i: Int) -> JigsawPieceShape {
-        JigsawPieceShape(edges: game.isLine ? [0, 0, 0, 0] : game.plan.edges(i), cut: game.level.cut, margin: margin)
+        JigsawPieceShape(edges: game.plan.edges(i), cut: game.level.cut, margin: margin)
     }
 
     private func pieceView(_ i: Int) -> some View {
@@ -335,24 +347,15 @@ struct JigsawBoard: View {
         let side = cell + 2 * margin
         let s = shape(i)
         return ZStack(alignment: .topLeading) {
-            if let image = game.image {
-                Image(uiImage: image).resizable()
-                    .frame(width: boardSize.width, height: boardSize.height)
-                    .offset(x: -CGFloat(c) * cell + margin, y: -CGFloat(r) * cell + margin)
-            } else {
-                NumberPieceFace(value: game.values[i], step: lineStep, look: lineLook)
-                    .frame(width: cell, height: cell)
-                    .offset(x: margin, y: margin)
-            }
+            Image(uiImage: game.image).resizable()
+                .frame(width: boardSize.width, height: boardSize.height)
+                .offset(x: -CGFloat(c) * cell + margin, y: -CGFloat(r) * cell + margin)
         }
         .frame(width: side, height: side, alignment: .topLeading)
         .clipShape(s)
         .overlay(s.stroke(Theme.ink.opacity(0.55), lineWidth: 1.5))
         .contentShape(s)
     }
-
-    private var lineStep: Int { if case .line(let l) = game.kind { return l.step } else { return 1 } }
-    private var lineLook: NumberLineLevel.Look { if case .line(let l) = game.kind { return l.look } else { return .numerals } }
 
     private func trayPiece(_ i: Int, center: CGPoint, scale: CGFloat) -> some View {
         pieceView(i)
@@ -399,10 +402,6 @@ struct JigsawBoard: View {
     // MARK: Tray
 
     private func trayRect(in size: CGSize) -> CGRect {
-        if game.isLine {
-            let top = boardRect.maxY + 70
-            return CGRect(x: 60, y: top, width: size.width - 120, height: max(120, size.height - top - 130))
-        }
         let x = boardRect.maxX + 28
         return CGRect(x: x, y: boardRect.minY, width: max(200, size.width - x - 24), height: max(200, size.height - boardRect.minY - 120))
     }
@@ -454,7 +453,7 @@ struct JigsawBoard: View {
         case .outline: line = "jig.hint.outline"
         case .slideHome: line = "jig.hint.slide"
         }
-        model.speech.say([model.catalog.spoken(line, n: game.countOnFrom)])
+        model.speech.say([model.catalog.spoken(line)])
     }
 
     // MARK: Overlays: explain moment (J4), companion slip (J5), the finished picture
@@ -467,7 +466,7 @@ struct JigsawBoard: View {
         case .done:
             if !recorded {
                 recorded = true
-                model.finishJigsaw(game.result(at: model.now), line: game.isLine)
+                model.finishJigsaw(game.result(at: model.now))
             }
         case .none: break
         }
@@ -479,8 +478,7 @@ struct JigsawBoard: View {
         case .none: EmptyView()
         case .explain:
             choiceCard(size, mood: .thinking, title: "How did you find that one?",
-                       choices: game.isLine ? [("order", "Counted on"), ("picture", "The dots")]
-                           : [("colour", "Colours"), ("edge", "Edge shape"), ("picture", "The picture")]
+                       choices: [("colour", "Colours"), ("edge", "Edge shape"), ("picture", "The picture")]
                            + (game.level.turning ? [("turn", "Turning")] : []),
                        idPrefix: "jig.explain") { choice in
                 game.explain(choice)
@@ -558,66 +556,10 @@ struct JigsawBoard: View {
             Image(systemName: "photo").font(.system(size: 34)).foregroundStyle(Theme.clay).frame(height: 50)
         case "turn":
             Image(systemName: "arrow.clockwise").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.clay).frame(height: 50)
-        case "order":
-            Text("1 2 3").font(Theme.numeral(26)).foregroundStyle(Theme.ink).frame(height: 50)
         case "yes":
             Image(systemName: "checkmark").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.sageDeep).frame(height: 50)
         default:
             Image(systemName: "xmark").font(.system(size: 34, weight: .bold)).foregroundStyle(Theme.poppy).frame(height: 50)
         }
-    }
-}
-
-/// A number-line piece (J12): dots (concrete), hops (pictures) or the numeral alone.
-struct NumberPieceFace: View {
-    let value: Int
-    let step: Int
-    let look: NumberLineLevel.Look
-
-    var body: some View {
-        ZStack {
-            Rectangle().fill(Theme.sun.opacity(0.85))
-            switch look {
-            case .dots:
-                VStack(spacing: 2) {
-                    Text("\(value)").font(Theme.numeral(22)).foregroundStyle(Theme.ink)
-                    dots
-                }
-            case .hops:
-                VStack(spacing: 2) {
-                    Text("\(value)").font(Theme.numeral(26)).foregroundStyle(Theme.ink)
-                    HStack(spacing: 1) {
-                        ForEach(0..<min(10, value / max(1, step)), id: \.self) { _ in
-                            HopArc().stroke(Theme.clay, lineWidth: 1.5).frame(width: 6, height: 6)
-                        }
-                    }
-                }
-            case .numerals:
-                Text("\(value)").font(Theme.numeral(34)).foregroundStyle(Theme.ink)
-            }
-        }
-    }
-
-    private var dots: some View {
-        let n = min(value, 20)
-        let perRow = 5
-        return VStack(spacing: 2) {
-            ForEach(0..<((n + perRow - 1) / perRow), id: \.self) { r in
-                HStack(spacing: 2) {
-                    ForEach(0..<min(perRow, n - r * perRow), id: \.self) { _ in
-                        Circle().fill(Theme.clay).frame(width: 6, height: 6)
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct HopArc: Shape {
-    func path(in r: CGRect) -> Path {
-        var p = Path()
-        p.move(to: CGPoint(x: r.minX, y: r.maxY))
-        p.addQuadCurve(to: CGPoint(x: r.maxX, y: r.maxY), control: CGPoint(x: r.midX, y: r.minY - r.height))
-        return p
     }
 }

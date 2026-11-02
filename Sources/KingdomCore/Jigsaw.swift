@@ -1,8 +1,8 @@
 import Foundation
 
-// Jigsaw widget (issue #25, rules J1 to J12: docs/features/jigsaw.md).
-// Picture puzzles build spatial reasoning, part and whole, and strategy. The number-line puzzle builds number order
-// and follows the full charter (concrete, then pictures, then numerals).
+// Jigsaw widget (issue #25, rules J1 to J14: docs/features/jigsaw.md).
+// Picture puzzles build spatial reasoning, part and whole, and strategy. The number-line puzzle (J12) was removed on
+// 2026-11-02 at Shrikant's request; old saves may still hold its results, which are ignored.
 
 public enum JigsawCut: String, Codable, CaseIterable, Sendable { case squares, tabs, wavy }
 public enum JigsawGuide: String, Codable, CaseIterable, Sendable { case full, faint, none }
@@ -83,7 +83,7 @@ public struct JigsawCutPlan: Equatable, Sendable {
         self.init(cols: g.cols, rows: g.rows, seed: seed)
     }
 
-    /// A plan with its own shape, e.g. the number line's single row of ten.
+    /// A plan with its own number of columns and rows.
     public init(cols: Int, rows: Int, seed: UInt64) {
         let g = (cols: max(1, cols), rows: max(1, rows))
         self.cols = g.cols
@@ -140,39 +140,16 @@ public struct JigsawResult: Codable, Equatable, Sendable {
     public var isStuck: Bool { maxHintStep >= 3 || firstFitRate < 0.5 }
 }
 
-/// Number-line puzzle rungs (J12): concrete dots, then pictures (hops), then numerals; counting by 1, 2, 5, 10.
-public struct NumberLineLevel: Codable, Equatable, Sendable {
-    public enum Look: String, Codable, Sendable { case dots, hops, numerals }
-    public let step: Int
-    public let look: Look
-
-    public init(step: Int, look: Look) {
-        self.step = step
-        self.look = look
-    }
-
-    public static let rungs: [NumberLineLevel] = [
-        .init(step: 1, look: .dots), .init(step: 1, look: .hops), .init(step: 1, look: .numerals),
-        .init(step: 2, look: .dots), .init(step: 2, look: .numerals),
-        .init(step: 5, look: .hops), .init(step: 5, look: .numerals),
-        .init(step: 10, look: .hops), .init(step: 10, look: .numerals),
-    ]
-
-    /// The ten values, in order: 1 to 10, 2 to 20, 5 to 50 or 10 to 100.
-    public var values: [Int] { (1...10).map { $0 * step } }
-}
-
 /// What the jigsaw widget remembers.
 public struct JigsawRecord: Codable, Equatable, Sendable {
     public var rung = 0
     /// False until the quick check (J10) has found her starting size.
     public var calibrated = false
     public var easyStreak = 0
-    public var lineRung = 0
-    public var lineCalibrated = false
-    public var lineStreak = 0
-    /// Picture id or "line", so the same puzzle never comes twice in a row (J9).
+    /// The last picture played.
     public var lastPuzzle: String?
+    /// Pictures she has finished at least once, with the most pieces she has done each in (J14).
+    public var completed: [String: Int] = [:]
     public var results: [JigsawResult] = []
     public var introsHeard: Set<String> = []
     public var puzzlesDone = 0
@@ -183,8 +160,8 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
     public init() {}
 
     enum CodingKeys: String, CodingKey {
-        case rung, calibrated, easyStreak, lineRung, lineCalibrated, lineStreak, lastPuzzle, results, introsHeard,
-             puzzlesDone, minPieces, maxPieces
+        case rung, calibrated, easyStreak, lastPuzzle, results, introsHeard, puzzlesDone, minPieces, maxPieces,
+             completed
     }
 
     public init(from decoder: Decoder) throws {
@@ -192,21 +169,27 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
         rung = try c.decodeIfPresent(Int.self, forKey: .rung) ?? 0
         calibrated = try c.decodeIfPresent(Bool.self, forKey: .calibrated) ?? false
         easyStreak = try c.decodeIfPresent(Int.self, forKey: .easyStreak) ?? 0
-        lineRung = try c.decodeIfPresent(Int.self, forKey: .lineRung) ?? 0
-        lineCalibrated = try c.decodeIfPresent(Bool.self, forKey: .lineCalibrated) ?? false
-        lineStreak = try c.decodeIfPresent(Int.self, forKey: .lineStreak) ?? 0
         lastPuzzle = try c.decodeIfPresent(String.self, forKey: .lastPuzzle)
         results = try c.decodeIfPresent([JigsawResult].self, forKey: .results) ?? []
         introsHeard = try c.decodeIfPresent(Set<String>.self, forKey: .introsHeard) ?? []
         puzzlesDone = try c.decodeIfPresent(Int.self, forKey: .puzzlesDone) ?? 0
         minPieces = try c.decodeIfPresent(Int.self, forKey: .minPieces) ?? 10
         maxPieces = try c.decodeIfPresent(Int.self, forKey: .maxPieces) ?? 50
+        // Saves from before J14 have no ticks yet: rebuild them from the puzzles in her history.
+        completed = try c.decodeIfPresent([String: Int].self, forKey: .completed) ?? Self.completed(from: results)
     }
 
-    public var level: JigsawLevel { JigsawLadder.rungs[min(max(0, rung), JigsawLadder.rungs.count - 1)] }
-    public var lineLevel: NumberLineLevel {
-        NumberLineLevel.rungs[min(max(0, lineRung), NumberLineLevel.rungs.count - 1)]
+    static func completed(from results: [JigsawResult]) -> [String: Int] {
+        results.reduce(into: [:]) { done, r in
+            guard r.kind == "picture", let id = r.pictureID else { return }
+            done[id] = max(done[id] ?? 0, r.pieces)
+        }
     }
+
+    /// True once she has finished this picture at any size (J14).
+    public func isCompleted(_ picture: String) -> Bool { completed[picture] != nil }
+
+    public var level: JigsawLevel { JigsawLadder.rungs[min(max(0, rung), JigsawLadder.rungs.count - 1)] }
 
     /// The level size kept inside the grown-up's range.
     public var levelSize: Int { min(max(level.pieces, minPieces), maxPieces) }
@@ -234,6 +217,7 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
     /// A finished picture puzzle moves the level by at most one knob (J2), or by size during the quick check (J10).
     public mutating func finishPicture(_ r: JigsawResult) {
         record(r)
+        if let id = r.pictureID { completed[id] = max(completed[id] ?? 0, r.pieces) }
         if !calibrated {
             if r.isEasy && rung < JigsawLadder.rungs.count - 1 && level.pieces < maxPieces {
                 rung = JigsawLadder.nextSizeRung(after: rung)
@@ -256,37 +240,18 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
         }
     }
 
-    public mutating func finishNumberLine(_ r: JigsawResult) {
-        record(r)
-        if !lineCalibrated {
-            if r.isEasy && lineRung < NumberLineLevel.rungs.count - 1 { lineRung += 1 } else { lineCalibrated = true }
-            return
-        }
-        if r.isStuck {
-            lineRung = max(0, lineRung - 1)
-            lineStreak = 0
-        } else if r.isEasy {
-            lineStreak += 1
-            if lineStreak >= 4 {
-                lineRung = min(NumberLineLevel.rungs.count - 1, lineRung + 1)
-                lineStreak = 0
-            }
-        } else {
-            lineStreak = 0
-        }
-    }
-
     private mutating func record(_ r: JigsawResult) {
         results.append(r)
         if results.count > 60 { results.removeFirst(results.count - 60) }
-        lastPuzzle = r.kind == "line" ? "line" : r.pictureID
+        lastPuzzle = r.pictureID
         puzzlesDone += 1
     }
 
     /// J5: the companion slips on every third puzzle (the 2nd, 5th, 8th...).
     public var companionSlipDue: Bool { puzzlesDone % 3 == 1 }
 
-    /// The next picture: never the one just played (J9), otherwise the least recently played.
+    /// The picture the map suggests with a sun ring (J13): never the one just played, otherwise the least recently
+    /// played. She can still pick any picture.
     public func nextPicture(from ids: [String]) -> String? {
         let candidates = ids.filter { $0 != lastPuzzle }
         guard !candidates.isEmpty else { return ids.first }
@@ -311,7 +276,7 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
         "Fold a square of paper into two triangles, then four. Can she make the square again?",
         "Do a real jigsaw together. Sort the flat-edged pieces first and talk about corners and edges.",
         "Draw a picture, cut it into 4 strips, mix them up and rebuild it.",
-        "Write 1 to 10 on sticky notes, mix them up and line them up along the floor.",
+        "Tear a magazine page into 8 pieces and swap with her: you each rebuild the other's page.",
     ]
 
     public var homeIdea: String { Self.homeIdeas[puzzlesDone % Self.homeIdeas.count] }
