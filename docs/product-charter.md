@@ -1,4 +1,4 @@
-# Kingdom of Numbers: product charter (v1.4)
+# Kingdom of Numbers: product charter (v1.5)
 
 Date: 2026-11-01 · Owners: PM (keeper), child learning expert (learning rules), story director (story rules)
 Status: proposed, waiting for Shrikant's approval
@@ -46,6 +46,9 @@ Owner: child learning expert. Each rule has a check.
 | L12 | **Start where she is.** Every chapter opens with a short, story-framed challenge (3 to 5 items across the chapter's skills, harder ones included). If she gets them right first try, she skips ahead: the skill starts at the numbers level, and scenes she has shown she knows are marked done. No skill makes a quick learner wait days for a spacing rule. Spacing is for review, not for gating. | Unit tests for test-out; QA runs a "fast learner" persona who answers everything right first time and must reach the next chapter in one session |
 | L13 | **Never mundane.** No more than 3 items in a row of the same kind or size. Numbers spread across the skill's range, and each item is a little harder or different. If she gets 4 right in a row first try, the scene steps up a level or ends early with the payoff. A scene has 8 items at most. | Content audit (kinds and ranges per scene); unit test for the step-up |
 | L11 | **Show, then name.** The world shows the idea first and Sparkle names it after she has done it. "Today you learned that..." lectures are kept to one short line per chapter. | Story and LE review of payoffs |
+| L14 | **She chooses the operation.** Once two operations are taught, a puzzle never tells her which one to use: she picks +, −, × or ÷ first, then a tool (counters, the line, or in her head), then answers. The story wrapper fades in three levels (story with a picture, story words only, the bare number sentence) as she gets them right. | Unit tests for the fade and for choice-first; QA on the Puzzle Board |
+| L15 | **She makes problems.** Every place sheet and the Puzzle Board let her make a puzzle for the companion, who sometimes gets it wrong for her to catch (L6). | QA play-through of make-a-puzzle |
+| L16 | **"=" means "the same as".** The equals sign is shown as a balance, and each place writes at least one sentence answer-first (10 = 6 + 4), so she never reads "=" as "the answer comes next". | Unit test that every place's write-it-down has an answer-first sentence |
 
 ## Story rules (S)
 
@@ -58,7 +61,7 @@ Owner: story director. Each rule has a check.
 | S3 | **She is the hero who decides.** Siara (spoken as "you") makes the choices. Sparkle asks for help, wonders, and gets things wrong, but never does the math for her. | Rubric, row 2 |
 | S4 | **Characters with a want and a feeling.** Every scene has someone who wants something and feels something she can name (shy stars, a worried Queen, a lonely goblin). Problems are solved with kindness. Nobody is punished, and nothing is scary. | Rubric, row 3 |
 | S5 | **Her work changes the world right away.** Each right answer visibly changes something (a star lights up, a plank clicks in), not only the payoff. | QA screenshot pairs before and after each item |
-| S6 | **A shape to every scene.** Hook (30 seconds or less), problem, try, a wobble (one moment that's a little hard), success, change, and a tease for next time. Each chapter carries a small mystery across its scenes. | Brief review |
+| S6 | **A shape to every scene.** Hook (30 seconds or less), problem, try, a wobble (one moment that's a little hard), success, change, and a tease for next time. Each chapter carries a small mystery across its scenes. The Puzzle Board and worksheets are exempt from the full shape, but every puzzle still passes the remove-the-math test (S1). | Brief review |
 | S7 | **The world remembers.** Places she fixed stay fixed, and friends come back (the beaver at the feast, Grub at the ball). Callbacks to what she did earlier. | Brief has callbacks |
 | S8 | **Her interests are in the story.** Princesses and unicorns are the frame. Dancing (counting steps, rows of dancers, rhythm for skip counting) and martial arts (practice, belts, counting kicks) appear across the book, at least once every two chapters. | PM backlog review |
 | S9 | **Values she can carry.** Fairness, kindness, being brave, and the idea that mistakes help brains grow. Every chapter ends with a kind act as well as a solved problem. | Rubric, row 3 |
@@ -123,6 +126,8 @@ After every build, all seven agents hold a retro (went well, went wrong, learnin
 and formula files in `studio/` and, where needed, this charter, before the next build starts.
 
 ## Changelog
+
+- v1.5 (2026-11-02): from story to problem solving (Shrikant approved the learning expert's plan): L14 she chooses the operation, L15 she makes problems, L16 "=" means "the same as", and the Puzzle Board exception to S6. Worksheets are digital, answered with the pen or by tapping (no printer).
 
 - v1.4 (2026-11-01): a retro across all agents after every build, which revises the pack (batch 2 retro:
   `docs/retros/batch-2-retro.md`).

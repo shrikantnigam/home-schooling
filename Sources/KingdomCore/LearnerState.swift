@@ -57,6 +57,12 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public var testedOutSkills: Set<SkillID> = []
     /// Name, companion and daily limit, chosen once at first launch. Nil until setup is done.
     public private(set) var setup: SetupChoices?
+    /// Places whose "write it down" moment she has done (F1, charter v1.5).
+    public var wroteDown: Set<ChapterID> = []
+    /// The Puzzle Board: story levels, streaks, lanterns and weak spots (F3).
+    public var board = BoardRecord()
+    /// Puzzle scrolls she has finished, by scroll id (F2, F4).
+    public var sheets: [String: SheetRecord] = [:]
 
     public init() {}
 
@@ -75,7 +81,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
-             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup
+             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup, wroteDown, board, sheets
     }
 
     public init(from decoder: Decoder) throws {
@@ -94,6 +100,9 @@ public struct LearnerState: Codable, Equatable, Sendable {
         chapterGate = try c.decodeIfPresent(ChapterGate.self, forKey: .chapterGate) ?? .secure
         testedOutSkills = try c.decodeIfPresent(Set<SkillID>.self, forKey: .testedOutSkills) ?? []
         setup = try c.decodeIfPresent(SetupChoices.self, forKey: .setup)
+        wroteDown = try c.decodeIfPresent(Set<ChapterID>.self, forKey: .wroteDown) ?? []
+        board = try c.decodeIfPresent(BoardRecord.self, forKey: .board) ?? BoardRecord()
+        sheets = try c.decodeIfPresent([String: SheetRecord].self, forKey: .sheets) ?? [:]
     }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }

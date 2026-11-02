@@ -3921,6 +3921,198 @@
   "companion.hello.gnome": {
    "speaker": "sparkle",
    "text": "I'm a garden gnome, and I know every path in the kingdom!"
+  },
+  "write.intro.prologue": {
+   "speaker": "sparkle",
+   "text": "Five stars here, five stars there. Let's write that with numbers!"
+  },
+  "write.intro.garden": {
+   "speaker": "sparkle",
+   "text": "Six flowers and four more made ten. Let's write it down!"
+  },
+  "write.intro.bridge": {
+   "speaker": "sparkle",
+   "text": "Ten planks and three more made thirteen. Let's write it down!"
+  },
+  "write.intro.goblin": {
+   "speaker": "sparkle",
+   "text": "Twelve gems, Grub took five, seven were left. Let's write it down!"
+  },
+  "write.intro.ball": {
+   "speaker": "sparkle",
+   "text": "Three tables with four guests each. Let's write it down!"
+  },
+  "write.intro.feast": {
+   "speaker": "sparkle",
+   "text": "Twelve treats shared on three plates. Let's write it down!"
+  },
+  "write.intro.moon": {
+   "speaker": "sparkle",
+   "text": "Half of eight moonstones is four. Let's write it down!"
+  },
+  "write.tap": {
+   "speaker": "sparkle",
+   "text": "Tap the tiles in order, from left to right."
+  },
+  "write.hint": {
+   "speaker": "sparkle",
+   "text": "Look at the picture. Which one comes next?"
+  },
+  "write.flip": {
+   "speaker": "sparkle",
+   "text": "Now let's start with the answer. It means the same thing!"
+  },
+  "write.balance": {
+   "speaker": "sparkle",
+   "text": "Both sides are the same, so the scale is level. That's what equals means."
+  },
+  "write.done": {
+   "speaker": "sparkle",
+   "text": "That's how we write it with numbers!"
+  },
+  "write.scroll": {
+   "speaker": "sparkle",
+   "text": "A new puzzle scroll is waiting on the Puzzle Board!"
+  },
+  "board.intro": {
+   "speaker": "sparkle",
+   "text": "Welcome to the Puzzle Board! Every puzzle you solve lights a lantern."
+  },
+  "board.pickOp": {
+   "speaker": "sparkle",
+   "text": "Which sign do we need? Tap it."
+  },
+  "board.pickSign": {
+   "speaker": "sparkle",
+   "text": "Which sign makes it true? Tap it."
+  },
+  "board.wrongOp": {
+   "speaker": "sparkle",
+   "text": "Hmm, think about the story. Are we putting together, taking away, making groups, or sharing?"
+  },
+  "board.showOp.add": {
+   "speaker": "sparkle",
+   "text": "We put them together. That's plus!"
+  },
+  "board.showOp.subtract": {
+   "speaker": "sparkle",
+   "text": "We take some away. That's minus!"
+  },
+  "board.showOp.multiply": {
+   "speaker": "sparkle",
+   "text": "We make equal groups. That's times!"
+  },
+  "board.showOp.divide": {
+   "speaker": "sparkle",
+   "text": "We share them fairly. That's divided by!"
+  },
+  "board.pickTool": {
+   "speaker": "sparkle",
+   "text": "How will you solve it? Pick a helper."
+  },
+  "board.ask": {
+   "speaker": "sparkle",
+   "text": "What's the answer?"
+  },
+  "board.light": {
+   "speaker": "sparkle",
+   "text": "You did it! Another lantern is shining."
+  },
+  "board.story.add": {
+   "speaker": "narrator",
+   "text": "{a} flowers are blooming. Then {b} more flowers open. How many flowers now?"
+  },
+  "board.story.subtract": {
+   "speaker": "narrator",
+   "text": "Grub has {a} gems. Grub gives away {b} gems. How many are left?"
+  },
+  "board.story.multiply": {
+   "speaker": "narrator",
+   "text": "There are {a} tables. Each table has {b} guests. How many guests?"
+  },
+  "board.story.divide": {
+   "speaker": "narrator",
+   "text": "There are {a} cupcakes. We share them on {b} plates. How many on each plate?"
+  },
+  "board.make": {
+   "speaker": "sparkle",
+   "text": "Make a puzzle for me! Pick two numbers and a sign."
+  },
+  "board.make.answer": {
+   "speaker": "sparkle",
+   "text": "Hmm, let me think. I think it's {n}! Am I right?"
+  },
+  "board.make.right": {
+   "speaker": "sparkle",
+   "text": "Yes! You checked my work. Thank you!"
+  },
+  "board.make.caught": {
+   "speaker": "sparkle",
+   "text": "You caught my mistake! The answer is {n}."
+  },
+  "board.make.missed": {
+   "speaker": "sparkle",
+   "text": "Oops, I made a mistake. The answer is really {n}."
+  },
+  "board.make.wrongCheck": {
+   "speaker": "sparkle",
+   "text": "Let's look again. I was right this time. It is {n}!"
+  },
+  "sheet.intro": {
+   "speaker": "sparkle",
+   "text": "Here is your puzzle scroll! Write the number with your finger, or tap the numbers."
+  },
+  "sheet.item.picture": {
+   "speaker": "sparkle",
+   "text": "Look at the picture. What goes in the box?"
+  },
+  "sheet.item.sentence": {
+   "speaker": "sparkle",
+   "text": "What number goes in the box?"
+  },
+  "sheet.item.missing": {
+   "speaker": "sparkle",
+   "text": "One number is missing. Which one?"
+  },
+  "sheet.item.answerFirst": {
+   "speaker": "sparkle",
+   "text": "Here the answer comes first. What goes in the box?"
+  },
+  "sheet.item.missingSign": {
+   "speaker": "sparkle",
+   "text": "Which sign makes it true?"
+  },
+  "sheet.item.count": {
+   "speaker": "sparkle",
+   "text": "How many? Write the number."
+  },
+  "sheet.right": {
+   "speaker": "sparkle",
+   "text": "Yes!"
+  },
+  "sheet.tryAgain": {
+   "speaker": "sparkle",
+   "text": "Not quite. Try once more!"
+  },
+  "sheet.show": {
+   "speaker": "sparkle",
+   "text": "Here's the answer. Let's look at it together."
+  },
+  "sheet.unreadable": {
+   "speaker": "sparkle",
+   "text": "I couldn't read that. Write it again, or tap the numbers."
+  },
+  "sheet.drawIt": {
+   "speaker": "sparkle",
+   "text": "Draw a picture of this puzzle. Tap done when you finish."
+  },
+  "sheet.make": {
+   "speaker": "sparkle",
+   "text": "Now make a puzzle for me!"
+  },
+  "sheet.done": {
+   "speaker": "sparkle",
+   "text": "You finished the scroll! Show it to a grown-up."
   }
  }
 }
