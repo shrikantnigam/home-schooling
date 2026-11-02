@@ -46,6 +46,11 @@ final class QAPlayer {
     @discardableResult
     func wait(_ id: String, timeout: TimeInterval = 8, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
         let e = el(id)
+        // The app now opens on the Home School hub (#30): a castle screen is one tap away, on the Kingdom tile.
+        if id.hasPrefix("castle.") && !e.waitForExistence(timeout: 1.5) {
+            let tile = el("home.widget.kingdom")
+            if tile.exists { tile.tap() }
+        }
         let found = e.waitForExistence(timeout: timeout)
         // A failed wait keeps a picture of what was on screen instead, so the cause is never a guess.
         if !found { snap("FAILED waiting for \(id)") }

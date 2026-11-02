@@ -80,7 +80,8 @@ struct CastleView: View {
                 onCastle: nil,
                 onEar: { speakWelcome(replay: true) },
                 onLock: { model.openParentGate() },
-                dark: block != nil
+                dark: block != nil,
+                onHome: { model.goHome() }
             )
         }
         .onAppear { speakWelcome(replay: false) }

@@ -45,7 +45,7 @@ targets:
         PRODUCT_NAME: Kingdom of Numbers
         TARGETED_DEVICE_FAMILY: "2"
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Kingdom of Numbers
+        INFOPLIST_KEY_CFBundleDisplayName: Home School
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIRequiresFullScreen: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"

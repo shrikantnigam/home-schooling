@@ -14,11 +14,11 @@ final class Chapter1PlaythroughTests: XCTestCase {
     func test00_LaunchSmoke_NoTestFlags() {
         let p = QAPlayer(self, prefix: "00")
         p.launchLikeHerIPad()
-        let first = ["setup.start", "castle.play"].map { p.el($0) }
+        let first = ["setup.start", "home.widget.kingdom", "castle.play"].map { p.el($0) }
         let deadline = Date().addingTimeInterval(20)
         while Date() < deadline && !first.contains(where: { $0.exists }) { _ = first[0].waitForExistence(timeout: 1) }
         p.snap("first screen without test flags")
-        XCTAssertTrue(first.contains(where: { $0.exists }), "launch shows setup or the castle, not a blank screen")
+        XCTAssertTrue(first.contains(where: { $0.exists }), "launch shows setup, the home screen or the castle, not a blank screen")
         if p.el("setup.start").exists {
             p.tap("setup.start")
             p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
