@@ -2,7 +2,8 @@ name: CI
 
 on:
   push:
-    branches: [main, "claude/**"]
+    # Branch pushes are covered by their pull_request run; a second push run only doubled the queue.
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -11,6 +12,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Which chapters' play-throughs to run. A commit message with "[qa: 1,8]" runs just those (fast
+  # feedback while building); anything else, and every run on main, runs all of them.
+  plan:
+    name: Plan QA
+    runs-on: ubuntu-latest
+    outputs:
+      chapters: ${{ steps.pick.outputs.chapters }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - id: pick
+        run: |
+          msg=$(git log -1 --format=%B)
+          sel=$(printf '%s' "$msg" | grep -oE '\[qa: *[0-9, ]+\]' | head -1 | tr -dc '0-9,')
+          if [ -n "$sel" ] && [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "chapters=[${sel}]" >> "$GITHUB_OUTPUT"
+          else
+            echo "chapters=[1,2,3,4,5,6,7,8]" >> "$GITHUB_OUTPUT"
+          fi
+          cat "$GITHUB_OUTPUT"
+
   unit-tests:
     name: Developer unit tests (KingdomCore)
     runs-on: macos-15
@@ -32,13 +55,13 @@ jobs:
   qa-playthrough:
     name: QA play-through, chapter ${{ matrix.chapter }} (iPad simulator)
     runs-on: macos-15
-    needs: unit-tests
+    needs: [plan, unit-tests]
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
         # One job per chapter, in parallel, so total CI time stays flat as chapters are added.
-        chapter: [1, 2, 3, 4, 5, 6, 7, 8]
+        chapter: ${{ fromJSON(needs.plan.outputs.chapters) }}
     steps:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
