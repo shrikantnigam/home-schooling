@@ -152,8 +152,13 @@ public struct LearnerState: Codable, Equatable, Sendable {
 /// Saves the learner state as JSON in Application Support. Nothing leaves the device.
 public struct StateStore: Sendable {
     public let url: URL
+    /// False for short-lived files (the debug snapshot) that don't need a backup copy.
+    public let keepsBackup: Bool
 
-    public init(url: URL) { self.url = url }
+    public init(url: URL, keepsBackup: Bool = true) {
+        self.url = url
+        self.keepsBackup = keepsBackup
+    }
 
     public static func defaultStore() -> StateStore {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
@@ -161,11 +166,30 @@ public struct StateStore: Sendable {
         return StateStore(url: dir.appendingPathComponent("KingdomOfNumbers/learner.json"))
     }
 
-    public func load() -> LearnerState {
-        guard let data = try? Data(contentsOf: url) else { return LearnerState() }
+    /// The copy of the last save that read back correctly, kept next to the main file.
+    public var backupURL: URL { url.deletingPathExtension().appendingPathExtension("backup.json") }
+
+    /// Loads her progress. Her saved play must never be lost to an app update (Shrikant, 2026-11-02), so a
+    /// file that can't be read is never overwritten: it is moved aside to `learner-unreadable-<time>.json`
+    /// and the last good backup is used instead. Only when neither can be read does she start fresh.
+    public func load(now: Date = Date()) -> LearnerState {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: url.path) else {
+            return keepsBackup ? (Self.decode(backupURL) ?? LearnerState()) : LearnerState()
+        }
+        if let state = Self.decode(url) { return state }
+        let stamp = Int(now.timeIntervalSince1970)
+        let aside = url.deletingLastPathComponent()
+            .appendingPathComponent("\(url.deletingPathExtension().lastPathComponent)-unreadable-\(stamp).json")
+        try? fm.moveItem(at: url, to: aside)
+        return keepsBackup ? (Self.decode(backupURL) ?? LearnerState()) : LearnerState()
+    }
+
+    static func decode(_ url: URL) -> LearnerState? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        return (try? decoder.decode(LearnerState.self, from: data)) ?? LearnerState()
+        return try? decoder.decode(LearnerState.self, from: data)
     }
 
     public func save(_ state: LearnerState) throws {
@@ -173,7 +197,13 @@ public struct StateStore: Sendable {
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.sortedKeys]
         let data = try encoder.encode(state)
-        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let fm = FileManager.default
+        try fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        // Before replacing the main file, keep it as the backup, but only if it still reads back.
+        if keepsBackup, Self.decode(url) != nil {
+            try? fm.removeItem(at: backupURL)
+            try? fm.copyItem(at: url, to: backupURL)
+        }
         try data.write(to: url, options: .atomic)
     }
 }

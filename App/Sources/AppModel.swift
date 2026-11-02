@@ -75,7 +75,7 @@ final class AppModel: ObservableObject {
             : StateStore.defaultStore()
         var loaded = env.reset ? LearnerState() : store.load()
         // A debug jump session that was never ended (app killed): put her real progress back.
-        let snap = StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+        let snap = StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"), keepsBackup: false)
         if FileManager.default.fileExists(atPath: snap.url.path) {
             if !env.reset { loaded = snap.load() }
             try? FileManager.default.removeItem(at: snap.url)
@@ -402,7 +402,7 @@ final class AppModel: ObservableObject {
     // MARK: Debug jump (grown-ups' area, Debug builds only)
 
     private var debugSnapshotStore: StateStore {
-        StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+        StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"), keepsBackup: false)
     }
 
     /// True while a grown-up is testing with jumps; her real progress is saved aside until they end it.
