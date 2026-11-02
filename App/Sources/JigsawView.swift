@@ -189,14 +189,13 @@ struct JigsawBoard: View {
                 board
                 ForEach(game.trayOrder.indices, id: \.self) { slotIndex in
                     let p = game.trayOrder[slotIndex]
-                    if !game.pieces[p].placed && dragging != p {
-                        trayPiece(p, center: trayCenter(slotIndex, in: tray), scale: trayScale(in: tray))
+                    // The dragged piece stays the same view (it just follows the finger): removing it mid-drag
+                    // would cancel the gesture, and the drop would never arrive.
+                    if !game.pieces[p].placed {
+                        trayPiece(p, center: dragging == p ? dragPoint : trayCenter(slotIndex, in: tray),
+                                  scale: dragging == p ? 1 : trayScale(in: tray))
+                            .zIndex(dragging == p ? 10 : 0)
                     }
-                }
-                if let d = dragging {
-                    pieceView(d).rotationEffect(.degrees(Double(game.pieces[d].rotation)))
-                        .position(dragPoint)
-                        .allowsHitTesting(false)
                 }
                 hintButton.position(x: boardRect.maxX - 40, y: min(geo.size.height - 70, boardRect.maxY + 60))
                 overlays(geo.size)
