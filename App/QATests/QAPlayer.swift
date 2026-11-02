@@ -46,7 +46,10 @@ final class QAPlayer {
     @discardableResult
     func wait(_ id: String, timeout: TimeInterval = 8, file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
         let e = el(id)
-        XCTAssertTrue(e.waitForExistence(timeout: timeout), "missing \(id)", file: file, line: line)
+        let found = e.waitForExistence(timeout: timeout)
+        // A failed wait keeps a picture of what was on screen instead, so the cause is never a guess.
+        if !found { snap("FAILED waiting for \(id)") }
+        XCTAssertTrue(found, "missing \(id)", file: file, line: line)
         return e
     }
 
