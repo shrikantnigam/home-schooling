@@ -46,6 +46,7 @@ RULES = [
     ("Sources/KingdomCore/ParentGate.swift", [1, 7, 8]),
     ("App/Sources/SetupView.swift", [1]),
     ("Sources/KingdomCore/Setup.swift", [1]),
+    ("App/Resources/*", [1]),                         # app icon: the launch smoke test is enough
     ("App/Sources/MapArt.swift", [1, 2, 3, 4, 5, 6]),
     # Everything else (AppModel, SpeechPlayer, the scene player, castle, content.json, project.yml...) is shared.
 ]
