@@ -21,10 +21,15 @@ struct ProblemPicture: View {
                 }
             case .takeAway(let a, let b):
                 rows(a) { i in
+                    let gone: Bool = i >= a - b
                     CounterSprite(style: .gem, size: size)
-                        .opacity(i >= a - b ? 0.35 : 1)
-                        .overlay(i >= a - b ? Image(systemName: "xmark").font(.system(size: size * 0.6, weight: .bold))
-                            .foregroundStyle(Theme.clay) : nil)
+                        .opacity(gone ? 0.35 : 1)
+                        .overlay {
+                            if gone {
+                                Image(systemName: "xmark").font(.system(size: size * 0.6, weight: .bold))
+                                    .foregroundStyle(Theme.clay)
+                            }
+                        }
                 }
             case .groups(let a, let b):
                 HStack(spacing: 14) {
@@ -69,21 +74,26 @@ struct PartsCircle: View {
     let parts: Int
     var body: some View {
         GeometryReader { geo in
-            let r = min(geo.size.width, geo.size.height) / 2
-            let c = CGPoint(x: geo.size.width / 2, y: geo.size.height / 2)
             ZStack {
                 Circle().fill(Color(hex: 0xBFD3F2))
-                Path { p in
-                    for i in 0..<max(1, parts) {
-                        let angle = Double(i) / Double(max(1, parts)) * 2 * .pi - .pi / 2
-                        p.move(to: c)
-                        p.addLine(to: CGPoint(x: c.x + r * cos(angle), y: c.y + r * sin(angle)))
-                    }
-                }
-                .stroke(Theme.nightPaper, lineWidth: 3)
+                spokes(in: geo.size).stroke(Theme.nightPaper, lineWidth: 3)
                 Circle().stroke(Theme.nightPaper, lineWidth: 3)
             }
         }
+    }
+
+    private func spokes(in size: CGSize) -> Path {
+        let r: CGFloat = min(size.width, size.height) / 2
+        let c = CGPoint(x: size.width / 2, y: size.height / 2)
+        let n = max(1, parts)
+        var p = Path()
+        for i in 0..<n {
+            let angle: Double = Double(i) / Double(n) * 2 * Double.pi - Double.pi / 2
+            let end = CGPoint(x: c.x + r * CGFloat(cos(angle)), y: c.y + r * CGFloat(sin(angle)))
+            p.move(to: c)
+            p.addLine(to: end)
+        }
+        return p
     }
 }
 

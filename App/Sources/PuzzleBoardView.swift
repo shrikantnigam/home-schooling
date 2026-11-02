@@ -90,7 +90,7 @@ struct PuzzleBoardView: View {
                         .accessibilityIdentifier("board.storyText")
                 }
             }
-            if p.level == 1 || (step == .tool || step == .answer || step == .lit) && tool == .counters {
+            if showCounters(p) {
                 ProblemPicture(picture: WorksheetMaker.picture(p.op, p.a, p.b), size: 36)
             }
             if (step == .answer || step == .lit) && tool == .line {
@@ -115,6 +115,11 @@ struct PuzzleBoardView: View {
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("board.puzzle")
         .accessibilityValue("op=\(p.op.rawValue);level=\(p.level);answer=\(p.answer);step=\(String(describing: step))")
+    }
+
+    private func showCounters(_ p: BoardPuzzle) -> Bool {
+        if p.level == 1 { return true }
+        return step != .sign && tool == .counters
     }
 
     /// The sentence: the sign is a box until she picks it; at level 3 the answer is already there.
@@ -403,37 +408,44 @@ struct HopLine: View {
         return max(10, min(25, max(p.a, p.answer, hops.map { max($0.0, $0.1) }.max() ?? 0)))
     }
 
+    private func x(_ n: Int, width: CGFloat) -> CGFloat {
+        15 + CGFloat(n) * (width - 30) / CGFloat(top)
+    }
+
+    private func axis(width w: CGFloat, baseY: CGFloat) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: x(0, width: w), y: baseY))
+        p.addLine(to: CGPoint(x: x(top, width: w), y: baseY))
+        for n in 0...top {
+            p.move(to: CGPoint(x: x(n, width: w), y: baseY - 8))
+            p.addLine(to: CGPoint(x: x(n, width: w), y: baseY + 8))
+        }
+        return p
+    }
+
+    private func arcs(width w: CGFloat, baseY: CGFloat) -> Path {
+        var p = Path()
+        for h in hops {
+            let a = CGPoint(x: x(h.0, width: w), y: baseY - 4)
+            let b = CGPoint(x: x(h.1, width: w), y: baseY - 4)
+            let lift: CGFloat = min(50, abs(b.x - a.x) * 0.6)
+            p.move(to: a)
+            p.addQuadCurve(to: b, control: CGPoint(x: (a.x + b.x) / 2, y: baseY - 4 - lift))
+        }
+        return p
+    }
+
     var body: some View {
         GeometryReader { geo in
-            let w = geo.size.width
-            let baseY = geo.size.height - 26
-            let step = (w - 30) / CGFloat(top)
-            func x(_ n: Int) -> CGFloat { 15 + CGFloat(n) * step }
+            let w: CGFloat = geo.size.width
+            let baseY: CGFloat = geo.size.height - 26
             ZStack(alignment: .topLeading) {
-                Path { p in
-                    p.move(to: CGPoint(x: x(0), y: baseY))
-                    p.addLine(to: CGPoint(x: x(top), y: baseY))
-                }
-                .stroke(Theme.ink, lineWidth: 3)
+                axis(width: w, baseY: baseY).stroke(Theme.ink, lineWidth: 2.5)
                 ForEach(0...top, id: \.self) { n in
-                    Path { p in
-                        p.move(to: CGPoint(x: x(n), y: baseY - 8))
-                        p.addLine(to: CGPoint(x: x(n), y: baseY + 8))
-                    }
-                    .stroke(Theme.ink, lineWidth: 2)
                     Text("\(n)").font(Theme.body(13).bold()).foregroundStyle(Theme.ink)
-                        .position(x: x(n), y: baseY + 18)
+                        .position(x: x(n, width: w), y: baseY + 18)
                 }
-                ForEach(Array(hops.enumerated()), id: \.offset) { _, h in
-                    Path { p in
-                        let a = CGPoint(x: x(h.0), y: baseY - 4)
-                        let b = CGPoint(x: x(h.1), y: baseY - 4)
-                        let mid = CGPoint(x: (a.x + b.x) / 2, y: baseY - 4 - min(50, abs(b.x - a.x) * 0.6))
-                        p.move(to: a)
-                        p.addQuadCurve(to: b, control: mid)
-                    }
-                    .stroke(Theme.clay, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                }
+                arcs(width: w, baseY: baseY).stroke(Theme.clay, style: StrokeStyle(lineWidth: 3, lineCap: .round))
             }
         }
         .accessibilityHidden(true)
