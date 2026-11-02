@@ -42,6 +42,7 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.tap("jig.map.castle")
         p.wait("jig.size.10")
         XCTAssertFalse(p.el("jig.size.20").exists, "the quick check offers one size only")
+        p.metric("taps-home-to-size-picker", p.taps)
         p.snap("size picker, quick check")
         p.tap("jig.size.10")
         p.wait("jig.board")
