@@ -92,9 +92,11 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.snap("puzzle map with the castle ticked")
         // A finished picture stays open to play again.
         p.tap("jig.map.castle")
-        XCTAssertEqual(p.wait("jig.size.20").value as? String, "open;suggested")
+        // The full hint ladder made this 10 not "easy", so the sun ring stays on 10; 20 and 30 are now open.
+        XCTAssertEqual(p.wait("jig.size.10").value as? String, "open;suggested")
+        XCTAssertEqual(p.el("jig.size.20").value as? String, "open")
         XCTAssertEqual(p.el("jig.size.30").value as? String, "open")
-        p.snap("after her first 10: 20 and 30 open, 20 suggested")
+        p.snap("after her first 10: 20 and 30 open")
     }
 
     /// J5, J10: an easy 10-piece quick check moves her up to 20 pieces. On that second puzzle the companion
