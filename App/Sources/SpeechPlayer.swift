@@ -31,8 +31,62 @@ final class SpeechPlayer: NSObject, ObservableObject {
     /// voice hangs.
     private var watchdog: DispatchWorkItem?
 
-    private(set) lazy var narratorVoice: AVSpeechSynthesisVoice? = Self.pickVoice(prefer: ["Ava", "Zoe", "Samantha", "Allison", "Serena"], avoid: nil)
-    private(set) lazy var sparkleVoice: AVSpeechSynthesisVoice? = Self.pickVoice(prefer: ["Nicky", "Evan", "Joelle", "Karen", "Susan"], avoid: narratorVoice?.identifier)
+    @Published private(set) var narratorVoice: AVSpeechSynthesisVoice?
+    @Published private(set) var sparkleVoice: AVSpeechSynthesisVoice?
+    /// The grown-up's picks (Sound and voice); nil lets the app choose.
+    private var narratorChoice: String?
+    private var companionChoice: String?
+
+    /// Picks both voices again: a grown-up's choice if that voice is still downloaded, else the best one.
+    /// Runs at launch, when the choice changes, and when iPadOS reports new voices (Shrikant, 2026-11-02: Ava
+    /// downloaded while the app was open was never used, because voices were picked once per launch).
+    func chooseVoices(narrator: String?, companion: String?) {
+        narratorChoice = narrator
+        companionChoice = companion
+        narratorVoice = Self.installed(narrator)
+            ?? Self.pickVoice(prefer: ["Ava", "Zoe", "Samantha", "Allison", "Serena"], avoid: nil)
+        sparkleVoice = Self.installed(companion)
+            ?? Self.pickVoice(prefer: ["Nicky", "Evan", "Joelle", "Karen", "Susan"], avoid: narratorVoice?.identifier)
+    }
+
+    private static func installed(_ id: String?) -> AVSpeechSynthesisVoice? {
+        guard let id else { return nil }
+        return AVSpeechSynthesisVoice(identifier: id)
+    }
+
+    /// Every downloaded English voice a grown-up can pick, best quality first (no novelty voices).
+    static var englishVoices: [AVSpeechSynthesisVoice] {
+        AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language.hasPrefix("en") && !$0.voiceTraits.contains(.isNoveltyVoice) }
+            .sorted { a, b in
+                if a.quality != b.quality { return a.quality.rawValue > b.quality.rawValue }
+                if a.language != b.language { return a.language < b.language }
+                return a.name < b.name
+            }
+    }
+
+    /// "Ava · Premium · US", for the grown-ups' list.
+    static func describe(_ v: AVSpeechSynthesisVoice) -> String {
+        let q: String
+        switch v.quality {
+        case .premium: q = "Premium"
+        case .enhanced: q = "Enhanced"
+        default: q = "Basic"
+        }
+        let region = v.language.split(separator: "-").last.map(String.init) ?? v.language
+        return "\(v.name) · \(q) · \(region)"
+    }
+
+    /// Plays one sample sentence in a given voice (grown-ups' Play button).
+    func sample(_ text: String, voice: AVSpeechSynthesisVoice?, pitch: Float = 1) {
+        stop()
+        let u = AVSpeechUtterance(string: text)
+        u.voice = voice
+        u.rate = rate
+        u.volume = volume
+        u.pitchMultiplier = pitch
+        synth.speak(u)
+    }
 
     /// AC-A8: false when no enhanced or premium English voice is downloaded.
     var hasEnhancedVoices: Bool {
@@ -47,6 +101,14 @@ final class SpeechPlayer: NSObject, ObservableObject {
         self.neverFinishes = neverFinishes
         super.init()
         synth.delegate = self
+        chooseVoices(narrator: nil, companion: nil)
+        NotificationCenter.default.addObserver(forName: AVSpeechSynthesizer.availableVoicesDidChangeNotification,
+                                               object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.chooseVoices(narrator: self.narratorChoice, companion: self.companionChoice)
+            }
+        }
         if !instant {
             // Set up audio off the main thread. Activating the session on the main thread can stall
             // the first frame (Xcode warns about this), which shows as a blank screen at launch.

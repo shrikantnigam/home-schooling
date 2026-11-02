@@ -1,3 +1,4 @@
+import AVFoundation
 import KingdomCore
 import SwiftUI
 import UIKit
@@ -569,6 +570,17 @@ struct ParentAreaView: View {
                 .buttonStyle(.bordered)
             }
             card {
+                Text("Voices").font(Theme.body(17).bold())
+                Text("Pick from the English voices downloaded on this iPad. Siri voices can't be used by apps. To add more, open Settings > Accessibility > Spoken Content > Voices > English and download an Enhanced or Premium voice; it shows up here straight away.")
+                    .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                voiceRow("Narrator", id: "narrator", current: model.speech.narratorVoice,
+                         choice: model.state.sound.narratorVoiceID, pitch: 1) { model.state.sound.narratorVoiceID = $0 }
+                voiceRow(model.state.companion.name, id: "companion", current: model.speech.sparkleVoice,
+                         choice: model.state.sound.companionVoiceID, pitch: model.state.companion.voicePitch) {
+                    model.state.sound.companionVoiceID = $0
+                }
+            }
+            card {
                 if model.speech.hasEnhancedVoices {
                     Label("Enhanced voices are installed.", systemImage: "checkmark.circle.fill").foregroundStyle(Theme.garden)
                 } else {
@@ -578,6 +590,31 @@ struct ParentAreaView: View {
                         .accessibilityIdentifier("parent.voiceHelp")
                 }
             }
+        }
+    }
+
+    /// One speaker's voice: a menu of downloaded English voices ("Automatic" lets the app choose) and Play.
+    private func voiceRow(_ who: String, id: String, current: AVSpeechSynthesisVoice?, choice: String?, pitch: Float,
+                          set: @escaping (String?) -> Void) -> some View {
+        HStack(spacing: 14) {
+            Text(who).font(Theme.body()).frame(width: 110, alignment: .leading)
+            Menu {
+                Button("Automatic (best downloaded)") { set(nil); model.applySound(); model.save() }
+                ForEach(SpeechPlayer.englishVoices, id: \.identifier) { v in
+                    Button(SpeechPlayer.describe(v)) { set(v.identifier); model.applySound(); model.save() }
+                }
+            } label: {
+                Text(current.map(SpeechPlayer.describe) ?? "Basic system voice")
+                    .font(Theme.body(16)).lineLimit(1)
+                Text(choice == nil ? "(automatic)" : "").font(Theme.body(14)).foregroundStyle(Theme.muted)
+            }
+            .accessibilityIdentifier("parent.voice.\(id)")
+            Spacer()
+            Button("Play") {
+                model.speech.sample("Hello! This is how I sound.", voice: current, pitch: pitch)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("parent.voice.\(id).play")
         }
     }
 

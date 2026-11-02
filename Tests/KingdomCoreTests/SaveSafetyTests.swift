@@ -135,4 +135,16 @@ final class SaveSafetyTests: XCTestCase {
         try store.save(played(["P2"]))
         XCTAssertFalse(FileManager.default.fileExists(atPath: store.backupURL.path))
     }
+
+    // Voice picks (Sound and voice): a save without them picks automatically; a pick round-trips.
+    func testVoiceChoicesAreOptional() throws {
+        let before = Data("{\"narrationVolume\":0.8,\"musicOn\":true,\"speechRate\":0.42,\"subtitles\":false}".utf8)
+        let old = try JSONDecoder().decode(SoundSettings.self, from: before)
+        XCTAssertNil(old.narratorVoiceID)
+        XCTAssertNil(old.companionVoiceID)
+        var s = SoundSettings()
+        s.narratorVoiceID = "com.apple.voice.premium.en-US.Ava"
+        let back = try JSONDecoder().decode(SoundSettings.self, from: JSONEncoder().encode(s))
+        XCTAssertEqual(back.narratorVoiceID, "com.apple.voice.premium.en-US.Ava")
+    }
 }

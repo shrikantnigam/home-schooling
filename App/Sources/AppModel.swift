@@ -125,6 +125,7 @@ final class AppModel: ObservableObject {
         speech.companionPitch = state.companion.voicePitch
         speech.rate = Float(state.sound.speechRate)
         speech.volume = Float(state.sound.narrationVolume)
+        speech.chooseVoices(narrator: state.sound.narratorVoiceID, companion: state.sound.companionVoiceID)
     }
 
     // MARK: Time limit

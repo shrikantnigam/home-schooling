@@ -32,6 +32,10 @@ public struct SoundSettings: Codable, Equatable, Sendable {
     /// 0.5 is AVSpeechUtteranceDefaultSpeechRate; a little slower suits a 6-year-old.
     public var speechRate: Double = 0.42
     public var subtitles = false
+    /// Voices a grown-up picked in Sound and voice (AVSpeechSynthesisVoice identifiers). Nil means the app picks
+    /// the best downloaded voice itself. Optional, so saves from before this decode unchanged.
+    public var narratorVoiceID: String?
+    public var companionVoiceID: String?
     public init() {}
 }
 
