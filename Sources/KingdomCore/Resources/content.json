@@ -4110,6 +4110,14 @@
    "speaker": "sparkle",
    "text": "Hi! What shall we play today?"
   },
+  "jig.intro.size": {
+   "speaker": "sparkle",
+   "text": "Pick your puzzle size. More pieces make a harder puzzle."
+  },
+  "jig.locked": {
+   "speaker": "sparkle",
+   "text": "Finish a 10 piece puzzle first. Then this one opens!"
+  },
   "jig.intro.picture": {
    "speaker": "sparkle",
    "text": "Drag each piece to where it belongs in the picture. Flat edges go around the outside."

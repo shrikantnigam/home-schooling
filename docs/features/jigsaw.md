@@ -17,8 +17,12 @@ in her history but no longer count.
 - **Finished puzzles (J14).** A picture she has finished at least once keeps its colours and gets a green tick, with
   the most pieces she has done it in ("20 pieces"). It stays open to play again at any size. Nothing is greyed
   out, because grey reads as locked.
-- **Sizes.** Her first puzzle is a 10-piece quick check (J10). Easy (85% or more right first time, one hint at most)
-  moves straight up a size until a puzzle isn't easy. After that she picks from two or three sizes around her level.
+- **Sizes (J15, Shrikant 2026-11-02, replaces "two or three sizes around her level").** The picker, headed and
+  spoken "Pick your puzzle size", always shows 10, 20 and 30. 20 and 30 are faded with a padlock until she has
+  finished a 10-piece puzzle; tapping a locked one wobbles it and says "Finish a 10 piece puzzle first". Her first
+  puzzle is the 10-piece quick check (J10): easy (85% or more right first time, one hint at most) moves the sun-ring
+  suggestion up a size, up to 30. 40 and 50 are not offered; the ladder's later knobs (turning, no guide, wavy cuts)
+  still come at 30.
 - **Ladder (J2).** One knob changes per step: 10 squares → tabs → 20 → faint guide → 30 → mixed edges → 40 →
   turning pieces → no guide → 50 → wavy cuts. Four easy puzzles in a row move up one step; a stuck puzzle (third
   hint step reached, or under half right first time) moves down one.
@@ -35,7 +39,7 @@ in her history but no longer count.
 
 ## Grown-ups (J8, J11)
 
-The parent area has a Jigsaw page with the lowest and highest sizes she can be offered, her level, the first-try
+The parent area has a Jigsaw page with her level (the grown-up size range was removed with J15), the first-try
 rate and hints over the last ten puzzles, the strategies she names, and one try-at-home idea that changes after each
 puzzle.
 

@@ -48,7 +48,7 @@ final class JigsawTests: XCTestCase {
     // J10: the quick check moves up a size after each easy puzzle, and stops at the first one that isn't easy.
     func testQuickCheckSetsStartingSize() {
         var j = JigsawRecord()
-        XCTAssertEqual(j.offeredSizes, [10])
+        XCTAssertEqual(j.levelSize, 10)
         j.finishPicture(result(pieces: 10, firstFits: 10))
         XCTAssertEqual(j.level.pieces, 20)
         XCTAssertFalse(j.calibrated)
@@ -57,7 +57,7 @@ final class JigsawTests: XCTestCase {
         j.finishPicture(result(pieces: 30, firstFits: 20, hints: 2, picture: "castle"))
         XCTAssertTrue(j.calibrated)
         XCTAssertEqual(j.level.pieces, 30)
-        XCTAssertEqual(j.offeredSizes, [20, 30, 40])
+        XCTAssertEqual(j.levelSize, 30)
     }
 
     // J2, J9: four easy wins step up one knob; being stuck steps down one; a middling puzzle resets the streak.
@@ -75,18 +75,20 @@ final class JigsawTests: XCTestCase {
         XCTAssertEqual(j.rung, 3)
     }
 
-    // The grown-up's range bounds what she is offered.
-    func testParentRange() {
+    // J15: the picker is always 10, 20, 30; 20 and 30 open after her first (10-piece) puzzle; the sun ring never
+    // sits on a locked size or above 30.
+    func testPickerLocksUntilFirstTen() {
         var j = JigsawRecord()
-        j.calibrated = true
+        XCTAssertEqual(JigsawRecord.pickerSizes, [10, 20, 30])
+        XCTAssertEqual(JigsawRecord.pickerSizes.map(j.isOpen), [true, false, false])
+        j.rung = 4
+        XCTAssertEqual(j.levelSize, 10, "a locked size is never suggested")
+        j.rung = 0
+        j.finishPicture(result(pieces: 10, firstFits: 6, hints: 3))
+        XCTAssertEqual(JigsawRecord.pickerSizes.map(j.isOpen), [true, true, true])
         j.rung = JigsawLadder.rungs.count - 1
-        j.setRange(min: 20, max: 30)
         XCTAssertEqual(j.levelSize, 30)
-        XCTAssertEqual(j.offeredSizes, [20, 30])
-        j.setRange(min: 40, max: 20)
-        XCTAssertEqual(j.minPieces, 40)
-        XCTAssertEqual(j.maxPieces, 40)
-        XCTAssertEqual(j.level(pieces: 40).cut, .wavy)
+        XCTAssertEqual(j.level(pieces: 30).cut, .wavy)
     }
 
     // J13: the map's suggestion is never the picture just played; otherwise the least recently played.

@@ -153,7 +153,7 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
     public var results: [JigsawResult] = []
     public var introsHeard: Set<String> = []
     public var puzzlesDone = 0
-    /// Grown-up limits on the size she is offered.
+    /// Grown-up limits from before J15 (the picker is now fixed at 10, 20, 30). Kept so old saves round-trip.
     public var minPieces = 10
     public var maxPieces = 50
 
@@ -191,14 +191,17 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
 
     public var level: JigsawLevel { JigsawLadder.rungs[min(max(0, rung), JigsawLadder.rungs.count - 1)] }
 
-    /// The level size kept inside the grown-up's range.
-    public var levelSize: Int { min(max(level.pieces, minPieces), maxPieces) }
+    /// The sizes on the picker (Shrikant, 2026-11-02, J15): always 10, 20 and 30, so she sees what's coming.
+    public static let pickerSizes = [10, 20, 30]
 
-    /// Two or three sizes around her level for her to pick from. The quick check offers only its size (J10).
-    public var offeredSizes: [Int] {
-        let s = levelSize
-        guard calibrated else { return [s] }
-        return [s - 10, s, s + 10].filter { $0 >= minPieces && $0 <= maxPieces && JigsawLadder.sizes.contains($0) }
+    /// 10 is always open. 20 and 30 open once she has finished a puzzle (her first one is always a 10, so this
+    /// means "after a 10"; saves that already finished a bigger one keep them open).
+    public func isOpen(_ size: Int) -> Bool { size <= 10 || !completed.isEmpty }
+
+    /// Her level's size on the picker, for the sun ring: never above 30, and never a locked size.
+    public var levelSize: Int {
+        let s = min(max(level.pieces, 10), Self.pickerSizes.last ?? 30)
+        return isOpen(s) ? s : 10
     }
 
     /// The level she plays at a chosen size: her rung's knobs with that piece count.
@@ -208,18 +211,12 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
         return l
     }
 
-    /// Sets the grown-up's range, keeping lowest at or below highest.
-    public mutating func setRange(min lo: Int, max hi: Int) {
-        minPieces = min(max(10, lo), 50)
-        maxPieces = max(min(50, hi), minPieces)
-    }
-
     /// A finished picture puzzle moves the level by at most one knob (J2), or by size during the quick check (J10).
     public mutating func finishPicture(_ r: JigsawResult) {
         record(r)
         if let id = r.pictureID { completed[id] = max(completed[id] ?? 0, r.pieces) }
         if !calibrated {
-            if r.isEasy && rung < JigsawLadder.rungs.count - 1 && level.pieces < maxPieces {
+            if r.isEasy && rung < JigsawLadder.rungs.count - 1 && level.pieces < (Self.pickerSizes.last ?? 30) {
                 rung = JigsawLadder.nextSizeRung(after: rung)
             } else {
                 calibrated = true

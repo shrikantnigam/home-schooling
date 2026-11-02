@@ -40,8 +40,13 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.launch()
         p.tap("home.widget.jigsaw")
         p.tap("jig.map.castle")
-        p.wait("jig.size.10")
-        XCTAssertFalse(p.el("jig.size.20").exists, "the quick check offers one size only")
+        // J15: the picker always shows 10, 20 and 30; before her first 10 only 10 is open.
+        XCTAssertEqual(p.wait("jig.size.10").value as? String, "open;suggested")
+        XCTAssertEqual(p.el("jig.size.20").value as? String, "locked")
+        XCTAssertEqual(p.el("jig.size.30").value as? String, "locked")
+        XCTAssertEqual(p.el("jig.size.40").exists, false)
+        p.tap("jig.size.30")
+        XCTAssertFalse(p.el("jig.board").exists, "a locked size doesn't start a puzzle")
         p.metric("taps-home-to-size-picker", p.taps)
         p.snap("size picker, quick check")
         p.tap("jig.size.10")
@@ -87,8 +92,9 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.snap("puzzle map with the castle ticked")
         // A finished picture stays open to play again.
         p.tap("jig.map.castle")
-        p.wait("jig.size.20")
-        p.snap("the castle again, now at 20 pieces")
+        XCTAssertEqual(p.wait("jig.size.20").value as? String, "open;suggested")
+        XCTAssertEqual(p.el("jig.size.30").value as? String, "open")
+        p.snap("after her first 10: 20 and 30 open, 20 suggested")
     }
 
     /// J5, J10: an easy 10-piece quick check moves her up to 20 pieces. On that second puzzle the companion
@@ -100,9 +106,9 @@ final class Chapter8PlaythroughTests: XCTestCase {
         playPicture(p, "castle", size: 10)
         p.tapNext()
         p.tap("jig.map.garden")
-        p.wait("jig.size.20")
-        XCTAssertFalse(p.el("jig.size.10").exists, "an easy quick check moves up a size")
-        p.snap("quick check moved up to 20")
+        XCTAssertEqual(p.wait("jig.size.20").value as? String, "open;suggested", "an easy quick check moves up a size")
+        XCTAssertEqual(p.el("jig.size.10").value as? String, "open", "she can still pick 10")
+        p.snap("quick check moved the suggestion up to 20")
         p.tap("jig.size.20")
         p.wait("jig.board")
         var slipped = false
@@ -123,8 +129,8 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.snap("second puzzle finished")
     }
 
-    /// J8, J11: the grown-ups' jigsaw page shows how she plays and sets the range of sizes.
-    func test05_ParentArea_JigsawRange() {
+    /// J8, J11: the grown-ups' jigsaw page shows how she plays and the size that fits her.
+    func test05_ParentArea_Jigsaw() {
         let p = QAPlayer(self, prefix: "c8-05")
         p.launch()
         p.tap("home.widget.jigsaw")
@@ -136,26 +142,19 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.tap("gate.continue")
         p.wait("parent.back")
         p.tap("parent.tab.jigsaw")
-        p.wait("parent.jig.min")
+        p.wait("parent.jig.level")
         p.wait("parent.jig.firstFit")
         p.wait("parent.jig.homeIdea")
         p.snap("grown-ups' jigsaw page")
         XCTAssertEqual(p.el("parent.jig.level").label.hasPrefix("Her level now: 20"), true)
-        p.tap("parent.jig.min.plus")
-        XCTAssertEqual(p.el("parent.jig.min").value as? String, "20")
-        p.tap("parent.jig.max.minus")
-        p.tap("parent.jig.max.minus")
-        p.tap("parent.jig.max.minus")
-        XCTAssertEqual(p.el("parent.jig.max").value as? String, "20")
-        p.snap("range set to 20 pieces")
+        XCTAssertFalse(p.el("parent.jig.min").exists, "the size range is gone (J15)")
         p.tap("parent.back")
         // Back where the grown-up came from: the jigsaw is a widget, so that is the home screen.
         p.wait("home.title")
         p.tap("home.widget.jigsaw")
         p.tap("jig.map.garden")
-        p.wait("jig.size.20")
-        XCTAssertFalse(p.el("jig.size.10").exists)
-        p.snap("only 20 pieces offered")
+        XCTAssertEqual(p.wait("jig.size.20").value as? String, "open;suggested")
+        p.snap("picker after one puzzle")
     }
 
     /// Debug "Jump to" (Shrikant, 2026-11-02): open any scene from the grown-ups' area, then End testing

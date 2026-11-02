@@ -12,12 +12,13 @@ struct JigsawView: View {
 
     @State private var stage: Stage = .choose
     @State private var game: JigsawGame?
+    @State private var lockedWobble: [Int: CGFloat] = [:]
 
     var body: some View {
         ZStack {
             PaperStage(chapter: nil, showSky: false)
             switch stage {
-            case .choose: JigsawMap(suggested: nextPicture) { stage = .sizes($0) }
+            case .choose: JigsawMap(suggested: nextPicture) { openSizes($0) }
             case .sizes(let picture): sizePicker(picture)
             case .play:
                 if let game { JigsawBoard(game: game, onNext: { stage = .choose; self.game = nil }) }
@@ -31,33 +32,55 @@ struct JigsawView: View {
         model.state.jigsaw.nextPicture(from: JigsawPictures.all.map(\.id)) ?? "castle"
     }
 
-    // MARK: Pick a size (she stays in charge, from 2 or 3 around her level)
+    // MARK: Pick a size (J15: always 10, 20, 30; 20 and 30 open after her first 10-piece puzzle)
 
     private func sizePicker(_ picture: String) -> some View {
-        let sizes = model.state.jigsaw.offeredSizes
+        let j = model.state.jigsaw
         return VStack(spacing: 26) {
             JigsawScene(id: picture, companion: model.state.companion)
                 .frame(width: 420, height: 280)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .paperCut()
                 .padding(.top, 110)
-            Text("How many pieces?").font(Theme.title(32)).foregroundStyle(Theme.ink)
+            Text("Pick your puzzle size").font(Theme.title(32)).foregroundStyle(Theme.ink)
             HStack(spacing: 28) {
-                ForEach(sizes, id: \.self) { n in
-                    Button { startPicture(picture, pieces: n) } label: {
-                        VStack(spacing: 8) {
-                            miniGrid(n)
-                            Text("\(n)").font(Theme.numeral(40)).foregroundStyle(Theme.ink)
-                        }
-                        .frame(width: 150, height: 150)
-                        .background(RoundedRectangle(cornerRadius: 20).fill(Theme.card).paperCut(0.6))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("jig.size.\(n)")
+                ForEach(JigsawRecord.pickerSizes, id: \.self) { n in
+                    sizeCard(picture, n, open: j.isOpen(n), suggested: j.isOpen(n) && n == j.levelSize)
                 }
             }
             Spacer()
         }
+    }
+
+    private func sizeCard(_ picture: String, _ n: Int, open: Bool, suggested: Bool) -> some View {
+        Button {
+            if open {
+                startPicture(picture, pieces: n)
+            } else {
+                // A locked size says why, out loud, and wobbles; nothing else happens.
+                model.speech.say([model.catalog.spoken("jig.locked")])
+                withAnimation(.linear(duration: 0.4)) { lockedWobble[n, default: 0] += 1 }
+            }
+        } label: {
+            VStack(spacing: 8) {
+                miniGrid(n)
+                Text("\(n)").font(Theme.numeral(40)).foregroundStyle(Theme.ink)
+            }
+            .frame(width: 150, height: 150)
+            .background(RoundedRectangle(cornerRadius: 20).fill(Theme.card).paperCut(0.6))
+            .overlay(suggested ? RoundedRectangle(cornerRadius: 20).stroke(Theme.sun, lineWidth: 6) : nil)
+            .opacity(open ? 1 : 0.45)
+            .overlay(alignment: .topTrailing) {
+                if !open {
+                    Image(systemName: "lock.fill").font(.system(size: 30)).foregroundStyle(Theme.ink)
+                        .padding(12)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .modifier(Wobble(animatableData: lockedWobble[n, default: 0]))
+        .accessibilityIdentifier("jig.size.\(n)")
+        .accessibilityValue(open ? (suggested ? "open;suggested" : "open") : "locked")
     }
 
     private func miniGrid(_ n: Int) -> some View {
@@ -93,8 +116,19 @@ struct JigsawView: View {
         model.speech.say(intros.map { model.catalog.spoken($0) })
     }
 
+    /// The size picker speaks its one line the first time (she may not read the heading yet), like every other
+    /// jigsaw intro. The ear button replays it while the picker is open.
+    private func openSizes(_ picture: String) {
+        stage = .sizes(picture)
+        if model.jigsawFirstTime("size") { model.speech.say([model.catalog.spoken("jig.intro.size")]) }
+    }
+
     private func replayIntro() {
-        model.speech.say([model.catalog.spoken("jig.intro.picture")])
+        if case .sizes = stage {
+            model.speech.say([model.catalog.spoken("jig.intro.size")])
+        } else {
+            model.speech.say([model.catalog.spoken("jig.intro.picture")])
+        }
     }
 }
 

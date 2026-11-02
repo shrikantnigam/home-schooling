@@ -273,16 +273,10 @@ struct ParentAreaView: View {
         let strategies = j.strategyCounts.sorted { $0.value > $1.value }
         return VStack(alignment: .leading, spacing: 18) {
             Text("Jigsaw").font(Theme.title(32))
-            Text("Picture puzzles train shapes and parts of a whole. The app picks the size from how she plays; you can set the range. Finished pictures get a green tick on her puzzle map.")
+            Text("Picture puzzles train shapes and parts of a whole. She picks 10, 20 or 30 pieces; 20 and 30 open after her first 10-piece puzzle, and a sun ring marks the size that fits how she plays. Finished pictures get a green tick on her puzzle map.")
                 .font(Theme.body(16)).foregroundStyle(Theme.muted)
             card {
-                Text("Pieces she can be offered").font(Theme.body(17).bold())
-                rangeRow("Lowest", value: j.minPieces, id: "min") { d in
-                    model.state.jigsaw.setRange(min: j.minPieces + d, max: max(j.maxPieces, j.minPieces + d))
-                }
-                rangeRow("Highest", value: j.maxPieces, id: "max") { d in
-                    model.state.jigsaw.setRange(min: min(j.minPieces, j.maxPieces + d), max: j.maxPieces + d)
-                }
+                Text("Puzzle size").font(Theme.body(17).bold())
                 Text("Her level now: \(j.levelSize) pieces\(j.calibrated ? "" : " (still finding her level)")")
                     .font(Theme.body(15)).foregroundStyle(Theme.muted)
                     .accessibilityIdentifier("parent.jig.level")
@@ -372,19 +366,6 @@ struct ParentAreaView: View {
                 Text(c.homeIdea).font(Theme.body())
                     .accessibilityIdentifier("parent.cups.homeIdea")
             }
-        }
-    }
-
-    private func rangeRow(_ label: String, value: Int, id: String, change: @escaping (Int) -> Void) -> some View {
-        HStack(spacing: 14) {
-            Text(label).font(Theme.body()).frame(width: 90, alignment: .leading)
-            Button { change(-10); model.save() } label: { Image(systemName: "minus.circle.fill").font(.system(size: 30)) }
-                .accessibilityIdentifier("parent.jig.\(id).minus")
-            Text("\(value)").font(Theme.body(20).bold()).frame(width: 44)
-                .accessibilityIdentifier("parent.jig.\(id)")
-                .accessibilityValue("\(value)")
-            Button { change(10); model.save() } label: { Image(systemName: "plus.circle.fill").font(.system(size: 30)) }
-                .accessibilityIdentifier("parent.jig.\(id).plus")
         }
     }
 

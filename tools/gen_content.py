@@ -301,6 +301,8 @@ l("sheet.drawIt",S,"Draw a picture of this puzzle. Tap done when you finish.")
 # Home School hub (#30): one quiet hello per launch.
 l("home.hello",S,"Hi! What shall we play today?")
 # Jigsaw widget (#25, J7: quiet by default; speech only for a one-time intro, hints and the explain moment).
+l("jig.intro.size",S,"Pick your puzzle size. More pieces make a harder puzzle.")
+l("jig.locked",S,"Finish a 10 piece puzzle first. Then this one opens!")
 l("jig.intro.picture",S,"Drag each piece to where it belongs in the picture. Flat edges go around the outside.")
 l("jig.intro.turning",S,"Some pieces are turned around. Tap a piece to turn it.")
 l("jig.hint.edges",S,"Look for a piece with a flat edge. Flat edges go around the outside.")

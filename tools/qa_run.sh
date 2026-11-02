@@ -17,6 +17,8 @@ esac
 echo "QA chapters: $chapters"
 
 swift test
+# Every on-screen instruction on a child screen must also be spoken (rule 5 escape, 2026-11-02).
+python3 tools/screen_text_audit.py
 [ "$chapters" = "none" ] && { [ $mark = yes ] && git rev-parse HEAD > .qa-last-pass; echo "Docs or unit tests only: no play-through needed."; exit 0; }
 
 (cd App && xcodegen generate)
