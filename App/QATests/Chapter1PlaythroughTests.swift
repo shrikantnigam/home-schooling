@@ -8,6 +8,32 @@ final class Chapter1PlaythroughTests: XCTestCase {
         continueAfterFailure = false
     }
 
+    /// Launch smoke test (operating model rule 4): the app as she gets it, with no QA flags. It must show the
+    /// setup screen, reach the castle and the first scene, and come back to the castle on the next launch.
+    /// Every other test passes -uiTesting, which hid a black screen on her iPad (2026-11-02).
+    func test00_LaunchSmoke_NoTestFlags() {
+        let p = QAPlayer(self, prefix: "00")
+        p.launchLikeHerIPad()
+        let first = ["setup.start", "castle.play"].map { p.el($0) }
+        let deadline = Date().addingTimeInterval(20)
+        while Date() < deadline && !first.contains(where: { $0.exists }) { _ = first[0].waitForExistence(timeout: 1) }
+        p.snap("first screen without test flags")
+        XCTAssertTrue(first.contains(where: { $0.exists }), "launch shows setup or the castle, not a blank screen")
+        if p.el("setup.start").exists {
+            p.tap("setup.start")
+            p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
+        }
+        p.wait("castle.play", timeout: 20)
+        p.snap("castle without test flags")
+        p.app.terminate()
+        p.launchLikeHerIPad()
+        p.wait("castle.play", timeout: 20)
+        p.snap("castle on the next launch")
+        p.tap("castle.play")
+        XCTAssertTrue(p.el("panel.open.P0").waitForExistence(timeout: 30), "Play opens the Prologue challenge")
+        p.snap("first scene without test flags")
+    }
+
     /// AC-S1, AC-S2, AC-S3, AC-A2, AC-A5, charter L12 and S11 ("fast learner" persona): a fresh install opens
     /// with the Prologue challenge. Everything right first time tests her out of the Prologue, and the open
     /// kingdom (Garden, Ball, Feast) is ready in the same session.

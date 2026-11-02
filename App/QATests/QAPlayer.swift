@@ -20,6 +20,14 @@ final class QAPlayer {
         XCUIDevice.shared.orientation = .landscapeLeft
     }
 
+    /// Launches like a real install on her iPad: no QA flags, real speech, real animations, the real saved state.
+    func launchLikeHerIPad() {
+        app.launchArguments = []
+        XCUIDevice.shared.orientation = .landscapeLeft
+        app.launch()
+        XCUIDevice.shared.orientation = .landscapeLeft
+    }
+
     /// Saves a screenshot named for the report, e.g. "01-03 P1 open".
     func snap(_ name: String) {
         shot += 1
