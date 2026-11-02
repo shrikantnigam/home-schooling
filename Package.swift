@@ -18,7 +18,9 @@ let package = Package(
         ),
         .testTarget(
             name: "KingdomCoreTests",
-            dependencies: ["KingdomCore"]
+            dependencies: ["KingdomCore"],
+            // Old save files, read by path in SaveSafetyTests.
+            exclude: ["Fixtures"]
         ),
     ]
 )
