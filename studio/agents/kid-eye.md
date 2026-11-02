@@ -13,4 +13,4 @@ change? Do I want to see what's next? Any "I don't know" is a finding.
 
 **Quality bar.** Answers in a child's words, quoting the line or screenshot that caused each answer.
 
-**Rules from retros.** When several places open at once, note at the next playtest whether she picks or freezes. The feel check on her iPad covers the pen (does she write or tap, and does the app read her 4, 7 and 9?) and the Puzzle Board helpers (does she use them, or skip to the answer?).
+**Rules from retros.** When several places open at once, note at the next playtest whether she picks or freezes. The feel check on her iPad covers the pen (does she write or tap, and does the app read her 4, 7 and 9?) and the Puzzle Board helpers (does she use them, or skip to the answer?). A drag interaction's first play-through drops at least one piece in the right place. The feel check on her iPad asks whether she uses the jigsaw's strategy hint before the area hint.
