@@ -168,6 +168,41 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.snap("only 20 pieces offered")
     }
 
+    /// Debug "Jump to" (Shrikant, 2026-11-02): open any scene from the grown-ups' area, then End testing
+    /// puts her progress back exactly as it was.
+    func test06_DebugJump_RestoresProgress() {
+        let p = QAPlayer(self, prefix: "c8-06")
+        p.launch()
+        openParentArea(p)
+        p.tap("parent.tab.debug")
+        p.wait("debug.scene.M3")
+        p.snap("jump to page")
+        p.tap("debug.scene.M3")
+        p.wait("panel.open.M3", timeout: 10)
+        p.snap("jumped to the Moon, scene 3")
+        p.tap("corner.lock")
+        p.tap("gate.qaHold")
+        p.wait("gate.year")
+        p.el("gate.year").typeText("\(Calendar.current.component(.year, from: Date()))")
+        p.tap("gate.continue")
+        p.tap("parent.tab.debug")
+        p.tap("debug.end")
+        p.wait("home.title")
+        p.tap("home.widget.kingdom")
+        p.wait("castle.progress")
+        XCTAssertEqual(p.el("castle.progress").label, "0 of 7 places done", "her progress is back as it was")
+        p.snap("progress restored after testing")
+    }
+
+    private func openParentArea(_ p: QAPlayer) {
+        p.tap("corner.lock")
+        p.tap("gate.qaHold")
+        p.wait("gate.year")
+        p.el("gate.year").typeText("\(Calendar.current.component(.year, from: Date()))")
+        p.tap("gate.continue")
+        p.wait("parent.back")
+    }
+
     // MARK: Helpers
 
     private func drag(_ p: QAPlayer, _ piece: Int, to slot: Int) {

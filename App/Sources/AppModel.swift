@@ -74,6 +74,13 @@ final class AppModel: ObservableObject {
             ? StateStore(url: FileManager.default.temporaryDirectory.appendingPathComponent("qa-learner.json"))
             : StateStore.defaultStore()
         var loaded = env.reset ? LearnerState() : store.load()
+        // A debug jump session that was never ended (app killed): put her real progress back.
+        let snap = StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+        if FileManager.default.fileExists(atPath: snap.url.path) {
+            if !env.reset { loaded = snap.load() }
+            try? FileManager.default.removeItem(at: snap.url)
+            try? store.save(loaded)
+        }
         if env.uiTesting { loaded.sound.subtitles = true }
         state = loaded
         if let preset = env.preset { applyPreset(preset) }
@@ -390,6 +397,82 @@ final class AppModel: ObservableObject {
         catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
         introsSpoken = []
         save()
+    }
+
+    // MARK: Debug jump (grown-ups' area, Debug builds only)
+
+    private var debugSnapshotStore: StateStore {
+        StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+    }
+
+    /// True while a grown-up is testing with jumps; her real progress is saved aside until they end it.
+    var isDebugSession: Bool { FileManager.default.fileExists(atPath: debugSnapshotStore.url.path) }
+
+    private func beginDebugSession() {
+        if !isDebugSession { try? debugSnapshotStore.save(state) }
+        // Jumps never stop at the daily limit.
+        state.time = TimeKeeper()
+        state.hasMetSparkle = true
+    }
+
+    /// Opens any scene, with everything before it unlocked.
+    func debugJump(scene id: SceneID) {
+        beginDebugSession()
+        unlockUpTo(id)
+        save()
+        start(sceneID: id)
+    }
+
+    enum DebugTarget: String, CaseIterable, Identifiable {
+        case home, castle, map, board, jigsaw
+        var id: String { rawValue }
+    }
+
+    func debugJump(_ target: DebugTarget) {
+        beginDebugSession()
+        if target == .board || target == .map {
+            for ch in content.chapters { unlockUpTo(ch.scenes.last ?? "") }
+        }
+        save()
+        speech.stop()
+        switch target {
+        case .home: route = .home
+        case .castle: route = .castle
+        case .map: route = .map
+        case .board: route = .board
+        case .jigsaw: route = .jigsaw
+        }
+    }
+
+    func debugJumpWriteItDown(_ chapter: ChapterID) {
+        beginDebugSession()
+        unlockUpTo(content.chapter(chapter)?.scenes.last ?? "")
+        save()
+        speech.stop()
+        route = .writeItDown(chapter)
+    }
+
+    /// Ends testing: her real progress comes back exactly as it was.
+    func endDebugSession() {
+        guard isDebugSession else { return }
+        speech.stop()
+        scene = nil
+        state = debugSnapshotStore.load()
+        try? FileManager.default.removeItem(at: debugSnapshotStore.url)
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        save()
+        route = .home
+    }
+
+    /// Marks every scene before `id` done (and its places mastered), and `id` itself as the next one.
+    private func unlockUpTo(_ id: SceneID) {
+        for ch in content.chapters {
+            for s in ch.scenes {
+                if s == id { return }
+                state.completedScenes.insert(s)
+            }
+            masterChapter(ch.id)
+        }
     }
 
     // MARK: QA presets

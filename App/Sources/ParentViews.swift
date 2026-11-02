@@ -107,6 +107,9 @@ struct ParentAreaView: View {
         case sound = "Sound and voice"
         case screenTime = "Screen Time help"
         case reset = "Reset progress"
+        #if DEBUG
+        case debug = "Jump to (testing)"
+        #endif
         var id: String { rawValue }
     }
 
@@ -143,6 +146,9 @@ struct ParentAreaView: View {
                     case .sound: sound
                     case .screenTime: screenTime
                     case .reset: reset
+                    #if DEBUG
+                    case .debug: debugJump
+                    #endif
                     }
                 }
                 .padding(32)
@@ -211,6 +217,49 @@ struct ParentAreaView: View {
     }
 
     // MARK: Puzzle scrolls and board (F2-F4, AC-S5)
+
+    #if DEBUG
+    // MARK: Jump to (Debug builds from Xcode only; never in a normal build)
+
+    private var debugJump: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Jump to (testing)").font(Theme.title(32))
+            Text("Opens any screen straight away. Her progress is put aside first and comes back exactly as it was when you tap End testing (or the next time the app opens).")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+            if model.isDebugSession {
+                Button("End testing and restore her progress") { model.endDebugSession() }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("debug.end")
+            }
+            card {
+                Text("Screens").font(Theme.body(17).bold())
+                HStack {
+                    ForEach(AppModel.DebugTarget.allCases) { t in
+                        Button(t.rawValue.capitalized) { model.debugJump(t) }
+                            .buttonStyle(.bordered)
+                            .accessibilityIdentifier("debug.to.\(t.rawValue)")
+                    }
+                }
+            }
+            ForEach(model.content.chapters) { ch in
+                card {
+                    Text(ch.title).font(Theme.body(17).bold())
+                    HStack {
+                        ForEach(ch.scenes, id: \.self) { sid in
+                            Button(sid) { model.debugJump(scene: sid) }
+                                .buttonStyle(.bordered)
+                                .accessibilityIdentifier("debug.scene.\(sid)")
+                        }
+                        Spacer()
+                        Button("Write it down") { model.debugJumpWriteItDown(ch.id) }
+                            .buttonStyle(.bordered)
+                            .accessibilityIdentifier("debug.write.\(ch.id)")
+                    }
+                }
+            }
+        }
+    }
+    #endif
 
     // MARK: Jigsaw (#25, J8 and J11)
 
