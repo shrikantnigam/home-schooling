@@ -412,19 +412,20 @@ struct CupTable: View {
 }
 
 /// Moves a cup along an arc to another place `distance` points away as `progress` goes from 0 to 1.
-struct CupArc: ViewModifier, Animatable {
+/// A GeometryEffect, so SwiftUI interpolates `progress` frame by frame (it is both Animatable and a ViewModifier).
+struct CupArc: GeometryEffect {
     var progress: Double
-    let distance: CGFloat
-    let lift: CGFloat
+    var distance: CGFloat
+    var lift: CGFloat
 
     var animatableData: Double {
         get { progress }
         set { progress = newValue }
     }
 
-    func body(content: Content) -> some View {
+    func effectValue(size: CGSize) -> ProjectionTransform {
         let t = CGFloat(progress)
-        return content.offset(x: distance * t, y: -lift * sin(.pi * t))
+        return ProjectionTransform(CGAffineTransform(translationX: distance * t, y: -lift * sin(.pi * t)))
     }
 }
 
@@ -469,18 +470,6 @@ struct BirdView: View {
             guard isHappy else { return }
             withAnimation(.easeInOut(duration: 0.18).repeatCount(7, autoreverses: true)) { flap = true }
         }
-    }
-}
-
-/// A simple triangle (the bird's beak).
-struct Triangle: Shape {
-    func path(in r: CGRect) -> Path {
-        var p = Path()
-        p.move(to: CGPoint(x: r.midX, y: r.minY))
-        p.addLine(to: CGPoint(x: r.maxX, y: r.maxY))
-        p.addLine(to: CGPoint(x: r.minX, y: r.maxY))
-        p.closeSubpath()
-        return p
     }
 }
 
