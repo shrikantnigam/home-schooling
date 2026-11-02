@@ -17,4 +17,4 @@ optional and decode with a default, so old installs keep working. Static texture
 per frame.
 Syncing to Shrikant's Mac: if a sync adds, removes or renames any file under `App/`, or changes `App/project.yml`,
 the message that announces the sync says "run `cd App && xcodegen generate` first". The app target's pre-build check
-stops a stale project with the same instruction (escape on 2026-11-02: "Cannot find 'SetupView' in scope").
+stops a stale project with the same instruction (escape on 2026-11-02: "Cannot find 'SetupView' in scope"). Drawing math lives in helper functions that return a `Path`, with explicit `CGFloat` types; never declare a `func` inside a view-builder closure (batch 3A: two CI-only compile breaks). A new line placeholder gets a `LineCatalog` overload and a unit test in the same change.

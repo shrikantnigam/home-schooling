@@ -16,4 +16,4 @@ then the edge paths (daily limit mid-scene, resume, replay, every unlock).
 
 **Rules from retros.** A flaky failure is fixed, never re-run away: the QA player retries a lost touch once on the
 same element, and timed reveals last longer under test. QA skips first-launch setup by default, so every
-first-launch screen has its own test with the skip turned off. Read state from `accessibilityValue`, not pixels.
+first-launch screen has its own test with the skip turned off. Read state from `accessibilityValue`, not pixels. Never assert on a state the app moves past by itself (quick QA speech advances flows); check it only if it is still on screen. A new screen inserted into an existing path (like Write it down after a place) is stepped through once in `QAPlayer`, not in each chapter's test.
