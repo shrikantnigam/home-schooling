@@ -7,6 +7,7 @@ struct ScenePlayerView: View {
     @ObservedObject var controller: SceneController
 
     private var chapter: ChapterID { controller.run.scene.chapter }
+    @State private var curtainOpen: Double = AppEnvironment.current.uiTesting ? 1 : 0
     private var isPrologue: Bool { chapter == "prologue" }
 
     var body: some View {
@@ -20,6 +21,7 @@ struct ScenePlayerView: View {
                 if let item = controller.item { ItemScreen(item: item, controller: controller).id(item.id + "\(controller.run.itemIndex ?? 0)") }
             case .finished: EmptyView()
             }
+            TheatreCurtain(open: curtainOpen)
             ChildCorners(
                 onCastle: { model.goCastle() },
                 onEar: { controller.replay() },
@@ -31,22 +33,23 @@ struct ScenePlayerView: View {
                     .padding(28)
             }
         }
+        .onAppear { withAnimation(.easeInOut(duration: 1.1)) { curtainOpen = curtainTarget } }
+        .onChange(of: curtainTarget) { _, t in withAnimation(.easeInOut(duration: 0.9)) { curtainOpen = t } }
     }
 
-    @ViewBuilder private var background: some View {
-        if isPrologue {
-            SkyBackground(night: true, litFraction: skyLit)
-        } else if chapter == "garden" {
-            GardenBackground(bloom: gardenBloom)
-        } else {
-            LinearGradient(colors: ChapterLook.sky(chapter), startPoint: .top, endPoint: .bottom).ignoresSafeArea()
-        }
+    /// Each place is its own paper stage set; the Prologue's stars and the Garden's flowers wake as she plays.
+    private var background: some View {
+        PaperStage(chapter: chapter, lit: isPrologue ? skyLit : (chapter == "garden" ? gardenBloom : 1))
     }
+
+    /// The curtain rises as the scene starts and falls (partly, framing the stage) for the goodbye.
+    private var curtainTarget: Double { controller.run.phase == .goodbye ? 0.55 : 1 }
 
     private var skyLit: Double {
-        let done = Double(model.state.completedScenes.filter { $0.hasPrefix("P") }.count)
-        let payoff = controller.run.phase == .payoff || controller.run.phase == .goodbye ? 1.0 : 0
-        return min(1, (done + payoff) / 4)
+        let scenes = model.content.chapter("prologue")?.scenes ?? []
+        let done = Double(scenes.filter { model.state.completedScenes.contains($0) }.count)
+        let payoff = (controller.run.phase == .payoff && !controller.run.cutShort) || controller.run.phase == .goodbye ? 1.0 : 0
+        return min(1, (done + payoff) / Double(max(1, scenes.count)))
     }
 
     private var gardenBloom: Double {
@@ -73,7 +76,10 @@ struct StoryPanel: View {
             Spacer()
             HStack(alignment: .bottom, spacing: 40) {
                 SiaraView(size: 190, waving: kind != .open)
-                if kind == .payoff, scene.id == "G5" {
+                if paused {
+                    // Cut short by the daily limit: no success picture, Sparkle is getting sleepy (item 11).
+                    EmptyView()
+                } else if kind == .payoff, scene.id == "G5" {
                     BridgeTeaser()
                 } else if kind == .payoff, scene.chapter == "prologue" {
                     HStack { ForEach(0..<5, id: \.self) { _ in StarSprite(lit: true, size: 60) } }
@@ -81,13 +87,16 @@ struct StoryPanel: View {
                     HStack { ForEach(0..<6, id: \.self) { _ in ChapterLook.icon(scene.chapter, lit: true, size: 60) } }
                         .accessibilityIdentifier("payoffArt")
                 }
-                SparkleView(mood: kind == .goodbye ? .happy : .happy, size: 260)
+                SparkleView(mood: paused ? .sleeping : .happy, size: 260)
             }
             .padding(.bottom, 120)
         }
     }
 
+    private var paused: Bool { kind == .payoff && controller.run.cutShort }
+
     private var kindName: String {
+        if paused { return "pause" }
         switch kind {
         case .open: return "open"
         case .payoff: return "payoff"

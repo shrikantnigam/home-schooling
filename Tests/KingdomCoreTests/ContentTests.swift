@@ -11,7 +11,7 @@ final class ContentTests: XCTestCase {
     }
 
     func testMVPScenes() {
-        XCTAssertEqual(content.chapter("prologue")?.scenes, ["P1", "P2", "P3", "P4"])
+        XCTAssertEqual(content.chapter("prologue")?.scenes, ["P0", "P1", "P2"])
         XCTAssertEqual(content.chapter("garden")?.scenes, ["G1", "G2", "G3", "G4", "G5"])
     }
 
@@ -69,7 +69,13 @@ final class ContentTests: XCTestCase {
 
     func testHeroNameCanChange() {
         let c = LineCatalog(lines: content.lines, heroName: "Maya")
-        XCTAssertEqual(c.spoken("p1.goodbye")?.text.contains("Maya"), true)
+        XCTAssertEqual(c.spoken("castle.back")?.text.contains("Maya"), true)
+    }
+
+    /// Shrikant: her name is said only in the castle welcome when the app opens.
+    func testNameOnlyInCastleWelcome() {
+        let named = content.lines.filter { $0.value.text.contains("Siara") }.map(\.key).sorted()
+        XCTAssertEqual(named, ["castle.back", "castle.first"])
     }
 
     func testAnswers() {
@@ -93,8 +99,59 @@ final class ContentTests: XCTestCase {
     }
 
     func testCountingChoicesNeverOfferZero() {
-        let item = Item(id: "p4-1", skill: "subitize", kind: .quickLook, a: 1)
+        let item = Item(id: "q-1", skill: "subitize", kind: .quickLook, a: 1)
         XCTAssertFalse(ActivityRules.choices(for: item).contains(0))
+    }
+
+    // L13: a scene has 8 items at most and no more than 3 of a kind in a row; the Prologue spreads its numbers.
+    func testScenesAreNeverMundane() {
+        for s in content.scenes {
+            XCTAssertLessThanOrEqual(s.items.count, 8, s.id)
+        }
+        for id in ["P0", "P1", "P2"] {
+            let items = content.scene(id)!.items
+            var run = 1
+            for i in 1..<items.count {
+                run = items[i].kind == items[i - 1].kind ? run + 1 : 1
+                XCTAssertLessThanOrEqual(run, 3, id)
+            }
+        }
+        let counts = content.items(in: "prologue").filter { $0.kind != .quickLook }.map(\.answer)
+        XCTAssertGreaterThanOrEqual(counts.max() ?? 0, 10, "wide number range")
+        XCTAssertLessThanOrEqual(content.items(in: "prologue").count, 20, "short Prologue")
+    }
+
+    // L12: the challenge covers every Prologue skill.
+    func testChallengeCoversEveryPrologueSkill() {
+        let p0 = content.scene("P0")!
+        XCTAssertTrue(p0.isChallenge)
+        XCTAssertEqual(Set(p0.items.map(\.skill)), Set(content.skills(in: "prologue").map(\.id)))
+        XCTAssertTrue((3...5).contains(p0.items.count))
+    }
+
+    // Item 8: full how-to twice per scene, then the short form; the short form keeps the numbers.
+    func testShortPromptAfterTwo() {
+        let item = Item(id: "x", skill: "add", kind: .addMore, a: 3, b: 2)
+        XCTAssertEqual(catalog.prompt(for: item, level: .concrete, timesAsked: 1)?.id, "prompt.addMore.concrete")
+        let short = catalog.prompt(for: item, level: .concrete, timesAsked: 2)
+        XCTAssertEqual(short?.id, "prompt.addMore.concrete.short")
+        XCTAssertEqual(short?.text, "3 flowers. Plant 2 more.")
+        // Kinds without a short form keep the full prompt.
+        let eq = Item(id: "y", skill: "add", kind: .equation, a: 3, b: 4)
+        XCTAssertNotNil(catalog.prompt(for: eq, level: .abstract, timesAsked: 5))
+    }
+
+    // Item 17: G2 and G4 ask their question once at the concrete level (after the hands-on step).
+    func testConcreteBondAndMakeTenDoNotAskTwice() {
+        for kind in [ActivityKind.numberBond, .makeTen] {
+            let item = Item(id: "x", skill: "s", kind: kind, a: 5, b: 2)
+            XCTAssertFalse(catalog.prompt(for: item, level: .concrete)!.text.contains("?"), kind.rawValue)
+        }
+    }
+
+    // Item 12: no fraction words before fractions are taught (M1 praise).
+    func testPartsPraiseHasNoFractionWords() {
+        XCTAssertFalse(content.lines["praise.parts"]!.text.lowercased().contains("fraction"))
     }
 
     func testEverySkillHasAHomeTip() {
@@ -195,7 +252,7 @@ final class ActivityKindTests: XCTestCase {
         XCTAssertEqual(c.chapter("bridge")?.scenes, ["B1", "B2", "B3", "B4", "B5"])
         XCTAssertEqual(c.skills(in: "bridge").count, 4)
         for i in c.items(in: "bridge") { XCTAssertEqual(i.top, 20, i.id) }
-        // AC-2d: locked until the Garden is mastered.
+        // AC-2d and the skill map: locked until the Garden passes its gate.
         var s = LearnerState()
         T.completeScenes("prologue", in: &s, content: c)
         T.master("prologue", in: &s, content: c)
@@ -205,5 +262,28 @@ final class ActivityKindTests: XCTestCase {
         T.master("garden", in: &s, content: c)
         XCTAssertTrue(p.isChapterUnlocked("bridge", state: s))
         XCTAssertEqual(p.next(state: s), .scene("B1"))
+    }
+}
+
+final class TeachingPraiseTests: XCTestCase {
+    func testTeachingPraiseOnlyWhenAsked() throws {
+        let content = try Content.bundled()
+        let catalog = LineCatalog(lines: content.lines)
+        let item = try XCTUnwrap(content.scenes.flatMap(\.items).first { $0.kind == .countTap })
+        let taught = try XCTUnwrap(catalog.praise(for: item, level: .concrete, variant: 0, teach: true))
+        XCTAssertTrue(taught.text.contains("last number"))
+        for v in 0..<6 {
+            let plain = try XCTUnwrap(catalog.praise(for: item, level: .concrete, variant: v, teach: false))
+            XCTAssertFalse(plain.text.contains("last number"))
+        }
+    }
+}
+
+final class SentenceSplitTests: XCTestCase {
+    func testLinesSplitIntoSentencesForPauses() {
+        let line = SpokenLine(id: "x", speaker: .sparkle, text: "Five stars! The last number tells how many. Ready?")
+        XCTAssertEqual(line.sentences.map(\.text), ["Five stars!", "The last number tells how many.", "Ready?"])
+        XCTAssertEqual(SpokenLine(id: "n", speaker: .sparkle, text: "3.5 is fine").sentences.count, 1)
+        XCTAssertEqual(SpokenLine(id: "y", speaker: .narrator, text: "Hello").sentences.map(\.text), ["Hello"])
     }
 }

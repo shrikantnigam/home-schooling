@@ -15,7 +15,7 @@ struct ChildCorners: View {
                 if let onCastle {
                     Button(action: onCastle) {
                         ZStack {
-                            Circle().fill(Color.white.opacity(0.92)).frame(width: 72, height: 72)
+                            RoundedRectangle(cornerRadius: 14).fill(Theme.card).frame(width: 72, height: 72).paperCut()
                             CastleArt().scaleEffect(0.11).frame(width: 60, height: 60)
                         }
                     }
@@ -39,8 +39,8 @@ struct ChildCorners: View {
                 if let onEar {
                     Button(action: onEar) {
                         ZStack {
-                            Circle().fill(Theme.lavender).frame(width: 88, height: 88)
-                            Image(systemName: "ear.fill").font(.system(size: 38, weight: .bold)).foregroundStyle(.white)
+                            Circle().fill(Theme.card).frame(width: 88, height: 88).paperCut()
+                            Image(systemName: "ear.fill").font(.system(size: 38, weight: .bold)).foregroundStyle(Theme.clay)
                         }
                     }
                     .accessibilityIdentifier("corner.ear")
@@ -59,7 +59,7 @@ struct NextButton: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                Circle().fill(Theme.gold).frame(width: 110, height: 110)
+                Circle().fill(Theme.gold).frame(width: 110, height: 110).paperCut()
                 Image(systemName: "arrow.right").font(.system(size: 46, weight: .heavy)).foregroundStyle(Theme.ink)
             }
         }
@@ -79,7 +79,7 @@ struct Subtitle: View {
                 .font(Theme.body(20))
                 .foregroundStyle(Theme.ink)
                 .padding(.horizontal, 18).padding(.vertical, 10)
-                .background(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(0.92)))
+                .background(RoundedRectangle(cornerRadius: 12).fill(Theme.card.opacity(0.95)).paperCut(0.6))
                 .frame(maxWidth: 760)
                 .accessibilityIdentifier("subtitle")
         }
@@ -104,9 +104,9 @@ struct NumeralTile: View {
                 if dots { DotPattern(n: n, dot: n > 10 ? 6 : 9) }
             }
             .frame(width: 112, height: 124)
-            .background(RoundedRectangle(cornerRadius: 24).fill(Color.white))
-            .overlay(RoundedRectangle(cornerRadius: 24).stroke(heard ? Theme.lavender : Theme.lilac, lineWidth: heard ? 6 : 3))
-            .shadow(color: glow ? Theme.gold : .black.opacity(0.12), radius: glow ? 18 : 4, y: 3)
+            .background(RoundedRectangle(cornerRadius: 18).fill(Theme.card))
+            .overlay(RoundedRectangle(cornerRadius: 18).stroke(heard ? Theme.clay : Theme.tan, lineWidth: heard ? 6 : 3))
+            .shadow(color: glow ? Theme.gold : Theme.shadow.opacity(0.28), radius: glow ? 18 : 5, y: glow ? 3 : 6)
             .opacity(dimmed ? 0.45 : 1)
         }
         .buttonStyle(.plain)

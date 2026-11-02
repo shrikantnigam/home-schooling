@@ -29,8 +29,13 @@ struct RootView: View {
                 if let scene = model.scene { ScenePlayerView(controller: scene) } else { CastleView() }
             case .gate: ParentGateView()
             case .parent: ParentAreaView()
+            case .setup: SetupView()
+            case .writeItDown(let ch): WriteItDownView(chapter: ch)
+            case .board: PuzzleBoardView()
+            case .sheet(let id):
+                if let sheet = model.sheet(id) { WorksheetView(sheet: sheet) } else { PuzzleBoardView() }
             }
-            if model.route != .gate && model.route != .parent {
+            if model.route != .gate && model.route != .parent && model.route != .setup {
                 // Top centre, clear of the answer tiles and the three corner buttons.
                 VStack {
                     Subtitle(speech: model.speech, show: model.state.sound.subtitles)

@@ -1,8 +1,13 @@
-# Chapter process (v2)
+# Chapter process (v3)
 
 How one chapter of Kingdom of Numbers goes from idea to a playable, tested build.
 v0 was used for Chapter 1. The Chapter 1 retro ([retros/chapter-1-retro.md](retros/chapter-1-retro.md))
 produced v1. Every later retro updates this file; see the changelog at the end.
+
+**v3:** the team's objectives, quality bars and the full gate list now live in
+[team-operating-model.md](team-operating-model.md). That file wins where the two differ. The stages below
+gain a script gate (after design), a narration and voice review (after QA), a launch smoke test, and the
+whole-app journey ACs (J1 to J6), which every chapter brief inherits.
 
 ## Roles
 
@@ -12,6 +17,7 @@ produced v1. Every later retro updates this file; see the changelog at the end.
 | Child learning expert (LE) | Skills, CPA ladder, hint and praise scripts, home tips, dose check | Pedagogy in the built app matches the brief |
 | UX and graphic designer | Scene layout notes, new components, art list | Screens match the layout notes and style frame |
 | Developers | Content data, activity kinds, engine changes, unit tests, QA hooks | Unit tests green; content validation green; definition of done below |
+| Story and voice director (new in v3) | Every spoken line, narration rules, pacing, voices | Narration audit passes; each screen's transcript read in order |
 | QA | Play-through tests in the iPad simulator, screenshot review, QA report | Every scene playable end to end; one wrong path per activity kind; every AC checked |
 
 ## Stages and gates
@@ -68,6 +74,10 @@ There is no Mac in the cloud session, so CI does the Mac work (`.github/workflow
   A new chapter adds its number to the matrix.
 
 ## Changelog
+
+- v3 (2026-11-01, after Shrikant found repeated narration, missing overall progress and a blank launch
+  screen himself): adds the story and voice role, the script gate, the automated narration audit over a speech
+  log, the launch smoke test, and the whole-app journey ACs. See team-operating-model.md.
 
 - v2 (2026-11-01, after the Chapter 2 to 6 retros): dose check names starting levels and numeral-only skills
   and uses the chapter gate; definition of done adds the parent stuck-list entry and `concreteStep`;

@@ -10,6 +10,21 @@ final class AppModel: ObservableObject {
         case scene
         case gate
         case parent
+        case setup
+        /// F1: write what happened as number sentences, at the end of a place.
+        case writeItDown(ChapterID)
+        /// F3: the Puzzle Board in the castle.
+        case board
+        /// F2, F4: one puzzle scroll.
+        case sheet(String)
+
+        /// Screens where play time counts toward the daily limit.
+        var isPlay: Bool {
+            switch self {
+            case .scene, .writeItDown, .board, .sheet: return true
+            default: return false
+            }
+        }
     }
 
     @Published var route: Route = .castle
@@ -18,7 +33,8 @@ final class AppModel: ObservableObject {
 
     let env = AppEnvironment.current
     let content: Content
-    let catalog: LineCatalog
+    /// Lines with her name and her companion filled in. Rebuilt when setup is done.
+    private(set) var catalog: LineCatalog
     let engine: MasteryEngine
     let progression: Progression
     let speech: SpeechPlayer
@@ -26,6 +42,11 @@ final class AppModel: ObservableObject {
     private var ticker: Timer?
     private var lastTick = Date()
     private(set) var isActive = true
+    /// Screen intros already spoken since the app was opened. Shrikant: a screen's intro plays the first
+    /// time it appears after the app opens; after that it stays quiet and the ear button replays it.
+    private var introsSpoken: Set<String> = []
+    /// A QA preset can open straight on a screen.
+    private var pendingRoute: Route?
 
     var calendar: Calendar { engine.calendar }
 
@@ -49,8 +70,24 @@ final class AppModel: ObservableObject {
         if env.uiTesting { loaded.sound.subtitles = true }
         state = loaded
         if let preset = env.preset { applyPreset(preset) }
+        // QA play-throughs use the setup defaults unless they test the setup screen itself.
+        if env.uiTesting && !env.showSetup && state.needsSetup {
+            state.completeSetup(SetupChoices(heroName: SetupChoices.defaultName, companion: .unicorn,
+                                             dailyLimitMinutes: state.timeSettings.dailyLimitMinutes))
+        }
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        route = state.needsSetup ? .setup : (pendingRoute ?? .castle)
         applySound()
         startTicker()
+    }
+
+    /// True the first time `key` is asked for since the app opened, false after that.
+    func firstTimeThisSession(_ key: String) -> Bool { introsSpoken.insert(key).inserted }
+
+    /// Speaks a screen's intro only the first time the screen appears after the app opens.
+    func sayIntroOnce(_ key: String, _ lines: [SpokenLine?]) {
+        guard firstTimeThisSession(key) else { return }
+        speech.say(lines)
     }
 
     // MARK: Persistence
@@ -59,7 +96,17 @@ final class AppModel: ObservableObject {
         try? store.save(state)
     }
 
+    /// First-launch setup (charter v1.3): saved once, then locked.
+    func completeSetup(name: String, companion: Companion, minutes: Int) {
+        guard state.completeSetup(SetupChoices(heroName: name, companion: companion, dailyLimitMinutes: minutes)) else { return }
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        applySound()
+        save()
+        route = .castle
+    }
+
     func applySound() {
+        speech.companionPitch = state.companion.voicePitch
         speech.rate = Float(state.sound.speechRate)
         speech.volume = Float(state.sound.narrationVolume)
     }
@@ -85,10 +132,16 @@ final class AppModel: ObservableObject {
         let t = Date()
         let seconds = Int(t.timeIntervalSince(lastTick).rounded())
         lastTick = t
-        guard isActive, route == .scene, scene != nil, seconds > 0 else { return }
+        guard isActive, route.isPlay, seconds > 0 else { return }
+        if route == .scene && scene == nil { return }
         state.time.addPlay(seconds: min(seconds, 30), at: now, calendar: calendar)
         if state.time.limitReached(at: now, settings: state.timeSettings, calendar: calendar) {
-            scene?.beginWrapUp()
+            if route == .scene {
+                scene?.beginWrapUp()
+            } else {
+                // Off the story path there is no scene to wrap up: back to the sleeping castle.
+                goCastle()
+            }
         }
     }
 
@@ -98,7 +151,7 @@ final class AppModel: ObservableObject {
         speech.stop()
         if let scene { scene.saveResume() }
         scene = nil
-        route = .castle
+        route = state.needsSetup ? .setup : .castle
         save()
     }
 
@@ -135,6 +188,9 @@ final class AppModel: ObservableObject {
         begin(scene: s, warmups: warm, resumeAt: nil)
     }
 
+    /// A finished place played again (item 15): a fresh mix of its items, least recently seen first.
+    func replay(_ chapter: ChapterID) { startPractice(chapter) }
+
     func startPractice(_ chapter: ChapterID) {
         guard block == nil else { return }
         begin(scene: progression.practiceScene(for: chapter, state: state), warmups: [], resumeAt: nil)
@@ -149,9 +205,7 @@ final class AppModel: ObservableObject {
             scene = s
         } else if r.sceneID.hasPrefix("practice-") {
             let ch = String(r.sceneID.dropFirst("practice-".count))
-            scene = StoryScene(id: r.sceneID, chapter: ch, title: "Practice", open: ["practice.open1", "practice.open2"],
-                               warmupCount: 0, items: Array(items.dropFirst(r.warmupCount)),
-                               payoff: ["practice.payoff"], goodbye: "practice.goodbye")
+            scene = progression.practiceScene(chapter: ch, items: Array(items.dropFirst(r.warmupCount)))
         } else {
             state.resume = nil
             return false
@@ -172,14 +226,89 @@ final class AppModel: ObservableObject {
     /// Called by the scene after its goodbye (AC-S3: back to the castle, nothing starts by itself).
     func sceneFinished(_ run: SceneRun) {
         if run.completedAllItems {
+            if run.scene.isChallenge {
+                lastTestOut = progression.applyChallenge(run.scene, firstTry: run.firstTry, state: &state)
+            }
             progression.complete(run.scene, state: &state, at: now)
         } else {
-            state.resume = nil
+            // Cut short by the daily limit: pick up tomorrow at the next item (item 11).
+            state.resume = run.pausePoint()
         }
         scene = nil
         route = .castle
+        // F1: finishing a place for the first time ends with writing it down.
+        let ch = run.scene.chapter
+        if run.completedAllItems, progression.allScenesDone(ch, state: state), !state.wroteDown.contains(ch),
+           WriteItDown.forPlace(ch) != nil, block == nil {
+            route = .writeItDown(ch)
+        }
         save()
     }
+
+    // MARK: Problem solving (charter v1.5, docs/features/problem-solving.md)
+
+    var problems: ProblemMaker { ProblemMaker(progression: progression) }
+    var sheetMaker: WorksheetMaker { WorksheetMaker(content: content, progression: progression) }
+    /// The board opens after her first place (AC-B1): scrolls first, puzzles once a sign is taught.
+    var boardUnlocked: Bool { progression.allScenesDone("prologue", state: state) }
+
+    func finishWriteItDown(_ chapter: ChapterID) {
+        state.wroteDown.insert(chapter)
+        save()
+        speech.stop()
+        route = .castle
+    }
+
+    func openBoard() {
+        guard block == nil, boardUnlocked else { return }
+        speech.stop()
+        lastTick = Date()
+        route = .board
+    }
+
+    /// The next puzzle on the board, at its sign's story level.
+    func currentPuzzle() -> BoardPuzzle? {
+        guard let op = ProblemMaker.nextOperation(problems.unlocked(state), board: state.board) else { return nil }
+        return ProblemMaker.puzzle(op, level: state.board.level(op), n: state.board.puzzlesServed, top: problems.top(state))
+    }
+
+    func finishPuzzle(_ puzzle: BoardPuzzle, firstTry: Bool) {
+        state.board.record(puzzle.op, firstTry: firstTry)
+        state.board.puzzlesServed += 1
+        save()
+    }
+
+    func madePuzzle() {
+        state.board.puzzlesMade += 1
+        save()
+    }
+
+    func openSheet(_ id: String) {
+        guard block == nil else { return }
+        speech.stop()
+        lastTick = Date()
+        route = .sheet(id)
+    }
+
+    func sheet(_ id: String) -> Worksheet? { sheetMaker.available(state: state).first { $0.id == id } }
+
+    func finishSheet(_ sheet: Worksheet, firstTry: [String: Bool]) {
+        state.finishSheet(sheet, firstTry: firstTry, at: now)
+        save()
+        speech.stop()
+        route = .board
+    }
+
+    func sheetFeedback(_ feedback: SheetFeedback, sheetID: String, place: ChapterID?) {
+        // A mixed scroll counts against her weakest sign's place.
+        let fallback = problems.unlocked(state).max { state.board.weakness($0) < state.board.weakness($1) }?.place
+        guard let p = place ?? fallback else { return }
+        state.applySheetFeedback(feedback, sheetID: sheetID, place: p, content: content)
+        save()
+    }
+
+    /// Skills the last challenge showed she knows, for QA and the parent area.
+    private(set) var lastTestOut: Set<SkillID> = []
 
     func record(_ result: ItemResult) {
         state.apply(result, engine: engine)
@@ -209,6 +338,8 @@ final class AppModel: ObservableObject {
 
     func resetAll() {
         state.resetAllProgress()
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        introsSpoken = []
         save()
     }
 
@@ -228,6 +359,20 @@ final class AppModel: ObservableObject {
                 for s in content.chapter(ch)?.scenes ?? [] { state.completedScenes.insert(s) }
             }
             masterChapter("prologue")
+            state.hasMetSparkle = true
+        case "boardReady", "writeItDown.garden":
+            // The Garden, the Goblin's Cave and the Royal Ball are finished: three signs on the Puzzle Board.
+            let places: [ChapterID] = name == "boardReady" ? ["prologue", "garden", "goblin", "ball"] : ["prologue", "garden"]
+            for ch in places {
+                for s in content.chapter(ch)?.scenes ?? [] { state.completedScenes.insert(s) }
+                masterChapter(ch)
+            }
+            state.wroteDown = name == "boardReady" ? Set(places) : ["prologue"]
+            state.hasMetSparkle = true
+            if name == "writeItDown.garden" { pendingRoute = .writeItDown("garden") }
+        case "nearLimit":
+            // A few seconds of play left: the limit runs out during the first scene (item 11).
+            state.time.addPlay(seconds: state.timeSettings.dailyLimitMinutes * 60 - 3, at: now, calendar: calendar)
             state.hasMetSparkle = true
         case "limitReached":
             state.time.addPlay(seconds: state.timeSettings.dailyLimitMinutes * 60, at: now, calendar: calendar)

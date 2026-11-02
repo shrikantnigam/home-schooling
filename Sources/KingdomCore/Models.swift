@@ -237,9 +237,14 @@ public struct StoryScene: Codable, Hashable, Identifiable, Sendable {
     public let items: [Item]
     public let payoff: [LineID]
     public let goodbye: LineID
+    /// Other places that must pass their gate before this scene opens (skill map, S11).
+    /// For example the Goblin's Cave "take from ten" scenes need the Bridge of Tens.
+    public let needs: [ChapterID]?
+    /// A test-out challenge (L12): items shown with numbers; skills she gets right first try are skipped.
+    public let challenge: Bool?
 
     public init(id: SceneID, chapter: ChapterID, title: String, open: [LineID], warmupCount: Int,
-                items: [Item], payoff: [LineID], goodbye: LineID) {
+                items: [Item], payoff: [LineID], goodbye: LineID, needs: [ChapterID]? = nil, challenge: Bool? = nil) {
         self.id = id
         self.chapter = chapter
         self.title = title
@@ -248,7 +253,20 @@ public struct StoryScene: Codable, Hashable, Identifiable, Sendable {
         self.items = items
         self.payoff = payoff
         self.goodbye = goodbye
+        self.needs = needs
+        self.challenge = challenge
     }
+
+    public var isChallenge: Bool { challenge ?? false }
+    public var isPractice: Bool { id.hasPrefix("practice-") }
+}
+
+/// How a place counts as done for the places that need it.
+public enum PlaceGate: String, Codable, Sendable {
+    /// The parent's chosen gate (secure by default).
+    case skills
+    /// Finishing the scenes is enough (the Prologue: she has shown she can count).
+    case scenes
 }
 
 public struct Chapter: Codable, Hashable, Identifiable, Sendable {
@@ -257,12 +275,18 @@ public struct Chapter: Codable, Hashable, Identifiable, Sendable {
     /// Name of the place on the kingdom map.
     public let place: String
     public let scenes: [SceneID]
+    /// Places that must be done before this one opens (skill map, S11). Nil means the place before it.
+    public let requires: [ChapterID]?
+    public let gate: PlaceGate?
 
-    public init(id: ChapterID, title: String, place: String, scenes: [SceneID]) {
+    public init(id: ChapterID, title: String, place: String, scenes: [SceneID], requires: [ChapterID]? = nil,
+                gate: PlaceGate? = nil) {
         self.id = id
         self.title = title
         self.place = place
         self.scenes = scenes
+        self.requires = requires
+        self.gate = gate
     }
 }
 

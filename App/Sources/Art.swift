@@ -1,3 +1,4 @@
+import KingdomCore
 import SwiftUI
 
 // Placeholder art drawn with SwiftUI shapes, following mocks/Sparkle, Siara and Style.
@@ -100,67 +101,24 @@ struct SeedSprite: View {
     }
 }
 
-/// Sparkle the unicorn: white body, pink mane, gold horn.
+/// Her companion (chosen at setup): the unicorn, superhero, princess, monster or gnome, drawn in cut paper.
+/// The name is kept from the first version so every screen picks up the chosen companion.
 struct SparkleView: View {
     enum Mood { case happy, thinking, sleeping }
     var mood: Mood = .happy
     var size: CGFloat = 200
+    /// Shown explicitly on the setup cards; otherwise the companion chosen at setup.
+    var companion: Companion?
+    @EnvironmentObject var model: AppModel
+
     var body: some View {
-        ZStack {
-            // Legs
-            HStack(spacing: size * 0.14) {
-                ForEach(0..<3, id: \.self) { _ in
-                    Capsule().fill(Color.white).frame(width: size * 0.09, height: size * 0.26)
-                        .overlay(Capsule().stroke(Theme.lilac, lineWidth: 2))
-                }
-            }
-            .offset(x: -size * 0.04, y: size * 0.28)
-            // Body
-            Ellipse().fill(Color.white).frame(width: size * 0.62, height: size * 0.38)
-                .overlay(Ellipse().stroke(Theme.lilac, lineWidth: 3))
-                .offset(x: -size * 0.05, y: size * 0.1)
-            // Tail
-            ForEach(0..<3, id: \.self) { i in
-                Circle().fill([Theme.mane, Theme.lavender, Theme.gold][i])
-                    .frame(width: size * 0.13, height: size * 0.13)
-                    .offset(x: -size * (0.36 + Double(i) * 0.03), y: size * (0.04 + Double(i) * 0.08))
-            }
-            // Head
-            Ellipse().fill(Color.white).frame(width: size * 0.34, height: size * 0.3)
-                .overlay(Ellipse().stroke(Theme.lilac, lineWidth: 3))
-                .offset(x: size * 0.24, y: -size * 0.12)
-            // Mane
-            ForEach(0..<4, id: \.self) { i in
-                Circle().fill(i.isMultiple(of: 2) ? Theme.mane : Theme.lavender)
-                    .frame(width: size * 0.12, height: size * 0.12)
-                    .offset(x: size * (0.1 - Double(i) * 0.025), y: -size * (0.2 - Double(i) * 0.07))
-            }
-            // Horn
-            Triangle().fill(Theme.gold).frame(width: size * 0.07, height: size * 0.2)
-                .rotationEffect(.degrees(18))
-                .offset(x: size * 0.3, y: -size * 0.34)
-            // Eye
-            Group {
-                switch mood {
-                case .sleeping:
-                    Capsule().fill(Theme.ink).frame(width: size * 0.07, height: size * 0.018)
-                case .thinking:
-                    Circle().fill(Theme.ink).frame(width: size * 0.05, height: size * 0.05).offset(y: -size * 0.01)
-                case .happy:
-                    Circle().fill(Theme.ink).frame(width: size * 0.055, height: size * 0.055)
-                }
-            }
-            .offset(x: size * 0.28, y: -size * 0.13)
-            // Cheek
-            Circle().fill(Theme.mane.opacity(0.5)).frame(width: size * 0.06).offset(x: size * 0.33, y: -size * 0.06)
-            if mood == .sleeping {
-                Text("z z z").font(Theme.title(size * 0.12)).foregroundStyle(Theme.lavender)
-                    .offset(x: size * 0.42, y: -size * 0.4)
-            }
-        }
-        .frame(width: size, height: size)
-        .accessibilityElement()
-        .accessibilityLabel("Sparkle the unicorn")
+        let c = companion ?? model.state.companion
+        CompanionArt(companion: c, mood: mood)
+            .frame(width: 200, height: 200)
+            .scaleEffect(size / 200)
+            .frame(width: size, height: size)
+            .accessibilityElement()
+            .accessibilityLabel("\(c.name) the \(c.kind)")
     }
 }
 
