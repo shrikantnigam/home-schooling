@@ -232,9 +232,13 @@ struct ParentAreaView: View {
                     }
                     HStack(spacing: 12) {
                         ForEach(SheetFeedback.allCases, id: \.self) { f in
-                            Button(f.parentLabel) { model.sheetFeedback(f, sheetID: sheet.id, place: sheet.place) }
-                                .buttonStyle(.bordered)
-                                .tint(rec.feedback == f ? Theme.deepLavender : Theme.muted)
+                            Button { model.sheetFeedback(f, sheetID: sheet.id, place: sheet.place) } label: {
+                                Text(f.parentLabel).font(Theme.body(17).bold())
+                                    .foregroundStyle(rec.feedback == f ? Color.white : Theme.ink)
+                                    .padding(.horizontal, 18).padding(.vertical, 8)
+                                    .background(Capsule().fill(rec.feedback == f ? Theme.deepLavender : Theme.lilac))
+                            }
+                            .buttonStyle(.plain)
                                 .accessibilityIdentifier("parent.sheet.\(sheet.id).\(f.rawValue)")
                                 .accessibilityValue(rec.feedback == f ? "selected" : "")
                         }

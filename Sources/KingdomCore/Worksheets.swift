@@ -188,8 +188,8 @@ public struct WorksheetMaker: Sendable {
                 SheetItem(id: "\(id)-c6", kind: .count, tokens: ["?"], answer: "6", picture: .dots(6)),
                 SheetItem(id: "\(id)-c9", kind: .count, tokens: ["?"], answer: "9", picture: .dots(9)),
                 SheetItem(id: "\(id)-c4", kind: .count, tokens: ["?"], answer: "4", picture: .dots(4)),
-                SheetItem(id: "\(id)-n7", kind: .missing, tokens: ["5", "6", "?"], answer: "7"),
-                SheetItem(id: "\(id)-n3", kind: .missing, tokens: ["?", "4", "5"], answer: "3"),
+                SheetItem(id: "\(id)-n7", kind: .missing, tokens: ["5", ",", "6", ",", "?"], answer: "7"),
+                SheetItem(id: "\(id)-n3", kind: .missing, tokens: ["?", ",", "4", ",", "5"], answer: "3"),
                 SheetItem(id: "\(id)-eq", kind: .answerFirst, tokens: ["?", "=", "8"], answer: "8", picture: .dots(8)),
             ]
             return Worksheet(id: id, place: place, items: items + Self.extras(prefix: id, drawTokens: ["5", "★"], make: canMake))

@@ -22,7 +22,8 @@ struct WorksheetView: View {
 
     var body: some View {
         ZStack {
-            PaperStage(chapter: sheet.place, showSky: false)
+            // Scrolls are always on day paper so dark ink reads on every page.
+            PaperStage(chapter: nil, showSky: false)
             VStack(spacing: 22) {
                 HStack(spacing: 8) {
                     ForEach(sheet.items.indices, id: \.self) { i in
@@ -206,6 +207,7 @@ struct MakePuzzleView: View {
     @State private var companionAnswer: Int?
     @State private var made: MadePuzzle?
     @State private var verdict: String?
+    @State private var closed = false
 
     var body: some View {
         let ops = model.problems.unlocked(model.state)
@@ -237,8 +239,10 @@ struct MakePuzzleView: View {
             if let made, let answer = companionAnswer {
                 HStack(spacing: 20) {
                     SparkleView(mood: .thinking, size: compact ? 120 : 150)
-                    SentenceRow(tokens: [String(made.a), made.op.sign, String(made.b), "=", "?"], box: String(answer),
-                                boxState: verdict == nil ? .waiting : .shown, size: 44)
+                    // Once she has judged, the box shows the true answer.
+                    SentenceRow(tokens: [String(made.a), made.op.sign, String(made.b), "=", "?"],
+                                box: String(verdict == nil ? answer : made.answer),
+                                boxState: verdict == nil ? .waiting : .right, size: 44)
                 }
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("make.companion")
@@ -248,8 +252,8 @@ struct MakePuzzleView: View {
                         judge("Right!", correct: true, id: "make.right")
                         judge("Oops!", correct: false, id: "make.oops")
                     }
-                } else {
-                    Button(action: onDone) {
+                } else if !closed {
+                    Button { closed = true; onDone() } label: {
                         Text("Done").font(Theme.title(26)).foregroundStyle(Theme.ink)
                             .padding(.horizontal, 36).padding(.vertical, 12)
                             .background(Capsule().fill(Theme.sun)).paperCut()
