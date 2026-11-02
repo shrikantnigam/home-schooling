@@ -32,11 +32,13 @@ for ch in ${chapters//,/ }; do
   rm -rf "$bundle"
   if xcodebuild test -project App/KingdomOfNumbers.xcodeproj -scheme KingdomOfNumbers -destination "$dest" \
        -only-testing:"KingdomOfNumbersQA/Chapter${ch}PlaythroughTests" CODE_SIGNING_ALLOWED=NO \
-       -resultBundlePath "$bundle" > "$out/chapter$ch.log" 2>&1; then
-    echo "Chapter $ch passed in $(( $(date +%s) - start ))s"
+       -resultBundlePath "$bundle" > "$out/chapter$ch.log" 2>&1 \
+     && grep -qE "Executed [1-9][0-9]* tests?" "$out/chapter$ch.log"; then
+    # A clean exit that ran no tests (seen once right after a rebuild) is not a pass.
+    echo "Chapter $ch passed in $(( $(date +%s) - start ))s ($(grep -oE "Executed [0-9]+ tests?, with [0-9]+ failures?" "$out/chapter$ch.log" | tail -1))"
   else
     echo "Chapter $ch FAILED after $(( $(date +%s) - start ))s (log: $out/chapter$ch.log, results: $bundle)"
-    grep -E "error:|failed|FAILED waiting" "$out/chapter$ch.log" | head -20 || true
+    grep -E "error:|failed|FAILED waiting|Executed 0 tests" "$out/chapter$ch.log" | head -20 || true
     failed+=("$ch")
   fi
   grep -h "QA-METRIC" "$out/chapter$ch.log" || true
