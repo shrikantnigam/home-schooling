@@ -22,7 +22,10 @@ RULES = [
     ("studio/*", []),
     ("*.md", []),
     (".github/*", []),
-    ("tools/qa_plan.py", []),
+    (".gitignore", []),
+    ("tools/gen_content.py", "ALL"),                   # generates content.json, which every chapter reads
+    ("tools/chapters_2_to_6.py", "ALL"),
+    ("tools/*", []),                                   # test and audit scripts
     ("Tests/*", []),                                   # unit tests only
     ("App/QATests/QAPlayer.swift", ALL),
     ("App/QATests/Chapter*PlaythroughTests.swift", "own"),
@@ -51,6 +54,8 @@ RULES = [
 def chapters_for(path: str) -> list:
     for pattern, chapters in RULES:
         if fnmatch(path, pattern):
+            if chapters == "ALL":
+                return ALL
             if chapters == "own":
                 digits = "".join(c for c in Path(path).name if c.isdigit())
                 return [int(digits)] if digits else ALL
