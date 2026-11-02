@@ -340,4 +340,15 @@ final class Chapter1PlaythroughTests: XCTestCase {
         p.wait("panel.open.P0")
         p.snap("P0 with the gnome")
     }
+
+    /// Rule 5 check for the hang on her iPad (2026-11-02): the voice never reports finishing, yet every
+    /// screen still moves on (Next appears, the quick look reveals, the scene ends) thanks to the watchdog.
+    func test13_SpeechNeverFinishes_NoScreenHangs() {
+        let p = QAPlayer(self, prefix: "13")
+        p.launch(extra: ["-speechNeverFinishes"])
+        p.tap("castle.play")
+        p.playScene("P0", snapItems: false)
+        p.wait("castle.play", timeout: 20)
+        p.snap("back at the castle with a silent voice")
+    }
 }

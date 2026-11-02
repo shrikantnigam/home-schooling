@@ -68,7 +68,8 @@ final class AppModel: ObservableObject {
         catalog = LineCatalog(lines: content.lines)
         engine = MasteryEngine()
         progression = Progression(content: content, engine: engine)
-        speech = SpeechPlayer(instant: AppEnvironment.current.uiTesting)
+        speech = SpeechPlayer(instant: AppEnvironment.current.uiTesting,
+                             neverFinishes: AppEnvironment.current.speechNeverFinishes)
         store = env.uiTesting
             ? StateStore(url: FileManager.default.temporaryDirectory.appendingPathComponent("qa-learner.json"))
             : StateStore.defaultStore()

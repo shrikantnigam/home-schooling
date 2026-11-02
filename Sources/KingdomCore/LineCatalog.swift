@@ -12,6 +12,22 @@ public struct SpokenLine: Equatable, Sendable {
         self.text = text
     }
 
+    /// False for text the voice has nothing to say for (empty, spaces, punctuation only). Handing such
+    /// text to the synthesizer gives a zero-length audio buffer and no "finished" callback, which hung
+    /// screens that wait for the voice (2026-11-02).
+    public var isSpeakable: Bool {
+        text.contains { $0.isLetter || $0.isNumber }
+    }
+
+    /// The longest the voice should need for this text at `rate` (AVSpeech rate, 0.5 is normal), with
+    /// plenty of slack. The speech player moves on after this even if the system never reports the end,
+    /// so no screen can wait on the voice forever.
+    public func watchdogSeconds(rate: Float) -> Double {
+        let words = max(1, text.split(whereSeparator: { $0 == " " }).count)
+        let perWord = 0.6 * 0.5 / Double(max(rate, 0.1))
+        return min(30, 3 + Double(words) * perWord)
+    }
+
     /// The line cut into sentences, so the voice can pause between them like a storyteller.
     /// "Five stars! The last number tells how many." becomes two parts.
     public var sentences: [SpokenLine] {
