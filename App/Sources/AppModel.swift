@@ -5,6 +5,10 @@ import SwiftUI
 @MainActor
 final class AppModel: ObservableObject {
     enum Route: Equatable {
+        /// The Home School home screen with one tile per widget (#30).
+        case home
+        /// The jigsaw widget (#25).
+        case jigsaw
         case castle
         case map
         case scene
@@ -21,13 +25,13 @@ final class AppModel: ObservableObject {
         /// Screens where play time counts toward the daily limit.
         var isPlay: Bool {
             switch self {
-            case .scene, .writeItDown, .board, .sheet: return true
+            case .scene, .writeItDown, .board, .sheet, .jigsaw: return true
             default: return false
             }
         }
     }
 
-    @Published var route: Route = .castle
+    @Published var route: Route = .home
     @Published var state: LearnerState
     @Published private(set) var scene: SceneController?
 
@@ -47,6 +51,8 @@ final class AppModel: ObservableObject {
     private var introsSpoken: Set<String> = []
     /// A QA preset can open straight on a screen.
     private var pendingRoute: Route?
+    /// Where the grown-ups' gate goes back to: the castle inside Kingdom of Numbers, else the home screen.
+    private var returnRoute: Route = .home
 
     var calendar: Calendar { engine.calendar }
 
@@ -62,11 +68,19 @@ final class AppModel: ObservableObject {
         catalog = LineCatalog(lines: content.lines)
         engine = MasteryEngine()
         progression = Progression(content: content, engine: engine)
-        speech = SpeechPlayer(instant: AppEnvironment.current.uiTesting)
+        speech = SpeechPlayer(instant: AppEnvironment.current.uiTesting,
+                             neverFinishes: AppEnvironment.current.speechNeverFinishes)
         store = env.uiTesting
             ? StateStore(url: FileManager.default.temporaryDirectory.appendingPathComponent("qa-learner.json"))
             : StateStore.defaultStore()
         var loaded = env.reset ? LearnerState() : store.load()
+        // A debug jump session that was never ended (app killed): put her real progress back.
+        let snap = StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+        if FileManager.default.fileExists(atPath: snap.url.path) {
+            if !env.reset { loaded = snap.load() }
+            try? FileManager.default.removeItem(at: snap.url)
+            try? store.save(loaded)
+        }
         if env.uiTesting { loaded.sound.subtitles = true }
         state = loaded
         if let preset = env.preset { applyPreset(preset) }
@@ -76,7 +90,7 @@ final class AppModel: ObservableObject {
                                              dailyLimitMinutes: state.timeSettings.dailyLimitMinutes))
         }
         catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
-        route = state.needsSetup ? .setup : (pendingRoute ?? .castle)
+        route = state.needsSetup ? .setup : (pendingRoute ?? .home)
         applySound()
         startTicker()
     }
@@ -102,7 +116,7 @@ final class AppModel: ObservableObject {
         catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
         applySound()
         save()
-        route = .castle
+        route = .home
     }
 
     func applySound() {
@@ -138,6 +152,8 @@ final class AppModel: ObservableObject {
         if state.time.limitReached(at: now, settings: state.timeSettings, calendar: calendar) {
             if route == .scene {
                 scene?.beginWrapUp()
+            } else if route == .jigsaw {
+                goHome()
             } else {
                 // Off the story path there is no scene to wrap up: back to the sleeping castle.
                 goCastle()
@@ -146,6 +162,45 @@ final class AppModel: ObservableObject {
     }
 
     // MARK: Navigation
+
+    /// The Home School home screen (#30).
+    func goHome() {
+        speech.stop()
+        if let scene { scene.saveResume() }
+        scene = nil
+        route = state.needsSetup ? .setup : .home
+        save()
+    }
+
+    /// Opens a widget from its tile on the home screen.
+    func open(_ widget: HubWidget) {
+        speech.stop()
+        lastTick = Date()
+        switch widget.id {
+        case "kingdom": route = .castle
+        case "jigsaw": if block == nil { route = .jigsaw }
+        default: break
+        }
+    }
+
+    /// Records a finished jigsaw and moves the levels (J10 quick check, J2 adapts).
+    func finishJigsaw(_ r: JigsawResult, line: Bool) {
+        if line { state.jigsaw.finishNumberLine(r) } else { state.jigsaw.finishPicture(r) }
+        save()
+    }
+
+    /// True the first time ever a jigsaw intro is asked for; after that she has heard it.
+    func jigsawFirstTime(_ key: String) -> Bool {
+        let isNew = state.jigsaw.introsHeard.insert(key).inserted
+        if isNew { save() }
+        return isNew
+    }
+
+    /// Back from the grown-ups' gate or area.
+    func leaveParentArea() {
+        speech.stop()
+        route = state.needsSetup ? .setup : returnRoute
+    }
 
     func goCastle() {
         speech.stop()
@@ -319,6 +374,7 @@ final class AppModel: ObservableObject {
 
     func openParentGate() {
         speech.stop()
+        returnRoute = (route == .home || route == .jigsaw) ? .home : .castle
         scene?.saveResume()
         scene = nil
         route = .gate
@@ -341,6 +397,82 @@ final class AppModel: ObservableObject {
         catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
         introsSpoken = []
         save()
+    }
+
+    // MARK: Debug jump (grown-ups' area, Debug builds only)
+
+    private var debugSnapshotStore: StateStore {
+        StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+    }
+
+    /// True while a grown-up is testing with jumps; her real progress is saved aside until they end it.
+    var isDebugSession: Bool { FileManager.default.fileExists(atPath: debugSnapshotStore.url.path) }
+
+    private func beginDebugSession() {
+        if !isDebugSession { try? debugSnapshotStore.save(state) }
+        // Jumps never stop at the daily limit.
+        state.time = TimeKeeper()
+        state.hasMetSparkle = true
+    }
+
+    /// Opens any scene, with everything before it unlocked.
+    func debugJump(scene id: SceneID) {
+        beginDebugSession()
+        unlockUpTo(id)
+        save()
+        start(sceneID: id)
+    }
+
+    enum DebugTarget: String, CaseIterable, Identifiable {
+        case home, castle, map, board, jigsaw
+        var id: String { rawValue }
+    }
+
+    func debugJump(_ target: DebugTarget) {
+        beginDebugSession()
+        if target == .board || target == .map {
+            for ch in content.chapters { unlockUpTo(ch.scenes.last ?? "") }
+        }
+        save()
+        speech.stop()
+        switch target {
+        case .home: route = .home
+        case .castle: route = .castle
+        case .map: route = .map
+        case .board: route = .board
+        case .jigsaw: route = .jigsaw
+        }
+    }
+
+    func debugJumpWriteItDown(_ chapter: ChapterID) {
+        beginDebugSession()
+        unlockUpTo(content.chapter(chapter)?.scenes.last ?? "")
+        save()
+        speech.stop()
+        route = .writeItDown(chapter)
+    }
+
+    /// Ends testing: her real progress comes back exactly as it was.
+    func endDebugSession() {
+        guard isDebugSession else { return }
+        speech.stop()
+        scene = nil
+        state = debugSnapshotStore.load()
+        try? FileManager.default.removeItem(at: debugSnapshotStore.url)
+        catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
+        save()
+        route = .home
+    }
+
+    /// Marks every scene before `id` done (and its places mastered), and `id` itself as the next one.
+    private func unlockUpTo(_ id: SceneID) {
+        for ch in content.chapters {
+            for s in ch.scenes {
+                if s == id { return }
+                state.completedScenes.insert(s)
+            }
+            masterChapter(ch.id)
+        }
     }
 
     // MARK: QA presets

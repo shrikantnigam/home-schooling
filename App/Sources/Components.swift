@@ -8,6 +8,8 @@ struct ChildCorners: View {
     var onEar: (() -> Void)?
     var onLock: () -> Void
     var dark = false
+    /// Back to the Home School home screen, shown top left where there is no castle button (the castle itself).
+    var onHome: (() -> Void)? = nil
 
     var body: some View {
         VStack {
@@ -21,6 +23,15 @@ struct ChildCorners: View {
                     }
                     .accessibilityIdentifier("corner.castle")
                     .accessibilityLabel("Back to the castle")
+                } else if let onHome {
+                    Button(action: onHome) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 14).fill(Theme.card).frame(width: 72, height: 72).paperCut()
+                            Image(systemName: "house.fill").font(.system(size: 32, weight: .bold)).foregroundStyle(Theme.clay)
+                        }
+                    }
+                    .accessibilityIdentifier("corner.home")
+                    .accessibilityLabel("Home School")
                 }
                 Spacer()
                 // Deliberately quiet: small and low contrast so it does not invite a child's tap.

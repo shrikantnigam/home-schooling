@@ -4106,6 +4106,94 @@
    "speaker": "sparkle",
    "text": "Draw a picture of this puzzle. Tap done when you finish."
   },
+  "home.hello": {
+   "speaker": "sparkle",
+   "text": "Hi! What shall we play today?"
+  },
+  "jig.intro.picture": {
+   "speaker": "sparkle",
+   "text": "Drag each piece to where it belongs in the picture. Flat edges go around the outside."
+  },
+  "jig.intro.line": {
+   "speaker": "sparkle",
+   "text": "These pieces make a number line. They only fit in order. Which number comes first?"
+  },
+  "jig.intro.turning": {
+   "speaker": "sparkle",
+   "text": "Some pieces are turned around. Tap a piece to turn it."
+  },
+  "jig.hint.edges": {
+   "speaker": "sparkle",
+   "text": "Look for a piece with a flat edge. Flat edges go around the outside."
+  },
+  "jig.hint.colour": {
+   "speaker": "sparkle",
+   "text": "Look at the colours on the piece. Where are those colours in the picture?"
+  },
+  "jig.hint.turn": {
+   "speaker": "sparkle",
+   "text": "Tap the piece to turn it. Stop when the picture is the right way up."
+  },
+  "jig.hint.area": {
+   "speaker": "sparkle",
+   "text": "It goes somewhere in the glowing part."
+  },
+  "jig.hint.outline": {
+   "speaker": "sparkle",
+   "text": "Here is its outline. Can you fit it in?"
+  },
+  "jig.hint.slide": {
+   "speaker": "sparkle",
+   "text": "Watch where it goes. Then try the next one!"
+  },
+  "jig.hint.line": {
+   "speaker": "sparkle",
+   "text": "Count on from {n}. Which number comes next?"
+  },
+  "jig.hint.lineFirst": {
+   "speaker": "sparkle",
+   "text": "Which number comes first on the line?"
+  },
+  "jig.explain": {
+   "speaker": "sparkle",
+   "text": "How did you find that one? Tap the picture."
+  },
+  "jig.explain.colour": {
+   "speaker": "sparkle",
+   "text": "You matched the colours. Smart looking!"
+  },
+  "jig.explain.edge": {
+   "speaker": "sparkle",
+   "text": "You looked at the edge shape. That's a great way!"
+  },
+  "jig.explain.picture": {
+   "speaker": "sparkle",
+   "text": "You followed the picture. Nice!"
+  },
+  "jig.explain.turn": {
+   "speaker": "sparkle",
+   "text": "You turned it until it fit. Good thinking!"
+  },
+  "jig.explain.order": {
+   "speaker": "sparkle",
+   "text": "You counted on to find the next number!"
+  },
+  "jig.slip.ask": {
+   "speaker": "sparkle",
+   "text": "Let me try one! Does my piece fit here?"
+  },
+  "jig.slip.why": {
+   "speaker": "sparkle",
+   "text": "Why doesn't it fit? Tap the picture."
+  },
+  "jig.slip.caught": {
+   "speaker": "sparkle",
+   "text": "You're right! It doesn't fit. Thank you for checking my work."
+  },
+  "jig.slip.missed": {
+   "speaker": "sparkle",
+   "text": "Hmm, look again. The edges don't match, so it doesn't fit. Good thing we checked!"
+  },
   "sheet.make": {
    "speaker": "sparkle",
    "text": "Now make a puzzle for me!"

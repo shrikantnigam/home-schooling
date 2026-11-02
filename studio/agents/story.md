@@ -15,4 +15,4 @@ feelings (S4), real-life mirrors (S2), callbacks (S7), her interests (S8), every
 would hear the same instruction again and again, it fails, even if every line is fine on its own.
 
 **Rules from retros.** Lines name `{companion}` and never use a body part, pronoun or ability that fits only one
-companion (no "hooves", no "my horn").
+companion (no "hooves", no "my horn"). Board stories are narrator lines that fill `{a}` and `{b}` through `LineCatalog.spoken(_:a:b:)`.

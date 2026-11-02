@@ -57,7 +57,7 @@ struct ParentGateView: View {
                 case .open:
                     ProgressView()
                 }
-                Button("Cancel") { model.goCastle() }
+                Button("Cancel") { model.leaveParentArea() }
                     .font(Theme.body(18))
                     .accessibilityIdentifier("gate.cancel")
             }
@@ -102,18 +102,22 @@ struct ParentAreaView: View {
     enum ParentTab: String, CaseIterable, Identifiable {
         case progress = "Progress"
         case scrolls = "Puzzle scrolls"
+        case jigsaw = "Jigsaw"
         case time = "Time limits"
         case sound = "Sound and voice"
         case screenTime = "Screen Time help"
         case reset = "Reset progress"
+        #if DEBUG
+        case debug = "Jump to (testing)"
+        #endif
         var id: String { rawValue }
     }
 
     var body: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
-                Button { model.goCastle() } label: {
-                    Label("Back to the castle", systemImage: "chevron.left").font(Theme.body(17).bold())
+                Button { model.leaveParentArea() } label: {
+                    Label("Back", systemImage: "chevron.left").font(Theme.body(17).bold())
                 }
                 .accessibilityIdentifier("parent.back")
                 .padding(.bottom, 20)
@@ -137,10 +141,14 @@ struct ParentAreaView: View {
                     switch section {
                     case .progress: progress
                     case .scrolls: scrolls
+                    case .jigsaw: jigsaw
                     case .time: time
                     case .sound: sound
                     case .screenTime: screenTime
                     case .reset: reset
+                    #if DEBUG
+                    case .debug: debugJump
+                    #endif
                     }
                 }
                 .padding(32)
@@ -209,6 +217,124 @@ struct ParentAreaView: View {
     }
 
     // MARK: Puzzle scrolls and board (F2-F4, AC-S5)
+
+    #if DEBUG
+    // MARK: Jump to (Debug builds from Xcode only; never in a normal build)
+
+    private var debugJump: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Jump to (testing)").font(Theme.title(32))
+            Text("Opens any screen straight away. Her progress is put aside first and comes back exactly as it was when you tap End testing (or the next time the app opens).")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+            if model.isDebugSession {
+                Button("End testing and restore her progress") { model.endDebugSession() }
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("debug.end")
+            }
+            card {
+                Text("Screens").font(Theme.body(17).bold())
+                HStack {
+                    ForEach(AppModel.DebugTarget.allCases) { t in
+                        Button(t.rawValue.capitalized) { model.debugJump(t) }
+                            .buttonStyle(.bordered)
+                            .accessibilityIdentifier("debug.to.\(t.rawValue)")
+                    }
+                }
+            }
+            ForEach(model.content.chapters) { ch in
+                card {
+                    Text(ch.title).font(Theme.body(17).bold())
+                    HStack {
+                        ForEach(ch.scenes, id: \.self) { sid in
+                            Button(sid) { model.debugJump(scene: sid) }
+                                .buttonStyle(.bordered)
+                                .accessibilityIdentifier("debug.scene.\(sid)")
+                        }
+                        Spacer()
+                        Button("Write it down") { model.debugJumpWriteItDown(ch.id) }
+                            .buttonStyle(.bordered)
+                            .accessibilityIdentifier("debug.write.\(ch.id)")
+                    }
+                }
+            }
+        }
+    }
+    #endif
+
+    // MARK: Jigsaw (#25, J8 and J11)
+
+    private var jigsaw: some View {
+        let j = model.state.jigsaw
+        let rate = j.recentFirstFitRate
+        let recent = Array(j.results.suffix(10))
+        let hints = recent.reduce(0) { $0 + $1.hintsUsed }
+        let strategies = j.strategyCounts.sorted { $0.value > $1.value }
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("Jigsaw").font(Theme.title(32))
+            Text("Picture puzzles train shapes and parts of a whole; the number-line puzzle trains number order. The app picks the size from how she plays; you can set the range.")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+            card {
+                Text("Pieces she can be offered").font(Theme.body(17).bold())
+                rangeRow("Lowest", value: j.minPieces, id: "min") { d in
+                    model.state.jigsaw.setRange(min: j.minPieces + d, max: max(j.maxPieces, j.minPieces + d))
+                }
+                rangeRow("Highest", value: j.maxPieces, id: "max") { d in
+                    model.state.jigsaw.setRange(min: min(j.minPieces, j.maxPieces + d), max: j.maxPieces + d)
+                }
+                Text("Her level now: \(j.levelSize) pieces\(j.calibrated ? "" : " (still finding her level)")")
+                    .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                    .accessibilityIdentifier("parent.jig.level")
+            }
+            card {
+                Text("Last ten puzzles").font(Theme.body(17).bold())
+                if let rate {
+                    Text("Pieces right on the first try: \(Int((rate * 100).rounded()))%").font(Theme.body())
+                        .accessibilityIdentifier("parent.jig.firstFit")
+                    Text("Hints asked for: \(hints)").font(Theme.body())
+                } else {
+                    Text("No puzzles finished yet.").font(Theme.body()).foregroundStyle(Theme.muted)
+                }
+                Text("Puzzles finished: \(j.puzzlesDone)").font(Theme.body())
+            }
+            if !strategies.isEmpty {
+                card {
+                    Text("How she says she finds pieces").font(Theme.body(17).bold())
+                    ForEach(strategies, id: \.key) { kv in
+                        Text("\(strategyName(kv.key)): \(kv.value)").font(Theme.body())
+                    }
+                }
+            }
+            card {
+                Text("Try at home").font(Theme.body(17).bold())
+                Text(j.homeIdea).font(Theme.body())
+                    .accessibilityIdentifier("parent.jig.homeIdea")
+            }
+        }
+    }
+
+    private func rangeRow(_ label: String, value: Int, id: String, change: @escaping (Int) -> Void) -> some View {
+        HStack(spacing: 14) {
+            Text(label).font(Theme.body()).frame(width: 90, alignment: .leading)
+            Button { change(-10); model.save() } label: { Image(systemName: "minus.circle.fill").font(.system(size: 30)) }
+                .accessibilityIdentifier("parent.jig.\(id).minus")
+            Text("\(value)").font(Theme.body(20).bold()).frame(width: 44)
+                .accessibilityIdentifier("parent.jig.\(id)")
+                .accessibilityValue("\(value)")
+            Button { change(10); model.save() } label: { Image(systemName: "plus.circle.fill").font(.system(size: 30)) }
+                .accessibilityIdentifier("parent.jig.\(id).plus")
+        }
+    }
+
+    private func strategyName(_ key: String) -> String {
+        switch key {
+        case "colour": return "Matching colours"
+        case "edge": return "Flat edges first"
+        case "picture": return "Looking at the picture"
+        case "turn": return "Turning pieces"
+        case "order": return "Counting in order"
+        default: return key
+        }
+    }
 
     private var scrolls: some View {
         let sheets = model.sheetMaker.available(state: model.state)

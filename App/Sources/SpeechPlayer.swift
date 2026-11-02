@@ -26,6 +26,10 @@ final class SpeechPlayer: NSObject, ObservableObject {
     private let instant: Bool
     private var token = 0
     private var currentUtterance: AVSpeechUtterance?
+    /// Moves on if the system never reports the end of an utterance (it can drop one silently, e.g.
+    /// right after stopSpeaking or during an audio interruption). Without it a screen waiting for the
+    /// voice hangs.
+    private var watchdog: DispatchWorkItem?
 
     private(set) lazy var narratorVoice: AVSpeechSynthesisVoice? = Self.pickVoice(prefer: ["Ava", "Zoe", "Samantha", "Allison", "Serena"], avoid: nil)
     private(set) lazy var sparkleVoice: AVSpeechSynthesisVoice? = Self.pickVoice(prefer: ["Nicky", "Evan", "Joelle", "Karen", "Susan"], avoid: narratorVoice?.identifier)
@@ -35,8 +39,12 @@ final class SpeechPlayer: NSObject, ObservableObject {
         AVSpeechSynthesisVoice.speechVoices().contains { $0.language.hasPrefix("en") && $0.quality != .default }
     }
 
-    init(instant: Bool) {
+    /// QA only: no utterance ever reports its end, so only the watchdog moves speech on.
+    private let neverFinishes: Bool
+
+    init(instant: Bool, neverFinishes: Bool = false) {
         self.instant = instant
+        self.neverFinishes = neverFinishes
         super.init()
         synth.delegate = self
         if !instant {
@@ -52,14 +60,23 @@ final class SpeechPlayer: NSObject, ObservableObject {
 
     /// Speaks lines in order, then calls `then`. Stops anything already playing.
     func say(_ lines: [SpokenLine?], then: (() -> Void)? = nil, each: ((Int) -> Void)? = nil) {
+        let wasSpeaking = synth.isSpeaking
         stop()
         // One utterance per sentence, so each can end with a natural pause (see playNext).
-        queue = lines.enumerated().flatMap { i, line in (line?.sentences ?? []).map { (line: $0, index: i) } }
+        queue = lines.enumerated().flatMap { i, line in
+            (line?.sentences ?? []).filter(\.isSpeakable).map { (line: $0, index: i) }
+        }
         onLine = each
         lastStartedIndex = -1
         completion = then
         token += 1
-        playNext(token: token)
+        let t = token
+        if wasSpeaking && !instant {
+            // Speaking straight after stopSpeaking can be dropped by the system; give it a moment.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) { [weak self] in self?.playNext(token: t) }
+        } else {
+            playNext(token: t)
+        }
     }
 
     func say(_ line: SpokenLine?, then: (() -> Void)? = nil) { say([line], then: then) }
@@ -69,6 +86,8 @@ final class SpeechPlayer: NSObject, ObservableObject {
         completion = nil
         onLine = nil
         currentUtterance = nil
+        watchdog?.cancel()
+        watchdog = nil
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         isSpeaking = false
     }
@@ -91,6 +110,16 @@ final class SpeechPlayer: NSObject, ObservableObject {
             onLine?(next.index)
         }
         if instant {
+            if neverFinishes {
+                // Like a dropped utterance: no callback. A short watchdog stands in for the real one.
+                let u = AVSpeechUtterance(string: line.text)
+                currentUtterance = u
+                let id = ObjectIdentifier(u)
+                let dog = DispatchWorkItem { [weak self] in self?.utteranceDone(id) }
+                watchdog = dog
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: dog)
+                return
+            }
             DispatchQueue.main.async { [weak self] in self?.playNext(token: t) }
             return
         }
@@ -118,12 +147,21 @@ final class SpeechPlayer: NSObject, ObservableObject {
         default: u.postUtteranceDelay = 0.25
         }
         currentUtterance = u
+        let id = ObjectIdentifier(u)
+        let dog = DispatchWorkItem { [weak self] in self?.utteranceDone(id) }
+        watchdog?.cancel()
+        watchdog = dog
+        DispatchQueue.main.asyncAfter(deadline: .now() + line.watchdogSeconds(rate: rate) + u.postUtteranceDelay, execute: dog)
         synth.speak(u)
     }
 
+    /// The current utterance ended: finished, cancelled by the system, or timed out by the watchdog.
+    /// Whichever comes first moves on; the others find it no longer current and do nothing.
     fileprivate func utteranceDone(_ id: ObjectIdentifier) {
         guard let cur = currentUtterance, ObjectIdentifier(cur) == id else { return }
         currentUtterance = nil
+        watchdog?.cancel()
+        watchdog = nil
         playNext(token: token)
     }
 
@@ -148,6 +186,12 @@ final class SpeechPlayer: NSObject, ObservableObject {
 
 extension SpeechPlayer: AVSpeechSynthesizerDelegate {
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        let id = ObjectIdentifier(utterance)
+        Task { @MainActor in self.utteranceDone(id) }
+    }
+
+    /// A cancel we didn't ask for (stop() clears the current utterance first, so ours are ignored).
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         let id = ObjectIdentifier(utterance)
         Task { @MainActor in self.utteranceDone(id) }
     }

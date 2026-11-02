@@ -23,6 +23,8 @@ struct RootView: View {
     var body: some View {
         ZStack {
             switch model.route {
+            case .home: HomeView()
+            case .jigsaw: JigsawView()
             case .castle: CastleView()
             case .map: MapView()
             case .scene:

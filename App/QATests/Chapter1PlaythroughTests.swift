@@ -14,11 +14,11 @@ final class Chapter1PlaythroughTests: XCTestCase {
     func test00_LaunchSmoke_NoTestFlags() {
         let p = QAPlayer(self, prefix: "00")
         p.launchLikeHerIPad()
-        let first = ["setup.start", "castle.play"].map { p.el($0) }
+        let first = ["setup.start", "home.widget.kingdom", "castle.play"].map { p.el($0) }
         let deadline = Date().addingTimeInterval(20)
         while Date() < deadline && !first.contains(where: { $0.exists }) { _ = first[0].waitForExistence(timeout: 1) }
         p.snap("first screen without test flags")
-        XCTAssertTrue(first.contains(where: { $0.exists }), "launch shows setup or the castle, not a blank screen")
+        XCTAssertTrue(first.contains(where: { $0.exists }), "launch shows setup, the home screen or the castle, not a blank screen")
         if p.el("setup.start").exists {
             p.tap("setup.start")
             p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
@@ -339,5 +339,16 @@ final class Chapter1PlaythroughTests: XCTestCase {
         p.tap("castle.play")
         p.wait("panel.open.P0")
         p.snap("P0 with the gnome")
+    }
+
+    /// Rule 5 check for the hang on her iPad (2026-11-02): the voice never reports finishing, yet every
+    /// screen still moves on (Next appears, the quick look reveals, the scene ends) thanks to the watchdog.
+    func test13_SpeechNeverFinishes_NoScreenHangs() {
+        let p = QAPlayer(self, prefix: "13")
+        p.launch(extra: ["-speechNeverFinishes"])
+        p.tap("castle.play")
+        p.playScene("P0", snapItems: false)
+        p.wait("castle.play", timeout: 20)
+        p.snap("back at the castle with a silent voice")
     }
 }

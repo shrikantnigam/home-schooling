@@ -11,10 +11,9 @@ Every bug fix comes with a test or a checker rule that would have caught it.
 **Quality bar.** The definition of done in [chapter-process.md](../../docs/chapter-process.md). Animations that go
 with speech are driven by speech callbacks, never fixed timers.
 
-**Rules from retros.** Every file imports the modules it uses (CI is the only compiler, so a missing import costs
-a whole run). A closure that callers write as a trailing closure is the last parameter. New saved fields are
+**Rules from retros.** Every file imports the modules it uses (a missing import costs a whole build). A closure that callers write as a trailing closure is the last parameter. New saved fields are
 optional and decode with a default, so old installs keep working. Static textures render once to an image, never
 per frame.
 Syncing to Shrikant's Mac: if a sync adds, removes or renames any file under `App/`, or changes `App/project.yml`,
 the message that announces the sync says "run `cd App && xcodegen generate` first". The app target's pre-build check
-stops a stale project with the same instruction (escape on 2026-11-02: "Cannot find 'SetupView' in scope").
+stops a stale project with the same instruction (escape on 2026-11-02: "Cannot find 'SetupView' in scope"). Drawing math lives in helper functions that return a `Path`, with explicit `CGFloat` types; never declare a `func` inside a view-builder closure (batch 3A: two CI-only compile breaks). A new line placeholder gets a `LineCatalog` overload and a unit test in the same change. A view that owns a gesture is never removed while the gesture runs; move it instead (hub and jigsaw: no piece could be dropped). Accessibility modifiers come before `.position()` and `.offset()`. Nothing waits on a system callback (speech, audio, animation completion) without a watchdog timeout (the speech hang on her iPad). Code that indexes by a step or a value guards the kind of input first, with a unit test. Builds and tests run on Shrikant's personal Mac through Remote Control; GitHub CI runs only by hand.

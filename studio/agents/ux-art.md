@@ -13,4 +13,4 @@ ends. Touch targets of 64 pt or more. Math visuals exact (equal parts equal, cou
 
 **Rules from retros.** The top 100 pt of every screen belongs to the corner buttons and the spoken line; nothing
 important goes there. Form screens hide the sun or moon so nothing sits behind a card. Companions must be
-recognisable in silhouette at 60 pt.
+recognisable in silhouette at 60 pt. Screens with dark ink sit on day paper, never a night stage. A selected state changes fill, not just tint.

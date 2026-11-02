@@ -13,3 +13,5 @@ or more on rows 4 and 5.
 
 **Quality bar.** Hints model the method and leave her the last step. Praise names what she did. No idea before
 it is taught. The idea is shown before it is named.
+
+**Rules from retros.** Once a wrong answer has been judged, it never stays on screen: the box shows the true answer. Number sequences show commas so "5, 6" never reads as 56.

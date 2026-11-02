@@ -18,3 +18,5 @@ day. Every scene that ships passes the charter rubric.
 
 **Quality bar.** A brief names the scene's learning goal (L1), the real-life mirror (S2), the story problem that
 *is* the math problem (S1), and ACs a tester can check from a screenshot, a transcript or a rubric score.
+
+**Rules from retros.** When the reading of an AC changes during a build, the brief changes in the same commit (batch 3A: AC-B1).

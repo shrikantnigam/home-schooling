@@ -12,6 +12,8 @@ struct AppEnvironment {
     let dayOffset: Int
     /// QA runs skip the first-launch setup with its defaults, unless this is passed to test the setup itself.
     let showSetup: Bool
+    /// QA: the voice never reports finishing (as on her iPad, 2026-11-02), so the watchdog must move every screen on.
+    let speechNeverFinishes: Bool
 
     static let current: AppEnvironment = {
         let args = ProcessInfo.processInfo.arguments
@@ -24,7 +26,8 @@ struct AppEnvironment {
             reset: args.contains("-reset"),
             preset: value(after: "-preset"),
             dayOffset: Int(value(after: "-dayOffset") ?? "") ?? 0,
-            showSetup: args.contains("-showSetup")
+            showSetup: args.contains("-showSetup"),
+            speechNeverFinishes: args.contains("-speechNeverFinishes")
         )
     }()
 }
