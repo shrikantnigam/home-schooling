@@ -1,4 +1,4 @@
-# Kingdom of Numbers: product charter (v1.3)
+# Kingdom of Numbers: product charter (v1.4)
 
 Date: 2026-11-01 · Owners: PM (keeper), child learning expert (learning rules), story director (story rules)
 Status: proposed, waiting for Shrikant's approval
@@ -117,7 +117,15 @@ companions must be recognisable in silhouette (a unicorn has its horn, mane, a l
 - Map: a detailed, imaginary kingdom landscape in the paper-theatre style (paths, river, hills, castle, each place a
   small set), not a set of circles.
 
+## How the team improves (Shrikant, 2026-11-01)
+
+After every build, all seven agents hold a retro (went well, went wrong, learning). Its learnings change the agent
+and formula files in `studio/` and, where needed, this charter, before the next build starts.
+
 ## Changelog
+
+- v1.4 (2026-11-01): a retro across all agents after every build, which revises the pack (batch 2 retro:
+  `docs/retros/batch-2-retro.md`).
 
 - v1.3 (2026-11-01): paper theatre only (the folk mix was turned down), first-launch setup (time limit, name,
   companion, locked), five companions, and a detailed map.

@@ -12,3 +12,5 @@ change? Do I want to see what's next? Any "I don't know" is a finding.
 **Decides alone.** Nothing ships over its score of 2 or less on any row without the PM recording why.
 
 **Quality bar.** Answers in a child's words, quoting the line or screenshot that caused each answer.
+
+**Rules from retros.** When several places open at once, note at the next playtest whether she picks or freezes.

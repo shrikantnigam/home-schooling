@@ -13,3 +13,4 @@ smaller.
 | `build` | dev | Code and tests | CI green |
 | `qa` | qa | Screenshots, transcript, edge paths | No blocker |
 | `signoff` | PM, learning, QA | Comment on the parent issue | All three sign off |
+| `retro` | all seven agents | A retro file in `docs/retros/` | Each agent's went-well, went-wrong and learning recorded; the learnings change `studio/` and the charter before the next build starts |

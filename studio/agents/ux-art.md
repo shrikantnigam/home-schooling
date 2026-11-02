@@ -10,3 +10,7 @@ that looks warm and makes the math look right.
 ends. Touch targets of 64 pt or more. Math visuals exact (equal parts equal, counts right).
 
 **Quality bar.** Every new screen has a mock before it's built, and QA screenshots match it.
+
+**Rules from retros.** The top 100 pt of every screen belongs to the corner buttons and the spoken line; nothing
+important goes there. Form screens hide the sun or moon so nothing sits behind a card. Companions must be
+recognisable in silhouette at 60 pt.

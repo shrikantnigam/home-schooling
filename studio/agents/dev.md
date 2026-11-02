@@ -10,3 +10,8 @@ Every bug fix comes with a test or a checker rule that would have caught it.
 
 **Quality bar.** The definition of done in [chapter-process.md](../../docs/chapter-process.md). Animations that go
 with speech are driven by speech callbacks, never fixed timers.
+
+**Rules from retros.** Every file imports the modules it uses (CI is the only compiler, so a missing import costs
+a whole run). A closure that callers write as a trailing closure is the last parameter. New saved fields are
+optional and decode with a default, so old installs keep working. Static textures render once to an image, never
+per frame.

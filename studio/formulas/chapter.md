@@ -15,3 +15,4 @@ when the step before it has passed its gate.
 | `qa` | qa | Play-through, screenshots, transcript, first-try rates, tap counts, edge paths | No blocker; L3 and L9 within target |
 | `scene-rubric` | story, learning, kid-eye | Rubric scores with quoted evidence in the chapter file | Every row averages 4 or more, no score of 2 or less |
 | `signoff` | PM, learning, QA | `docs/retros/chapter-N-retro.md` | All three sign off; learnings change the pack |
+| `retro` | all seven agents | A retro file in `docs/retros/` | Each agent's went-well, went-wrong and learning recorded; the learnings change `studio/` and the charter before the next build starts |

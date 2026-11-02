@@ -147,6 +147,14 @@ for sc in content["scenes"]:
                 fails.append(f"repeat   {sc['id']}/{level}: '{s}' said {n} times in one scene "
                              f"(max {INSTRUCTION_REPEAT_MAX} in full, then a short form)")
 
+# Story rule from the batch 2 retro: one line set serves all five companions, so a shared line names
+# {companion} and never says something that fits only one of them.
+ONE_COMPANION = re.compile(r"\b(sparkle|unicorn|hoof|hooves|horn|mane|neigh)\b", re.I)
+for lid, v in L.items():
+    t = v["text"]
+    if not lid.startswith("companion.") and ONE_COMPANION.search(t):
+        fails.append(f"companion {lid}: '{t}' fits only one companion; use {{companion}}")
+
 # One finding per line and rule is enough across levels.
 def dedupe(xs):
     seen, out = set(), []
