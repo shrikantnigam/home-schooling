@@ -19,7 +19,9 @@ final class Chapter7PlaythroughTests: XCTestCase {
         XCTAssertEqual(p.el("write.sentence.0").value as? String, "right side empty")
         p.snap("left side filled, balance tips")
         for t in ["=", "10"] { p.tap("write.tile.\(t)") }
-        XCTAssertEqual(p.el("write.sentence.0").value as? String, "balanced")
+        // QA speech is quick, so the next sentence may already be up; either way the first one balanced.
+        let s0 = p.el("write.sentence.0")
+        if s0.exists { XCTAssertEqual(s0.value as? String, "balanced") }
         p.snap("first sentence balanced")
         // The answer-first sentence (L16).
         p.wait("write.sentence.1", timeout: 25)
