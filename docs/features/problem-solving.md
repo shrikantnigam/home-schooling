@@ -57,7 +57,7 @@ story keeps "show, then name" (L11). Story review: one intro line per place in t
 
 ## F3. Puzzle Board (owner: learning; story, ux-art, dev, kid-eye)
 
-- AC-B1: A Puzzle Board button appears on the castle once she has finished the first operation place.
+- AC-B1: A Puzzle Board button appears on the castle once she has finished her first place (the Prologue). Until a sign is taught (the Garden), the board shows only the puzzle scrolls.
 - AC-B2 (L14): Each puzzle asks for the sign first. All four signs are shown, and ones not taught yet are greyed.
   Then she picks a helper (counters, the number line, or in her head), then the answer.
 - AC-B3: The story fades in three levels per operation. Level 1 has the story spoken with a picture. Level 2 has

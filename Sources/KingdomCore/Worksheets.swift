@@ -126,7 +126,7 @@ public struct WorksheetMaker: Sendable {
 
     static func sentence(_ a: Int, _ op: MathOp, _ b: Int) -> [String] { [String(a), op.sign, String(b), "="] }
 
-    static func picture(_ op: MathOp, _ a: Int, _ b: Int) -> SheetPicture {
+    public static func picture(_ op: MathOp, _ a: Int, _ b: Int) -> SheetPicture {
         switch op {
         case .add: return .join(a, b)
         case .subtract: return .takeAway(a, b)

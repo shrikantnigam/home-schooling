@@ -101,6 +101,7 @@ struct ParentAreaView: View {
 
     enum ParentTab: String, CaseIterable, Identifiable {
         case progress = "Progress"
+        case scrolls = "Puzzle scrolls"
         case time = "Time limits"
         case sound = "Sound and voice"
         case screenTime = "Screen Time help"
@@ -135,6 +136,7 @@ struct ParentAreaView: View {
                 VStack(alignment: .leading, spacing: 22) {
                     switch section {
                     case .progress: progress
+                    case .scrolls: scrolls
                     case .time: time
                     case .sound: sound
                     case .screenTime: screenTime
@@ -203,6 +205,56 @@ struct ParentAreaView: View {
         .confirmationDialog("Reset this skill?", isPresented: Binding(get: { skillToReset != nil }, set: { if !$0 { skillToReset = nil } }),
                             presenting: skillToReset) { s in
             Button("Reset \(s.name)", role: .destructive) { model.resetSkill(s.id) }
+        }
+    }
+
+    // MARK: Puzzle scrolls and board (F2-F4, AC-S5)
+
+    private var scrolls: some View {
+        let sheets = model.sheetMaker.available(state: model.state)
+        let finished = sheets.filter { model.state.sheets[$0.id]?.finished != nil }
+        let board = model.state.board
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("Puzzle scrolls").font(Theme.title(32))
+            Text("After she finishes a scroll, tell the app how it felt. Hard brings that place's skills back into warm-ups; easy lets them rest. She never sees a score.")
+                .font(Theme.body(17)).foregroundStyle(Theme.muted)
+            if finished.isEmpty {
+                card { Text("No scrolls finished yet.").font(Theme.body()) }
+            }
+            ForEach(finished, id: \.id) { sheet in
+                let rec = model.state.sheets[sheet.id] ?? SheetRecord()
+                card {
+                    HStack {
+                        Text(sheet.place.flatMap { p in model.content.chapters.first { $0.id == p }?.title } ?? "Mixed scroll")
+                            .font(Theme.body(19).bold())
+                        Spacer()
+                        Text("\(rec.firstTry) of \(rec.checked) right first time").font(Theme.body(15)).foregroundStyle(Theme.muted)
+                    }
+                    HStack(spacing: 12) {
+                        ForEach(SheetFeedback.allCases, id: \.self) { f in
+                            Button(f.parentLabel) { model.sheetFeedback(f, sheetID: sheet.id, place: sheet.place) }
+                                .buttonStyle(.bordered)
+                                .tint(rec.feedback == f ? Theme.deepLavender : Theme.muted)
+                                .accessibilityIdentifier("parent.sheet.\(sheet.id).\(f.rawValue)")
+                                .accessibilityValue(rec.feedback == f ? "selected" : "")
+                        }
+                    }
+                }
+            }
+            card {
+                Text("Puzzle Board").font(Theme.body(19).bold())
+                Text("\(board.lanterns) lanterns lit, \(board.puzzlesMade) puzzles made for \(model.state.companion.name)")
+                    .font(Theme.body())
+                ForEach(model.problems.unlocked(model.state), id: \.self) { op in
+                    HStack {
+                        Text("\(op.sign)  \(op.spoken)").font(Theme.body())
+                        Spacer()
+                        Text("story level \(board.level(op)) of 3 · \(board.solved[op.rawValue, default: 0]) first try, \(board.missed[op.rawValue, default: 0]) with help")
+                            .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                    }
+                    .accessibilityIdentifier("parent.board.\(op.rawValue)")
+                }
+            }
         }
     }
 

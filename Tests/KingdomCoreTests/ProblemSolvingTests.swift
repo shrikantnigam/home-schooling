@@ -216,4 +216,12 @@ final class ProblemSolvingTests: XCTestCase {
             XCTAssertNotNil(content.lines[item.promptLine], k.rawValue)
         }
     }
+
+    // Board stories fill both numbers.
+    func testStoryLineFillsNumbers() {
+        let catalog = LineCatalog(lines: content.lines)
+        let line = catalog.spoken("board.story.add", a: 4, b: 3)
+        XCTAssertEqual(line?.text.contains("4 flowers"), true)
+        XCTAssertEqual(line?.text.contains("{"), false)
+    }
 }

@@ -54,6 +54,20 @@ struct CastleView: View {
                 .accessibilityIdentifier("castle.map")
                 .accessibilityLabel("Kingdom map")
                 .offset(x: 170, y: -40)
+
+                if model.boardUnlocked {
+                    // The Puzzle Board (F3): lanterns she lights by solving puzzles.
+                    Button { model.openBoard() } label: {
+                        ZStack {
+                            Circle().fill(Color.white.opacity(0.9)).frame(width: 96, height: 96)
+                                .overlay(Circle().stroke(Theme.sun, lineWidth: 4))
+                            LanternIcon(lit: model.state.board.lanterns > 0, size: 52)
+                        }
+                    }
+                    .accessibilityIdentifier("castle.board")
+                    .accessibilityLabel("Puzzle Board")
+                    .offset(x: -170, y: -40)
+                }
             } else {
                 Text("\(model.state.companion.name) is \(block == .sleeping ? "sleeping" : "resting")")
                     .font(Theme.title(40))

@@ -30,6 +30,10 @@ struct RootView: View {
             case .gate: ParentGateView()
             case .parent: ParentAreaView()
             case .setup: SetupView()
+            case .writeItDown(let ch): WriteItDownView(chapter: ch)
+            case .board: PuzzleBoardView()
+            case .sheet(let id):
+                if let sheet = model.sheet(id) { WorksheetView(sheet: sheet) } else { PuzzleBoardView() }
             }
             if model.route != .gate && model.route != .parent && model.route != .setup {
                 // Top centre, clear of the answer tiles and the three corner buttons.

@@ -184,5 +184,48 @@ final class QAPlayer {
         wait("panel.goodbye.\(id)")
         snap("\(id) goodbye")
         tapNext()
+        // F1: the last scene of a place ends with "Write it down". Chapter 7 plays it; other runs step past it.
+        if el("write.equals").waitForExistence(timeout: 2) {
+            snap("\(id) write it down")
+            tap("corner.castle")
+        }
+    }
+
+    // MARK: Problem solving (Chapter 7)
+
+    /// The fields of an element's "k=v;k=v" accessibility value.
+    func fields(_ id: String) -> [String: String] {
+        let value = (wait(id).value as? String) ?? ""
+        var f: [String: String] = [:]
+        for part in value.split(separator: ";") {
+            let kv = part.split(separator: "=", maxSplits: 1)
+            if kv.count == 2 { f[String(kv[0])] = String(kv[1]) }
+        }
+        return f
+    }
+
+    /// The first element whose identifier starts with `prefix`.
+    func first(_ prefix: String, timeout: TimeInterval = 8) -> XCUIElement? {
+        let e = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch
+        return e.waitForExistence(timeout: timeout) ? e : nil
+    }
+
+    static func opName(_ sign: String) -> String {
+        switch sign {
+        case "+": return "add"
+        case "−", "-": return "subtract"
+        case "×": return "multiply"
+        default: return "divide"
+        }
+    }
+
+    func openParentArea() {
+        tap("corner.lock")
+        tap("gate.qaHold")
+        let year = Calendar.current.component(.year, from: Date())
+        wait("gate.year").tap()
+        el("gate.year").typeText("\(year)")
+        tap("gate.continue")
+        wait("parent.back")
     }
 }

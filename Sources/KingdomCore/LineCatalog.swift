@@ -62,6 +62,15 @@ public struct LineCatalog: Sendable {
         return SpokenLine(id: id, speaker: line.speaker, text: text)
     }
 
+    /// A line with two numbers that don't come from a scene item (Puzzle Board stories).
+    public func spoken(_ id: LineID, a: Int, b: Int) -> SpokenLine? {
+        guard let s = spoken(id) else { return nil }
+        let text = s.text
+            .replacingOccurrences(of: "{a}", with: String(a))
+            .replacingOccurrences(of: "{b}", with: String(b))
+        return SpokenLine(id: id, speaker: s.speaker, text: text)
+    }
+
     /// Picks `base.kind.level`, then `base.kind`, then `base`.
     public static func mostSpecific(_ base: String, kind: ActivityKind, level: CPALevel, lines: [LineID: Line]) -> LineID? {
         let levelName = String(describing: level)
