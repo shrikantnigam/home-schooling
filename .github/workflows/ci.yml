@@ -1,10 +1,8 @@
 name: CI
 
+# Shrikant, 2026-11-02: builds and tests now run on his personal Mac (faster, and free if the repo
+# goes private). GitHub Actions runs only when started by hand (Actions tab > CI > Run workflow).
 on:
-  push:
-    # Branch pushes are covered by their pull_request run; a second push run only doubled the queue.
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 
 concurrency:
