@@ -11,7 +11,11 @@ settings:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
+# Signing team: kept out of the repo (it is public) and out of project.yml, so `xcodegen generate` never wipes it.
+# Signing.xcconfig includes App/Local.xcconfig (gitignored) when it exists; put DEVELOPMENT_TEAM = <team id> there.
+configFiles:
+  Debug: Signing.xcconfig
+  Release: Signing.xcconfig
 packages:
   KingdomCore:
     path: ..

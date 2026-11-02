@@ -8,3 +8,4 @@ xcuserdata/
 __pycache__/
 .qa-last-pass
 qa-results/
+App/Local.xcconfig

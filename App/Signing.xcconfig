@@ -1,0 +1,5 @@
+// Signing for running on a real iPad. The team ID lives in Local.xcconfig next to this file, which is gitignored,
+// so regenerating the project with xcodegen keeps it. Create it once with one line:
+//   DEVELOPMENT_TEAM = ABCDE12345
+// (Xcode > Settings > Accounts shows the team; the simulator and the QA runs don't need it.)
+#include? "Local.xcconfig"
