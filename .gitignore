@@ -7,3 +7,4 @@ xcuserdata/
 .DS_Store
 __pycache__/
 .qa-last-pass
+qa-results/

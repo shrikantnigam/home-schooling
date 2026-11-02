@@ -21,16 +21,25 @@ swift test
 
 (cd App && xcodegen generate)
 dest="platform=iOS Simulator,name=${QA_SIMULATOR:-iPad (A16)}"
+# Every chapter keeps its log and result bundle (screenshots, failure messages) in qa-results/ (gitignored), so a
+# failure is never a guess. Open a bundle in Xcode, or: xcrun xcresulttool get test-results tests --path <bundle>
+out="qa-results/$(git rev-parse --short HEAD)"
+mkdir -p "$out"
 failed=()
 for ch in ${chapters//,/ }; do
   start=$(date +%s)
+  bundle="$out/chapter$ch.xcresult"
+  rm -rf "$bundle"
   if xcodebuild test -project App/KingdomOfNumbers.xcodeproj -scheme KingdomOfNumbers -destination "$dest" \
-       -only-testing:"KingdomOfNumbersQA/Chapter${ch}PlaythroughTests" CODE_SIGNING_ALLOWED=NO -quiet; then
+       -only-testing:"KingdomOfNumbersQA/Chapter${ch}PlaythroughTests" CODE_SIGNING_ALLOWED=NO \
+       -resultBundlePath "$bundle" > "$out/chapter$ch.log" 2>&1; then
     echo "Chapter $ch passed in $(( $(date +%s) - start ))s"
   else
-    echo "Chapter $ch FAILED after $(( $(date +%s) - start ))s"
+    echo "Chapter $ch FAILED after $(( $(date +%s) - start ))s (log: $out/chapter$ch.log, results: $bundle)"
+    grep -E "error:|failed|FAILED waiting" "$out/chapter$ch.log" | head -20 || true
     failed+=("$ch")
   fi
+  grep -h "QA-METRIC" "$out/chapter$ch.log" || true
 done
 
 if [ ${#failed[@]} -eq 0 ]; then
