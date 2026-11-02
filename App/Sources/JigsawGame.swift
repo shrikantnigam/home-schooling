@@ -142,6 +142,8 @@ final class JigsawGame: ObservableObject {
 
     /// For the number-line hint: the last value placed in order from the start.
     var countOnFrom: Int {
+        // Picture puzzles have no values: reading values[i] here crashed on the last hint step (QA c8-02).
+        guard isLine else { return 0 }
         var last = 0
         for (i, p) in pieces.enumerated() where p.placed { if i == 0 || pieces[i - 1].placed { last = values[i] } else { break } }
         return last
