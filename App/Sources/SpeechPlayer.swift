@@ -152,12 +152,15 @@ final class SpeechPlayer: NSObject, ObservableObject {
         watchdog = nil
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         isSpeaking = false
+        // The caption goes with the voice: a line from the last screen must not sit over the next one.
+        current = nil
     }
 
     private func playNext(token t: Int) {
         guard t == token else { return }
         guard !queue.isEmpty else {
             isSpeaking = false
+            current = nil
             let done = completion
             completion = nil
             done?()

@@ -28,6 +28,16 @@ dest="platform=iOS Simulator,name=${QA_SIMULATOR:-iPad (A16)}"
 out="qa-results/$(git rev-parse --short HEAD)"
 mkdir -p "$out"
 failed=()
+# Every test in the chapter must have run: under load, xcodebuild once ran 5 of 6 and exited cleanly (2026-11-03).
+all_ran() {
+  local want got
+  want=$(grep -cE "^[[:space:]]*func test" "App/QATests/Chapter${1}PlaythroughTests.swift")
+  got=$(grep -oE "Executed [0-9]+ tests?" "$out/chapter$1.log" | tail -1 | grep -oE "[0-9]+")
+  if [ "${got:-0}" -lt "$want" ]; then
+    echo "Chapter $1 ran ${got:-0} of $want tests" >> "$out/chapter$1.log"
+    return 1
+  fi
+}
 for ch in ${chapters//,/ }; do
   start=$(date +%s)
   bundle="$out/chapter$ch.xcresult"
@@ -35,12 +45,13 @@ for ch in ${chapters//,/ }; do
   if xcodebuild test -project App/KingdomOfNumbers.xcodeproj -scheme KingdomOfNumbers -destination "$dest" \
        -only-testing:"KingdomOfNumbersQA/Chapter${ch}PlaythroughTests" CODE_SIGNING_ALLOWED=NO \
        -resultBundlePath "$bundle" > "$out/chapter$ch.log" 2>&1 \
-     && grep -qE "Executed [1-9][0-9]* tests?" "$out/chapter$ch.log"; then
+     && grep -qE "Executed [1-9][0-9]* tests?" "$out/chapter$ch.log" \
+     && all_ran "$ch"; then
     # A clean exit that ran no tests (seen once right after a rebuild) is not a pass.
     echo "Chapter $ch passed in $(( $(date +%s) - start ))s ($(grep -oE "Executed [0-9]+ tests?, with [0-9]+ failures?" "$out/chapter$ch.log" | tail -1))"
   else
     echo "Chapter $ch FAILED after $(( $(date +%s) - start ))s (log: $out/chapter$ch.log, results: $bundle)"
-    grep -E "error:|failed|FAILED waiting|Executed 0 tests" "$out/chapter$ch.log" | head -20 || true
+    grep -E "error:|failed|FAILED waiting|Executed 0 tests|ran [0-9]+ of [0-9]+ tests" "$out/chapter$ch.log" | head -20 || true
     failed+=("$ch")
   fi
   grep -h "QA-METRIC" "$out/chapter$ch.log" || true

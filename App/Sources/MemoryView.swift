@@ -155,6 +155,13 @@ struct MemoryBoard: View {
         return CGSize(width: min(w, h / 1.25), height: h)
     }
 
+    private func cardBackStar(_ side: CGFloat) -> some View {
+        StarShape()
+            .fill(Theme.card)
+            .overlay(StarShape().stroke(Theme.tan, lineWidth: 3))
+            .frame(width: side, height: side)
+    }
+
     private func cardView(_ i: Int, size: CGSize) -> some View {
         let up = faceUp.contains(i) || matched.contains(i)
         return Button { turn(i) } label: {
@@ -164,8 +171,9 @@ struct MemoryBoard: View {
                     MemoryCharacterArt(character: deal.cards[i], companion: model.state.companion)
                         .padding(size.width * 0.1)
                 } else {
-                    // The back: a small paper star, the same on every card.
-                    StarSprite(lit: false, size: size.width * 0.4)
+                    // The back: a cream paper star, the same on every card. Light on dark so the backs read
+                    // clearly (the unlit sky star was too faint here); no face, so it isn't a character.
+                    cardBackStar(size.width * 0.42)
                 }
             }
             .frame(width: size.width, height: size.height)
