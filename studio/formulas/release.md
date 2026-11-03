@@ -6,7 +6,7 @@
 | `evidence` | qa | A QA report on the PR: screenshots, transcripts, rubric scores, first-try rates | Every charter rubric row 4 or more for every changed scene |
 | `feel-check` | PM | A 10-minute script for Shrikant (voices, dragging, does she want more) | Shrikant ran it (this is the only test he does) |
 | `merge` | Shrikant | Merge to `main` | His approval |
-| `sync-mac` | dev (via the Mac session) | His personal Mac folder on the merged `main`: `git checkout main && git pull --ff-only`, then `xcodegen generate` in App/ | Done right after every merge, so he never pulls by hand. Only if `git status` is clean; otherwise report and change nothing |
+| `sync-mac` | dev (via the Mac session) | His personal Mac folder on the merged `main`: `git fetch origin && git checkout main && git pull --ff-only origin main`, then `xcodegen generate` in App/ | Done right after every merge, so he never pulls by hand. Only if `git status` is clean; otherwise report and change nothing |
 | `retro` | PM, learning, QA | Retro file; pack updated | Learnings applied |
 
 ## Where the code is written (Shrikant, 2026-11-03)
