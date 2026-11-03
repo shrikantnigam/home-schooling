@@ -33,10 +33,10 @@ public struct JigsawLevel: Codable, Equatable, Sendable {
 public enum JigsawLadder {
     /// Easiest first. Sizes go 10 to 50 in steps of 10 (Shrikant, Nov 2).
     public static let rungs: [JigsawLevel] = {
-        var l = JigsawLevel(pieces: 10, cut: .squares, turning: false, guide: .full, edgesSorted: true)
+        // No square pieces (Shrikant, 2026-11-03: "way too easy"): every puzzle starts with tabs.
+        var l = JigsawLevel(pieces: 10, cut: .tabs, turning: false, guide: .full, edgesSorted: true)
         var out = [l]
         func step(_ change: (inout JigsawLevel) -> Void) { change(&l); out.append(l) }
-        step { $0.cut = .tabs }
         step { $0.pieces = 20 }
         step { $0.guide = .faint }
         step { $0.pieces = 30 }
@@ -50,6 +50,9 @@ public enum JigsawLadder {
     }()
 
     public static let sizes = [10, 20, 30, 40, 50]
+
+    /// 2 since the square-pieces rung was removed (2026-11-03). Saves at version 1 move down one rung.
+    public static let version = 2
 
     /// Columns and rows for a piece count, wider than tall like the iPad.
     public static func grid(_ pieces: Int) -> (cols: Int, rows: Int) {
@@ -154,6 +157,8 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
     public var introsHeard: Set<String> = []
     public var puzzlesDone = 0
     /// Grown-up limits from before J15 (the picker is now fixed at 10, 20, 30). Kept so old saves round-trip.
+    /// Which ladder `rung` counts on (JigsawLadder.version).
+    public var ladder = JigsawLadder.version
     public var minPieces = 10
     public var maxPieces = 50
 
@@ -161,12 +166,16 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case rung, calibrated, easyStreak, lastPuzzle, results, introsHeard, puzzlesDone, minPieces, maxPieces,
-             completed
+             completed, ladder
     }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        rung = try c.decodeIfPresent(Int.self, forKey: .rung) ?? 0
+        let savedRung = try c.decodeIfPresent(Int.self, forKey: .rung) ?? 0
+        let savedLadder = try c.decodeIfPresent(Int.self, forKey: .ladder) ?? 1
+        // Ladder 1 had a square-pieces rung at the bottom; the same level is one rung lower now.
+        rung = savedLadder < 2 ? max(0, savedRung - 1) : savedRung
+        ladder = JigsawLadder.version
         calibrated = try c.decodeIfPresent(Bool.self, forKey: .calibrated) ?? false
         easyStreak = try c.decodeIfPresent(Int.self, forKey: .easyStreak) ?? 0
         lastPuzzle = try c.decodeIfPresent(String.self, forKey: .lastPuzzle)

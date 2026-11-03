@@ -23,7 +23,8 @@ in her history but no longer count.
   puzzle is the 10-piece quick check (J10): easy (85% or more right first time, one hint at most) moves the sun-ring
   suggestion up a size, up to 30. 40 and 50 are not offered; the ladder's later knobs (turning, no guide, wavy cuts)
   still come at 30.
-- **Ladder (J2).** One knob changes per step: 10 squares → tabs → 20 → faint guide → 30 → mixed edges → 40 →
+- **Ladder (J2).** No square or rectangle pieces (Shrikant, 2026-11-03: too easy); every piece has tabs from the
+  first puzzle. One knob changes per step: 10 with tabs → 20 → faint guide → 30 → mixed edges → 40 →
   turning pieces → no guide → 50 → wavy cuts. Four easy puzzles in a row move up one step; a stuck puzzle (third
   hint step reached, or under half right first time) moves down one.
 - **Fit (J1).** A piece fits only in its own place, the right way up. A wrong drop wobbles and stays in the tray;

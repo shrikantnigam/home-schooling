@@ -14,7 +14,8 @@ final class JigsawTests: XCTestCase {
     func testLadderMovesOneKnobAtATime() {
         let r = JigsawLadder.rungs
         XCTAssertEqual(r.first?.pieces, 10)
-        XCTAssertEqual(r.first?.cut, .squares)
+        XCTAssertEqual(r.first?.cut, .tabs, "no square pieces (2026-11-03)")
+        XCTAssertFalse(r.contains { $0.cut == .squares })
         XCTAssertEqual(r.first?.turning, false)
         XCTAssertEqual(r.last?.pieces, 50)
         for i in 1..<r.count { XCTAssertEqual(r[i].knobsChanged(from: r[i - 1]), 1, "rung \(i)") }
@@ -145,7 +146,12 @@ final class JigsawTests: XCTestCase {
         let s = try JSONDecoder().decode(LearnerState.self, from: old)
         XCTAssertEqual(s.jigsaw, JigsawRecord())
         let partial = try JSONDecoder().decode(JigsawRecord.self, from: Data("{\"rung\":4}".utf8))
-        XCTAssertEqual(partial.rung, 4)
+        XCTAssertEqual(partial.rung, 3, "a ladder-1 save moves down past the removed square rung")
+        let current = try JSONDecoder().decode(JigsawRecord.self, from: Data("{\"rung\":4,\"ladder\":2}".utf8))
+        XCTAssertEqual(current.rung, 4)
+        var j = JigsawRecord()
+        j.rung = 5
+        XCTAssertEqual(try JSONDecoder().decode(JigsawRecord.self, from: JSONEncoder().encode(j)).rung, 5)
         XCTAssertEqual(partial.maxPieces, 50)
     }
 
