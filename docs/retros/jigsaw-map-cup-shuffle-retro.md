@@ -37,3 +37,44 @@ Scope: #36 (jigsaw map, ticks, number-line puzzle removed), #27 (cup shuffle), s
 
 ## Process
 - Shrikant found two problems in his own play-through (the heading, the voice). Both now have automated checks.
+
+## Follow-up build, 2026-11-03: PIN, parent dashboard, jigsaw groups, memory game
+Scope: a PIN for the parent dashboard (AC-P1a); the dashboard grouped as General plus one group per game (AC-P1b);
+the jigsaw with no square-piece rung, and Easy / Medium (30) / Hard (50) groups with 8 new busier scenes (J15,
+J16); the memory game with 10 characters and Easy 3-4, Medium 4-6, Hard 6-8 pairs (M1 to M10).
+
+### What went well
+- All four shipped in the order Shrikant asked, each with its unit tests and a QA suite. The memory game passed
+  its suite on its first Mac run (4 of 4). Taps: 2 from home to the first card, 8 per easy game.
+- The Mac run caught two things a player would notice, and both were fixed within the hour: the home caption stayed
+  over the games, and the memory card backs were too dark.
+
+### What went wrong, and the rule that stops it next time
+1. **The busy jigsaw scenes didn't type-check in time** (09e6cfa). *Rule (dev):* in art files, every expression
+   that mixes CGFloat maths and colours goes into a typed `let`, with at most about five operations each. Split
+   any shape longer than that into helper functions.
+2. **A test run silently skipped a test** (5 of 6 ran under load and counted as a pass). *Fixed:* qa_run.sh
+   compares the executed count with the suite's `func test` count.
+3. **The caption stayed over the next screen.** `SpeechPlayer.stop()` cleared the voice but not the caption.
+   *Rule (dev):* stopping something clears everything it shows. *Rule (kid-eye):* check every new screen for text
+   left over from the screen before.
+4. **The memory card backs had low contrast** (an unlit star on dark brown). *Rule (ux-art):* the back of any card
+   or tile must stand out against the table at a glance. Check it in a screenshot before sign-off.
+5. **No mocks again** for the memory board, the jigsaw group bands or the PIN pad. This is the same gap as item 6
+   above. *Rule (PM):* for each new child screen, the build doesn't start until a mock or a sketch is posted,
+   even if Shrikant has already described it in words.
+6. **Test time.** Every shared change replayed all of Kingdom (about 75 min). Shrikant asked why we test chapters
+   we didn't change. *Changed with his agreement:* suites are named for what they cover (Kingdom1 to 7,
+   HubJigsaw, Cups, Memory). While building, a shared change runs a quick set of about 20 min (Kingdom1,
+   KingdomSmoke, write it down, plus the games changed). The full run happens only before a merge.
+7. **Workflow question.** Shrikant asked why he kept needing `git pull`. *Decided:* code is still written in the
+   cloud. The Mac session keeps his folder on the branch while a PR is open, and moves it to `main` after every
+   merge (release formula step `sync-mac`).
+
+### Still open
+- Neither cup shuffle nor memory has an explain moment ("how did you remember?"). This goes to the learning
+  expert.
+- Medium memory starts at 4 pairs (8 cards) and grows to 6 as she does well. Shrikant can ask for it to start
+  higher.
+- The Medium and Hard jigsaw bands sit below the Easy band and need a scroll to reach. Watch whether she finds
+  them.
