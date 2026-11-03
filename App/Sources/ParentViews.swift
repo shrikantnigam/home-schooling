@@ -3,11 +3,15 @@ import KingdomCore
 import SwiftUI
 import UIKit
 
-/// Two steps a pre-reader can't do: hold two fingers for 3 seconds, then type this year.
+/// The way into the grown-ups' area. With a PIN set (Shrikant, 2026-11-03), a number pad. Without one (installs
+/// from before), or after "Forgot PIN?", the old two steps: hold two fingers for 3 seconds, then type this year.
 /// Nothing here is spoken (Gate mock).
 struct ParentGateView: View {
     @EnvironmentObject var model: AppModel
     @State private var gate = ParentGate()
+    @State private var pinGate = PinGate()
+    @State private var forgot = false
+    @State private var pinMessage: String?
     @State private var year = ""
     @State private var wrong = false
     @FocusState private var focused: Bool
@@ -17,51 +21,132 @@ struct ParentGateView: View {
             Theme.paper.ignoresSafeArea()
             VStack(spacing: 26) {
                 Text("For grown-ups").font(Theme.title(34)).foregroundStyle(Theme.ink)
-                switch gate.step {
-                case .hold:
-                    Text("Hold two fingers on the circle for 3 seconds.")
-                        .font(Theme.body(20)).foregroundStyle(Theme.muted)
-                    ZStack {
-                        Circle().fill(Theme.lilac).frame(width: 220, height: 220)
-                        Image(systemName: "hand.raised.fingers.spread.fill").font(.system(size: 70)).foregroundStyle(Theme.lavender)
-                        TwoFingerHold { fingers, seconds in gate.holdEnded(fingers: fingers, seconds: seconds) }
-                            .frame(width: 220, height: 220)
-                            .accessibilityIdentifier("gate.hold")
-                    }
-                    if model.env.uiTesting {
-                        // XCUITest can't do a two-finger long press; the gate rule itself is unit tested.
-                        Button("QA: simulate two-finger hold") { gate.holdEnded(fingers: 2, seconds: 3) }
-                            .accessibilityIdentifier("gate.qaHold")
-                    }
-                case .typeYear:
-                    Text("Type the current year.").font(Theme.body(20)).foregroundStyle(Theme.muted)
-                    TextField("Year", text: $year)
-                        .keyboardType(.numberPad)
-                        .font(Theme.title(40))
-                        .multilineTextAlignment(.center)
-                        .frame(width: 220)
-                        .padding(12)
-                        .background(RoundedRectangle(cornerRadius: 14).fill(Color.white))
-                        .focused($focused)
-                        .onAppear { focused = true }
-                        .accessibilityIdentifier("gate.year")
-                    if wrong { Text("That's not it. Try again.").font(Theme.body()).foregroundStyle(Theme.muted) }
-                    Button("Continue") {
-                        wrong = !gate.submitYear(year, now: model.now, calendar: model.calendar)
-                        year = ""
-                        if gate.step == .open { model.route = .parent }
-                    }
-                    .font(Theme.body(20).bold())
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.deepLavender)
-                    .accessibilityIdentifier("gate.continue")
-                case .open:
-                    ProgressView()
+                if let pin = model.state.parentPin, !forgot {
+                    pinPad(pin)
+                } else {
+                    holdAndYear
                 }
                 Button("Cancel") { model.leaveParentArea() }
                     .font(Theme.body(18))
                     .accessibilityIdentifier("gate.cancel")
             }
+        }
+    }
+
+    // MARK: PIN
+
+    private func pinPad(_ pin: ParentPin) -> some View {
+        VStack(spacing: 18) {
+            Text("Enter your PIN").font(Theme.body(20)).foregroundStyle(Theme.muted)
+            HStack(spacing: 18) {
+                ForEach(0..<ParentPin.length, id: \.self) { i in
+                    Circle()
+                        .fill(i < pinGate.entered.count ? Theme.deepLavender : Color.clear)
+                        .overlay(Circle().stroke(Theme.deepLavender, lineWidth: 2))
+                        .frame(width: 22, height: 22)
+                }
+            }
+            .accessibilityElement()
+            .accessibilityIdentifier("gate.pin.dots")
+            .accessibilityValue("\(pinGate.entered.count)")
+            if let pinMessage {
+                Text(pinMessage).font(Theme.body()).foregroundStyle(Theme.muted)
+                    .accessibilityIdentifier("gate.pin.message")
+            }
+            let rows: [[String]] = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["", "0", "⌫"]]
+            VStack(spacing: 14) {
+                ForEach(rows, id: \.self) { row in
+                    HStack(spacing: 14) {
+                        ForEach(row, id: \.self) { key in padKey(key, pin: pin) }
+                    }
+                }
+            }
+            Button("Forgot PIN?") { forgot = true; pinGate = PinGate(); pinMessage = nil }
+                .font(Theme.body(17))
+                .accessibilityIdentifier("gate.pin.forgot")
+        }
+    }
+
+    @ViewBuilder
+    private func padKey(_ key: String, pin: ParentPin) -> some View {
+        if key.isEmpty {
+            Color.clear.frame(width: 84, height: 84)
+        } else {
+            Button {
+                if key == "⌫" { pinGate.deleteLast(); return }
+                switch pinGate.type(Character(key), pin: pin, now: Date()) {
+                case .open: model.route = .parent
+                case .wrong: pinMessage = "That's not it. Try again."
+                case .locked: pinMessage = "Too many tries. Wait a minute, or use Forgot PIN."
+                case .typing: pinMessage = nil
+                }
+            } label: {
+                Group {
+                    if key == "⌫" { Image(systemName: "delete.left").font(.system(size: 28)) }
+                    else { Text(key).font(Theme.title(34)) }
+                }
+                .foregroundStyle(Theme.ink)
+                .frame(width: 84, height: 84)
+                .background(Circle().fill(Color.white))
+                .overlay(Circle().stroke(Theme.tan, lineWidth: 2))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(key == "⌫" ? "gate.pin.delete" : "gate.pin.\(key)")
+        }
+    }
+
+    // MARK: Hold and year (no PIN yet, or a forgotten PIN)
+
+    @ViewBuilder
+    private var holdAndYear: some View {
+        if forgot {
+            Text("Forgot your PIN? Do these two steps, then set a new PIN in Grown-ups' PIN.")
+                .font(Theme.body(17)).foregroundStyle(Theme.muted)
+                .accessibilityIdentifier("gate.forgotHelp")
+        }
+        switch gate.step {
+        case .hold:
+            Text("Hold two fingers on the circle for 3 seconds.")
+                .font(Theme.body(20)).foregroundStyle(Theme.muted)
+            ZStack {
+                Circle().fill(Theme.lilac).frame(width: 220, height: 220)
+                Image(systemName: "hand.raised.fingers.spread.fill").font(.system(size: 70)).foregroundStyle(Theme.lavender)
+                TwoFingerHold { fingers, seconds in gate.holdEnded(fingers: fingers, seconds: seconds) }
+                    .frame(width: 220, height: 220)
+                    .accessibilityIdentifier("gate.hold")
+            }
+            if model.env.uiTesting {
+                // XCUITest can't do a two-finger long press; the gate rule itself is unit tested.
+                Button("QA: simulate two-finger hold") { gate.holdEnded(fingers: 2, seconds: 3) }
+                    .accessibilityIdentifier("gate.qaHold")
+            }
+        case .typeYear:
+            Text("Type the current year.").font(Theme.body(20)).foregroundStyle(Theme.muted)
+            TextField("Year", text: $year)
+                .keyboardType(.numberPad)
+                .font(Theme.title(40))
+                .multilineTextAlignment(.center)
+                .frame(width: 220)
+                .padding(12)
+                .background(RoundedRectangle(cornerRadius: 14).fill(Color.white))
+                .focused($focused)
+                .onAppear { focused = true }
+                .accessibilityIdentifier("gate.year")
+            if wrong { Text("That's not it. Try again.").font(Theme.body()).foregroundStyle(Theme.muted) }
+            Button("Continue") {
+                wrong = !gate.submitYear(year, now: model.now, calendar: model.calendar)
+                year = ""
+                if gate.step == .open {
+                    model.openPinPageNext = forgot
+                    model.route = .parent
+                }
+            }
+            .font(Theme.body(20).bold())
+            .buttonStyle(.borderedProminent)
+            .tint(Theme.deepLavender)
+            .accessibilityIdentifier("gate.continue")
+        case .open:
+            ProgressView()
         }
     }
 }
@@ -97,6 +182,9 @@ struct TwoFingerHold: UIViewRepresentable {
 struct ParentAreaView: View {
     @EnvironmentObject var model: AppModel
     @State private var section: ParentTab = .progress
+    @State private var newPin = ""
+    @State private var newPinAgain = ""
+    @State private var pinSaved: String?
     @State private var confirmReset = false
     @State private var skillToReset: Skill?
 
@@ -109,6 +197,7 @@ struct ParentAreaView: View {
         case sound = "Sound and voice"
         case screenTime = "Screen Time help"
         case reset = "Reset progress"
+        case pin = "Grown-ups' PIN"
         #if DEBUG
         case debug = "Jump to (testing)"
         #endif
@@ -149,6 +238,7 @@ struct ParentAreaView: View {
                     case .sound: sound
                     case .screenTime: screenTime
                     case .reset: reset
+                    case .pin: pinPage
                     #if DEBUG
                     case .debug: debugJump
                     #endif
@@ -161,12 +251,25 @@ struct ParentAreaView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .foregroundStyle(Theme.ink)
+        .onAppear {
+            if model.openPinPageNext { section = .pin; model.openPinPageNext = false }
+        }
     }
 
     // MARK: Progress (AC-P5)
 
     private var progress: some View {
         VStack(alignment: .leading, spacing: 22) {
+            if model.state.parentPin == nil {
+                card {
+                    Text("Set a grown-ups' PIN").font(Theme.body(17).bold())
+                    Text("A 4-digit PIN replaces the two-finger hold and the year.")
+                        .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                    Button("Set a PIN") { section = .pin }
+                        .buttonStyle(.borderedProminent).tint(Theme.deepLavender)
+                        .accessibilityIdentifier("parent.pin.setup")
+                }
+            }
             Text("Siara's progress").font(Theme.title(32))
             HStack(alignment: .top, spacing: 22) {
                 VStack(alignment: .leading, spacing: 18) {
@@ -618,6 +721,36 @@ struct ParentAreaView: View {
         }
     }
 
+    // MARK: Grown-ups' PIN (Shrikant, 2026-11-03)
+
+    private var pinPage: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Grown-ups' PIN").font(Theme.title(32))
+            Text(model.state.parentPin == nil
+                 ? "No PIN yet: the gate asks for a two-finger hold and the year. Set a 4-digit PIN to use a number pad instead."
+                 : "The gate asks for this PIN. If you forget it, tap Forgot PIN? on the gate, do the two-finger hold and the year, then set a new one here.")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+                .accessibilityIdentifier("parent.pin.status")
+            card {
+                Text(model.state.parentPin == nil ? "New PIN" : "Change PIN").font(Theme.body(17).bold())
+                PinFields(first: $newPin, again: $newPinAgain, idPrefix: "parent.pin")
+                if let pinSaved {
+                    Text(pinSaved).font(Theme.body(15)).foregroundStyle(Theme.garden)
+                        .accessibilityIdentifier("parent.pin.saved")
+                }
+                Button("Save PIN") {
+                    if model.setParentPin(newPin) {
+                        pinSaved = "PIN saved."
+                        newPin = ""; newPinAgain = ""
+                    }
+                }
+                .buttonStyle(.borderedProminent).tint(Theme.deepLavender)
+                .disabled(!PinFields.ready(newPin, newPinAgain))
+                .accessibilityIdentifier("parent.pin.save")
+            }
+        }
+    }
+
     private var screenTime: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Screen Time help").font(Theme.title(32))
@@ -659,5 +792,42 @@ struct ParentAreaView: View {
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
+    }
+}
+
+/// Two secure number fields for a new PIN: type it, then type it again (setup and the grown-ups' PIN page).
+struct PinFields: View {
+    @Binding var first: String
+    @Binding var again: String
+    let idPrefix: String
+
+    static func ready(_ a: String, _ b: String) -> Bool { ParentPin.isValid(a) && a == b }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 14) {
+                field("4 digits", $first, id: "\(idPrefix).new")
+                field("Again", $again, id: "\(idPrefix).again")
+            }
+            if again.count == ParentPin.length && first != again {
+                Text("The two PINs don't match.").font(Theme.body(15)).foregroundStyle(Theme.clay)
+            } else if !first.isEmpty && !ParentPin.isValid(first) && first.count >= ParentPin.length {
+                Text("Use 4 digits.").font(Theme.body(15)).foregroundStyle(Theme.clay)
+            }
+        }
+    }
+
+    private func field(_ prompt: String, _ text: Binding<String>, id: String) -> some View {
+        SecureField(prompt, text: Binding(get: { text.wrappedValue },
+                                          set: { text.wrappedValue = String($0.filter(\.isNumber).prefix(ParentPin.length)) }))
+            .keyboardType(.numberPad)
+            .textContentType(.oneTimeCode)
+            .font(Theme.title(28))
+            .multilineTextAlignment(.center)
+            .frame(width: 180)
+            .padding(10)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.tan, lineWidth: 2))
+            .accessibilityIdentifier(id)
     }
 }

@@ -253,4 +253,18 @@ final class QAPlayer {
         tap("gate.continue")
         wait("parent.back")
     }
+
+    /// Types the grown-ups' PIN twice on the setup screen, when setup asks for one (2026-11-03).
+    func fillSetupPin(_ pin: String = "2580") {
+        guard el("setup.pin.new").waitForExistence(timeout: 2) else { return }
+        el("setup.pin.new").tap()
+        el("setup.pin.new").typeText(pin)
+        el("setup.pin.again").tap()
+        el("setup.pin.again").typeText(pin)
+    }
+
+    /// Taps a PIN on the gate's number pad.
+    func enterPin(_ pin: String) {
+        for d in pin { tap("gate.pin.\(d)") }
+    }
 }

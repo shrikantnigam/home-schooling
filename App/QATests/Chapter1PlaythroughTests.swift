@@ -20,6 +20,7 @@ final class Chapter1PlaythroughTests: XCTestCase {
         p.snap("first screen without test flags")
         XCTAssertTrue(first.contains(where: { $0.exists }), "launch shows setup, the home screen or the castle, not a blank screen")
         if p.el("setup.start").exists {
+            p.fillSetupPin()
             p.tap("setup.start")
             p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
         }
@@ -232,6 +233,7 @@ final class Chapter1PlaythroughTests: XCTestCase {
         // Reset everything starts setup again.
         p.wait("setup.start")
         p.snap("setup again after reset")
+        p.fillSetupPin()
         p.tap("setup.start")
         p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
         p.wait("castle.play")
@@ -329,6 +331,8 @@ final class Chapter1PlaythroughTests: XCTestCase {
         XCTAssertEqual(p.el("setup.limit.value").label, "30 min")
         for _ in 0..<10 { p.tap("setup.limit.plus") }
         XCTAssertEqual(p.el("setup.limit.value").label, "55 min", "always under an hour")
+        XCTAssertFalse(p.el("setup.start").isEnabled, "setup needs a grown-ups' PIN")
+        p.fillSetupPin()
         p.snap("setup filled in")
         p.tap("setup.start")
         p.snap("setup confirm")
@@ -350,5 +354,53 @@ final class Chapter1PlaythroughTests: XCTestCase {
         p.playScene("P0", snapItems: false)
         p.wait("castle.play", timeout: 20)
         p.snap("back at the castle with a silent voice")
+    }
+
+    /// Shrikant, 2026-11-03: the grown-ups' area opens with a 4-digit PIN set at setup. A wrong PIN doesn't
+    /// open it; the PIN can be changed inside; "Forgot PIN?" falls back to the hold and the year and opens on
+    /// the PIN page.
+    func test14_GrownUpsPin() {
+        let p = QAPlayer(self, prefix: "14")
+        p.launch(extra: ["-showSetup"])
+        p.wait("setup.start")
+        p.fillSetupPin("2580")
+        p.tap("setup.start")
+        p.app.alerts.firstMatch.buttons["Start"].firstMatch.tap()
+        p.wait("castle.play")
+        p.tap("corner.lock")
+        p.wait("gate.pin.dots")
+        XCTAssertFalse(p.el("gate.qaHold").exists, "a PIN replaces the two-finger hold")
+        p.snap("gate: PIN pad")
+        p.enterPin("1111")
+        p.wait("gate.pin.message")
+        XCTAssertFalse(p.el("parent.back").exists, "a wrong PIN doesn't open it")
+        p.enterPin("2580")
+        p.wait("parent.back")
+        p.snap("grown-ups' area opened with the PIN")
+        p.tap("parent.tab.pin")
+        p.el("parent.pin.new").tap()
+        p.el("parent.pin.new").typeText("1357")
+        p.el("parent.pin.again").tap()
+        p.el("parent.pin.again").typeText("1357")
+        p.tap("parent.pin.save")
+        p.wait("parent.pin.saved")
+        p.snap("PIN changed")
+        p.tap("parent.back")
+        p.tap("corner.lock")
+        p.enterPin("2580")
+        XCTAssertFalse(p.el("parent.back").waitForExistence(timeout: 1), "the old PIN no longer works")
+        p.enterPin("1357")
+        p.wait("parent.back")
+        p.tap("parent.back")
+        p.tap("corner.lock")
+        p.tap("gate.pin.forgot")
+        p.wait("gate.forgotHelp")
+        p.snap("forgot PIN: hold and year")
+        p.tap("gate.qaHold")
+        p.wait("gate.year").tap()
+        p.el("gate.year").typeText("\(Calendar.current.component(.year, from: Date()))")
+        p.tap("gate.continue")
+        p.wait("parent.pin.status")
+        p.snap("after forgot PIN: the PIN page")
     }
 }

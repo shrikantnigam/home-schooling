@@ -113,8 +113,21 @@ final class AppModel: ObservableObject {
     }
 
     /// First-launch setup (charter v1.3): saved once, then locked.
-    func completeSetup(name: String, companion: Companion, minutes: Int) {
+    /// After "Forgot PIN?" and the hold-and-year steps, the grown-ups' area opens on the PIN page.
+    var openPinPageNext = false
+
+    /// Saves a new grown-ups' PIN. False if it isn't 4 digits.
+    @discardableResult
+    func setParentPin(_ digits: String) -> Bool {
+        guard let pin = ParentPin(pin: digits) else { return false }
+        state.parentPin = pin
+        save()
+        return true
+    }
+
+    func completeSetup(name: String, companion: Companion, minutes: Int, pin: String? = nil) {
         guard state.completeSetup(SetupChoices(heroName: name, companion: companion, dailyLimitMinutes: minutes)) else { return }
+        if let pin, let p = ParentPin(pin: pin) { state.parentPin = p }
         catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
         applySound()
         save()

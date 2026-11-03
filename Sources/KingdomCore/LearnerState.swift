@@ -71,6 +71,9 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public var jigsaw = JigsawRecord()
     /// The cup shuffle widget (issue #27).
     public var cupShuffle = CupShuffleRecord()
+    /// The grown-ups' PIN (salted hash). Nil on installs from before 2026-11-03: they keep the two-finger gate
+    /// until a grown-up sets one.
+    public var parentPin: ParentPin?
 
     public init() {}
 
@@ -90,7 +93,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
              timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup, wroteDown, board, sheets, jigsaw,
-             cupShuffle
+             cupShuffle, parentPin
     }
 
     public init(from decoder: Decoder) throws {
@@ -114,6 +117,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
         sheets = try c.decodeIfPresent([String: SheetRecord].self, forKey: .sheets) ?? [:]
         jigsaw = try c.decodeIfPresent(JigsawRecord.self, forKey: .jigsaw) ?? JigsawRecord()
         cupShuffle = try c.decodeIfPresent(CupShuffleRecord.self, forKey: .cupShuffle) ?? CupShuffleRecord()
+        parentPin = try c.decodeIfPresent(ParentPin.self, forKey: .parentPin)
     }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }
@@ -143,14 +147,16 @@ public struct LearnerState: Codable, Equatable, Sendable {
         needsPractice.subtract(ids)
     }
 
-    /// AC-P7: back to a fresh install, keeping the sound settings, quiet hours and gate. Setup starts again,
+    /// AC-P7: back to a fresh install, keeping the sound settings, quiet hours, gate and grown-ups' PIN. Setup starts again,
     /// since it is the only way to change the name, companion and daily limit (charter v1.3).
     public mutating func resetAllProgress() {
         var keepTime = timeSettings
         keepTime.setDailyLimit(TimeSettings.defaultLimit)
         let keepSound = sound
         let keepGate = chapterGate
+        let keepPin = parentPin
         self = LearnerState()
+        parentPin = keepPin
         timeSettings = keepTime
         sound = keepSound
         chapterGate = keepGate
