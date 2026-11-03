@@ -20,7 +20,7 @@ struct ParentGateView: View {
         ZStack {
             Theme.paper.ignoresSafeArea()
             VStack(spacing: 26) {
-                Text("For grown-ups").font(Theme.title(34)).foregroundStyle(Theme.ink)
+                Text("Parent dashboard").font(Theme.title(34)).foregroundStyle(Theme.ink)
                 if let pin = model.state.parentPin, !forgot {
                     pinPad(pin)
                 } else {
@@ -100,7 +100,7 @@ struct ParentGateView: View {
     @ViewBuilder
     private var holdAndYear: some View {
         if forgot {
-            Text("Forgot your PIN? Do these two steps, then set a new PIN in Grown-ups' PIN.")
+            Text("Forgot your PIN? Do these two steps, then set a new PIN in Parent PIN.")
                 .font(Theme.body(17)).foregroundStyle(Theme.muted)
                 .accessibilityIdentifier("gate.forgotHelp")
         }
@@ -181,7 +181,7 @@ struct TwoFingerHold: UIViewRepresentable {
 /// Parent area: progress, time limits, sound, Screen Time help, reset (Parent mock).
 struct ParentAreaView: View {
     @EnvironmentObject var model: AppModel
-    @State private var section: ParentTab = .progress
+    @State private var section: ParentTab = .overview
     @State private var newPin = ""
     @State private var newPinAgain = ""
     @State private var pinSaved: String?
@@ -189,47 +189,73 @@ struct ParentAreaView: View {
     @State private var skillToReset: Skill?
 
     enum ParentTab: String, CaseIterable, Identifiable {
+        case overview = "Today"
+        case time = "Time limits"
+        case sound = "Sound and voice"
+        case pin = "Parent PIN"
+        case screenTime = "Screen Time help"
+        case reset = "Reset progress"
+        #if DEBUG
+        case debug = "Jump to (testing)"
+        #endif
         case progress = "Progress"
         case scrolls = "Puzzle scrolls"
         case jigsaw = "Jigsaw"
         case cups = "Cup shuffle"
-        case time = "Time limits"
-        case sound = "Sound and voice"
-        case screenTime = "Screen Time help"
-        case reset = "Reset progress"
-        case pin = "Grown-ups' PIN"
-        #if DEBUG
-        case debug = "Jump to (testing)"
-        #endif
         var id: String { rawValue }
     }
 
+    /// The dashboard's sidebar (Shrikant, 2026-11-03): General first, then one group per widget that has
+    /// something to show or set. A widget with nothing to set gets no group.
+    static let groups: [(title: String, tabs: [ParentTab])] = {
+        var general: [ParentTab] = [.overview, .time, .sound, .pin, .screenTime, .reset]
+        #if DEBUG
+        general.append(.debug)
+        #endif
+        return [
+            ("General", general),
+            ("Kingdom of Numbers", [.progress, .scrolls]),
+            ("Jigsaw", [.jigsaw]),
+            ("Cup shuffle", [.cups]),
+        ]
+    }()
+
     var body: some View {
         HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 6) {
-                Button { model.leaveParentArea() } label: {
-                    Label("Back", systemImage: "chevron.left").font(Theme.body(17).bold())
-                }
-                .accessibilityIdentifier("parent.back")
-                .padding(.bottom, 20)
-                ForEach(ParentTab.allCases) { s in
-                    Button { section = s } label: {
-                        Text(s.rawValue).font(Theme.body(18)).foregroundStyle(section == s ? .white : Theme.ink)
-                            .padding(.horizontal, 14).padding(.vertical, 10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(RoundedRectangle(cornerRadius: 10).fill(section == s ? Theme.deepLavender : .clear))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 6) {
+                    Button { model.leaveParentArea() } label: {
+                        Label("Back", systemImage: "chevron.left").font(Theme.body(17).bold())
                     }
-                    .accessibilityIdentifier("parent.tab.\(s)")
+                    .accessibilityIdentifier("parent.back")
+                    .padding(.bottom, 8)
+                    Text("Parent dashboard").font(Theme.title(24))
+                        .accessibilityIdentifier("parent.title")
+                        .padding(.bottom, 8)
+                    ForEach(Self.groups, id: \.title) { group in
+                        Text(group.title.uppercased()).font(Theme.body(13).bold()).foregroundStyle(Theme.muted)
+                            .padding(.top, 12).padding(.leading, 4)
+                            .accessibilityIdentifier("parent.group.\(group.title)")
+                        ForEach(group.tabs) { s in
+                            Button { section = s } label: {
+                                Text(s.rawValue).font(Theme.body(18)).foregroundStyle(section == s ? .white : Theme.ink)
+                                    .padding(.horizontal, 14).padding(.vertical, 9)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(section == s ? Theme.deepLavender : .clear))
+                            }
+                            .accessibilityIdentifier("parent.tab.\(s)")
+                        }
+                    }
                 }
-                Spacer()
+                .padding(24)
             }
-            .padding(24)
-            .frame(width: 260)
+            .frame(width: 270)
             .background(Theme.lilac)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     switch section {
+                    case .overview: overview
                     case .progress: progress
                     case .scrolls: scrolls
                     case .jigsaw: jigsaw
@@ -258,11 +284,14 @@ struct ParentAreaView: View {
 
     // MARK: Progress (AC-P5)
 
-    private var progress: some View {
+    // MARK: General: today at a glance
+
+    private var overview: some View {
         VStack(alignment: .leading, spacing: 22) {
+            Text("Parent dashboard").font(Theme.title(32))
             if model.state.parentPin == nil {
                 card {
-                    Text("Set a grown-ups' PIN").font(Theme.body(17).bold())
+                    Text("Set a parent PIN").font(Theme.body(17).bold())
                     Text("A 4-digit PIN replaces the two-finger hold and the year.")
                         .font(Theme.body(15)).foregroundStyle(Theme.muted)
                     Button("Set a PIN") { section = .pin }
@@ -270,6 +299,16 @@ struct ParentAreaView: View {
                         .accessibilityIdentifier("parent.pin.setup")
                 }
             }
+            card { week }
+            Text("Settings are grouped on the left: General for the whole app, then one group for each game.")
+                .font(Theme.body(15)).foregroundStyle(Theme.muted)
+        }
+    }
+
+    // MARK: Kingdom of Numbers
+
+    private var progress: some View {
+        VStack(alignment: .leading, spacing: 22) {
             Text("Siara's progress").font(Theme.title(32))
             HStack(alignment: .top, spacing: 22) {
                 VStack(alignment: .leading, spacing: 18) {
@@ -311,7 +350,6 @@ struct ParentAreaView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 18) {
-                    card { week }
                     card { stuck }
                 }
             }
@@ -725,7 +763,7 @@ struct ParentAreaView: View {
 
     private var pinPage: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Grown-ups' PIN").font(Theme.title(32))
+            Text("Parent PIN").font(Theme.title(32))
             Text(model.state.parentPin == nil
                  ? "No PIN yet: the gate asks for a two-finger hold and the year. Set a 4-digit PIN to use a number pad instead."
                  : "The gate asks for this PIN. If you forget it, tap Forgot PIN? on the gate, do the two-finger hold and the year, then set a new one here.")

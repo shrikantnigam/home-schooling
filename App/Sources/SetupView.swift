@@ -57,9 +57,9 @@ struct SetupView: View {
                     }
 
                     if needsPin {
-                        step("4", "A PIN for grown-ups") {
+                        step("4", "A parent PIN") {
                             PinFields(first: $pin, again: $pinAgain, idPrefix: "setup.pin")
-                            Text("Four digits she doesn't know. It opens the grown-ups' area, and you can change it there later.")
+                            Text("Four digits she doesn't know. It opens the parent dashboard, and you can change it there later.")
                                 .font(Theme.body(15)).foregroundStyle(Theme.muted)
                         }
                     }
