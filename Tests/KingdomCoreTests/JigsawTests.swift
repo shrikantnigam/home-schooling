@@ -163,4 +163,21 @@ final class JigsawTests: XCTestCase {
             XCTAssertNotNil(content.lines[id], id)
         }
     }
+
+    // J16: Medium opens after an Easy picture at 30 pieces; Hard after any Medium picture.
+    func testGroupsOpenInOrder() {
+        let groups: [String: JigsawGroup] = ["castle": .easy, "market": .medium, "harbour": .hard]
+        var j = JigsawRecord()
+        XCTAssertEqual(JigsawGroup.allCases.map { j.isOpen($0, groups: groups) }, [true, false, false])
+        j.finishPicture(result(pieces: 20, firstFits: 20))
+        XCTAssertFalse(j.isOpen(.medium, groups: groups), "20 pieces is not enough")
+        j.finishPicture(result(pieces: 30, firstFits: 20, hints: 2))
+        XCTAssertTrue(j.isOpen(.medium, groups: groups))
+        XCTAssertFalse(j.isOpen(.hard, groups: groups))
+        j.finishPicture(result(pieces: 30, firstFits: 20, picture: "market"))
+        XCTAssertTrue(j.isOpen(.hard, groups: groups))
+        XCTAssertEqual(JigsawGroup.medium.pieces, 30)
+        XCTAssertEqual(JigsawGroup.hard.pieces, 50)
+        XCTAssertNil(JigsawGroup.easy.pieces)
+    }
 }

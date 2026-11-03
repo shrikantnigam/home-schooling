@@ -27,6 +27,14 @@ final class Chapter8PlaythroughTests: XCTestCase {
             XCTAssertEqual(p.wait("jig.map.\(id)").value as? String, id == "castle" ? "new;suggested" : "new")
         }
         XCTAssertFalse(p.el("jig.choose.line").exists, "the number-line puzzle is gone")
+        // J16: Medium and Hard groups are on the map, closed until she has earned them.
+        XCTAssertEqual(p.el("jig.group.easy").value as? String, "open")
+        XCTAssertEqual(p.el("jig.group.medium").value as? String, "locked")
+        XCTAssertEqual(p.el("jig.group.hard").value as? String, "locked")
+        XCTAssertEqual(p.el("jig.map.market").value as? String, "new;locked")
+        XCTAssertEqual(p.el("jig.map.festival").value as? String, "new;locked")
+        p.el("jig.map.market").tap()
+        XCTAssertFalse(p.el("jig.board").exists, "a closed group doesn't start a puzzle")
         p.snap("puzzle map, nothing finished yet")
         p.tap("corner.home")
         p.wait("home.title")
@@ -183,6 +191,23 @@ final class Chapter8PlaythroughTests: XCTestCase {
         p.wait("castle.progress")
         XCTAssertEqual(p.el("castle.progress").label, "0 of 7 places done", "her progress is back as it was")
         p.snap("progress restored after testing")
+    }
+
+    /// J16: an Easy picture at 30 pieces opens Medium. A Medium picture starts at 30 pieces with no size picker,
+    /// and Hard stays closed until a Medium picture is finished.
+    func test07_MediumGroupOpens_FixedSize() {
+        let p = QAPlayer(self, prefix: "c8-07")
+        p.launch(preset: "jigsawMediumOpen")
+        p.tap("home.widget.jigsaw")
+        p.wait("jig.map")
+        XCTAssertEqual(p.el("jig.group.medium").value as? String, "open")
+        XCTAssertEqual(p.el("jig.group.hard").value as? String, "locked")
+        p.snap("medium pictures open")
+        p.tap("jig.map.market")
+        p.wait("jig.board")
+        XCTAssertEqual(p.el("jig.board").value as? String, "placed=0/30;pieces=30", "Medium is always 30 pieces")
+        XCTAssertFalse(p.el("jig.size.10").exists, "no size picker for Medium")
+        p.snap("market day, 30 pieces")
     }
 
     private func openParentArea(_ p: QAPlayer) {

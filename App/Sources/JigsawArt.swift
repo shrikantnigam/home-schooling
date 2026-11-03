@@ -51,6 +51,7 @@ enum JigsawPictures {
     struct Picture: Identifiable, Equatable {
         let id: String
         let name: String
+        var group: JigsawGroup = .easy
     }
 
     static let all: [Picture] = [
@@ -62,7 +63,23 @@ enum JigsawPictures {
         .init(id: "ball", name: "The royal ball"),
         .init(id: "night", name: "The night sky"),
         .init(id: "rainbow", name: "The rainbow bridge"),
+        // J16 Medium: busier scenes, 30 pieces.
+        .init(id: "market", name: "Market day", group: .medium),
+        .init(id: "pond", name: "The lily pond", group: .medium),
+        .init(id: "toyshop", name: "The toy shop", group: .medium),
+        .init(id: "dance", name: "Dance class", group: .medium),
+        // J16 Hard: the most detail, 50 pieces.
+        .init(id: "harbour", name: "The busy harbour", group: .hard),
+        .init(id: "forest", name: "The enchanted forest", group: .hard),
+        .init(id: "fair", name: "The kingdom fair", group: .hard),
+        .init(id: "festival", name: "Lantern festival", group: .hard),
     ]
+
+    static let groups: [String: JigsawGroup] = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0.group) })
+
+    static func pictures(in group: JigsawGroup) -> [Picture] { all.filter { $0.group == group } }
+
+    static func group(of id: String) -> JigsawGroup { groups[id] ?? .easy }
 
     /// Renders a picture once to an image, so pieces can show their part of it.
     @MainActor
@@ -91,7 +108,8 @@ struct JigsawScene: View {
                 case "karate": karate(w, h)
                 case "ball": ball(w, h)
                 case "night": night(w, h)
-                default: rainbow(w, h)
+                case "rainbow": rainbow(w, h)
+                default: DetailedJigsawScene(id: id, companion: companion)
                 }
             }
             .frame(width: w, height: h)

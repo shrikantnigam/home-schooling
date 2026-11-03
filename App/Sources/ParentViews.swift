@@ -415,7 +415,7 @@ struct ParentAreaView: View {
         let strategies = j.strategyCounts.sorted { $0.value > $1.value }
         return VStack(alignment: .leading, spacing: 18) {
             Text("Jigsaw").font(Theme.title(32))
-            Text("Picture puzzles train shapes and parts of a whole. She picks 10, 20 or 30 pieces; 20 and 30 open after her first 10-piece puzzle, and a sun ring marks the size that fits how she plays. Finished pictures get a green tick on her puzzle map.")
+            Text("Picture puzzles train shapes and parts of a whole. She picks 10, 20 or 30 pieces; 20 and 30 open after her first 10-piece puzzle, and a sun ring marks the size that fits how she plays. Medium pictures (30 pieces, busier scenes) open after an Easy picture at 30; Hard pictures (50 pieces) open after a Medium one. Finished pictures get a green tick on her puzzle map.")
                 .font(Theme.body(16)).foregroundStyle(Theme.muted)
             card {
                 Text("Puzzle size").font(Theme.body(17).bold())

@@ -4118,6 +4118,14 @@
    "speaker": "sparkle",
    "text": "Finish a 10 piece puzzle first. Then this one opens!"
   },
+  "jig.locked.medium": {
+   "speaker": "sparkle",
+   "text": "Finish an easy puzzle with 30 pieces. Then these open!"
+  },
+  "jig.locked.hard": {
+   "speaker": "sparkle",
+   "text": "Finish a medium puzzle. Then these open!"
+  },
   "jig.intro.picture": {
    "speaker": "sparkle",
    "text": "Drag each piece to where it belongs in the picture. Flat edges go around the outside."

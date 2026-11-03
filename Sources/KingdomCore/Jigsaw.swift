@@ -7,6 +7,23 @@ import Foundation
 public enum JigsawCut: String, Codable, CaseIterable, Sendable { case squares, tabs, wavy }
 public enum JigsawGuide: String, Codable, CaseIterable, Sendable { case full, faint, none }
 
+/// Puzzle groups on the map (Shrikant, 2026-11-03, J16). Easy holds the first eight pictures and the 10/20/30
+/// picker. Medium pictures have more detail and are always 30 pieces; Hard pictures more still, at 50 pieces.
+public enum JigsawGroup: String, Codable, CaseIterable, Sendable {
+    case easy, medium, hard
+
+    /// The fixed piece count, or nil when she picks (Easy).
+    public var pieces: Int? {
+        switch self {
+        case .easy: return nil
+        case .medium: return 30
+        case .hard: return 50
+        }
+    }
+
+    public var title: String { rawValue.capitalized }
+}
+
 /// One rung of the picture-puzzle ladder. Each rung moves exactly one knob from the rung below (J2).
 public struct JigsawLevel: Codable, Equatable, Sendable {
     public var pieces: Int
@@ -211,6 +228,16 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
     public var levelSize: Int {
         let s = min(max(level.pieces, 10), Self.pickerSizes.last ?? 30)
         return isOpen(s) ? s : 10
+    }
+
+    /// J16: Easy is always open. Medium opens once she has finished an Easy picture at 30 pieces; Hard opens once
+    /// she has finished any Medium picture. `groups` maps picture ids to their group.
+    public func isOpen(_ group: JigsawGroup, groups: [String: JigsawGroup]) -> Bool {
+        switch group {
+        case .easy: return true
+        case .medium: return completed.contains { groups[$0.key] == .easy && $0.value >= 30 }
+        case .hard: return completed.keys.contains { groups[$0] == .medium }
+        }
     }
 
     /// The level she plays at a chosen size: her rung's knobs with that piece count.

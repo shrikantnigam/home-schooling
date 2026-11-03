@@ -29,7 +29,9 @@ struct JigsawView: View {
     }
 
     private var nextPicture: String {
-        model.state.jigsaw.nextPicture(from: JigsawPictures.all.map(\.id)) ?? "castle"
+        let j = model.state.jigsaw
+        let open = JigsawPictures.all.filter { j.isOpen($0.group, groups: JigsawPictures.groups) }.map(\.id)
+        return j.nextPicture(from: open) ?? "castle"
     }
 
     // MARK: Pick a size (J15: always 10, 20, 30; 20 and 30 open after her first 10-piece puzzle)
@@ -119,6 +121,11 @@ struct JigsawView: View {
     /// The size picker speaks its one line the first time (she may not read the heading yet), like every other
     /// jigsaw intro. The ear button replays it while the picker is open.
     private func openSizes(_ picture: String) {
+        // Medium and Hard pictures have a fixed size (J16), so they start straight away.
+        if let fixed = JigsawPictures.group(of: picture).pieces {
+            startPicture(picture, pieces: fixed)
+            return
+        }
         stage = .sizes(picture)
         if model.jigsawFirstTime("size") { model.speech.say([model.catalog.spoken("jig.intro.size")]) }
     }
@@ -139,56 +146,90 @@ struct JigsawMap: View {
     let suggested: String
     let pick: (String) -> Void
 
+    @State private var lockedWobble: [JigsawGroup: CGFloat] = [:]
+
     private static let cols = 4
     private static let cardSize = CGSize(width: 220, height: 196)
     private static let gap = CGSize(width: 34, height: 40)
 
     var body: some View {
-        VStack(spacing: 18) {
-            Text("Jigsaw").font(Theme.title(44)).foregroundStyle(Theme.ink).padding(.top, 96)
-            ZStack(alignment: .topLeading) {
-                path
-                ForEach(Array(JigsawPictures.all.enumerated()), id: \.element.id) { i, pic in
-                    card(pic)
-                        .position(center(i))
-                }
+        ScrollView {
+            VStack(spacing: 18) {
+                Text("Jigsaw").font(Theme.title(44)).foregroundStyle(Theme.ink).padding(.top, 96)
+                ForEach(JigsawGroup.allCases, id: \.self) { g in band(g) }
+                Spacer(minLength: 40)
             }
-            .frame(width: Self.boardSize.width, height: Self.boardSize.height)
+            .frame(maxWidth: .infinity)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("jig.map")
-            Spacer()
         }
     }
 
-    private static var rows: Int { (JigsawPictures.all.count + cols - 1) / cols }
-    private static var boardSize: CGSize {
-        CGSize(width: CGFloat(cols) * cardSize.width + CGFloat(cols - 1) * gap.width,
-               height: CGFloat(rows) * cardSize.height + CGFloat(rows - 1) * gap.height)
+    private func isOpen(_ g: JigsawGroup) -> Bool { model.state.jigsaw.isOpen(g, groups: JigsawPictures.groups) }
+
+    /// One group: its name, a padlock while it's closed, and its pictures joined by a dotted path (J16).
+    private func band(_ g: JigsawGroup) -> some View {
+        let pics = JigsawPictures.pictures(in: g)
+        let open = isOpen(g)
+        return VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                if !open { Image(systemName: "lock.fill").font(.system(size: 22)).foregroundStyle(Theme.ink) }
+                Text(g.title).font(Theme.title(28)).foregroundStyle(Theme.ink)
+                if let n = g.pieces { Text("\(n)").font(Theme.numeral(24)).foregroundStyle(Theme.muted) }
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("jig.group.\(g.rawValue)")
+            .accessibilityValue(open ? "open" : "locked")
+            ZStack(alignment: .topLeading) {
+                path(count: pics.count)
+                ForEach(Array(pics.enumerated()), id: \.element.id) { i, pic in
+                    card(pic, open: open)
+                        .position(Self.center(i))
+                }
+            }
+            .frame(width: Self.boardSize(pics.count).width, height: Self.boardSize(pics.count).height)
+            .opacity(open ? 1 : 0.5)
+            .modifier(Wobble(animatableData: lockedWobble[g, default: 0]))
+        }
+        .padding(.top, 12)
+    }
+
+    private static func boardSize(_ n: Int) -> CGSize {
+        let rows = (n + cols - 1) / cols
+        return CGSize(width: CGFloat(cols) * cardSize.width + CGFloat(cols - 1) * gap.width,
+                      height: CGFloat(rows) * cardSize.height + CGFloat(max(0, rows - 1)) * gap.height)
     }
 
     /// Cards run left to right on the first row and right to left on the next, like a path on a map.
-    private func center(_ i: Int) -> CGPoint {
-        let r = i / Self.cols
-        let c = r % 2 == 0 ? i % Self.cols : Self.cols - 1 - i % Self.cols
-        return CGPoint(x: (CGFloat(c) + 0.5) * Self.cardSize.width + CGFloat(c) * Self.gap.width,
-                       y: (CGFloat(r) + 0.5) * Self.cardSize.height + CGFloat(r) * Self.gap.height)
+    private static func center(_ i: Int) -> CGPoint {
+        let r = i / cols
+        let c = r % 2 == 0 ? i % cols : cols - 1 - i % cols
+        return CGPoint(x: (CGFloat(c) + 0.5) * cardSize.width + CGFloat(c) * gap.width,
+                       y: (CGFloat(r) + 0.5) * cardSize.height + CGFloat(r) * gap.height)
     }
 
-    private var path: some View {
+    private func path(count n: Int) -> some View {
         Path { p in
-            let n = JigsawPictures.all.count
             guard n > 1 else { return }
-            p.move(to: center(0))
-            for i in 1..<n { p.addLine(to: center(i)) }
+            p.move(to: Self.center(0))
+            for i in 1..<n { p.addLine(to: Self.center(i)) }
         }
         .stroke(Theme.clay.opacity(0.45), style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: [2, 14]))
         .allowsHitTesting(false)
     }
 
-    private func card(_ pic: JigsawPictures.Picture) -> some View {
+    private func card(_ pic: JigsawPictures.Picture, open: Bool) -> some View {
         let best = model.state.jigsaw.completed[pic.id]
-        let isSuggested = pic.id == suggested
-        return Button { pick(pic.id) } label: {
+        let isSuggested = open && pic.id == suggested
+        return Button {
+            if open {
+                pick(pic.id)
+            } else {
+                // A closed group says what opens it, out loud, and wobbles.
+                model.speech.say([model.catalog.spoken(pic.group == .medium ? "jig.locked.medium" : "jig.locked.hard")])
+                withAnimation(.linear(duration: 0.4)) { lockedWobble[pic.group, default: 0] += 1 }
+            }
+        } label: {
             VStack(spacing: 8) {
                 JigsawScene(id: pic.id, companion: model.state.companion)
                     .frame(width: 192, height: 124)
@@ -206,7 +247,7 @@ struct JigsawMap: View {
         .buttonStyle(.plain)
         .accessibilityIdentifier("jig.map.\(pic.id)")
         .accessibilityLabel(pic.name + (best != nil ? ", finished" : ""))
-        .accessibilityValue("\(best.map { "done=\($0)" } ?? "new")\(isSuggested ? ";suggested" : "")")
+        .accessibilityValue("\(best.map { "done=\($0)" } ?? "new")\(isSuggested ? ";suggested" : "")\(open ? "" : ";locked")")
     }
 
     private var tick: some View {

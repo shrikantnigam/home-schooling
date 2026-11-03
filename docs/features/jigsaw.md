@@ -23,6 +23,11 @@ in her history but no longer count.
   puzzle is the 10-piece quick check (J10): easy (85% or more right first time, one hint at most) moves the sun-ring
   suggestion up a size, up to 30. 40 and 50 are not offered; the ladder's later knobs (turning, no guide, wavy cuts)
   still come at 30.
+- **Groups (J16, Shrikant 2026-11-03).** The map shows three groups. **Easy** has the first eight pictures and the
+  10/20/30 picker. **Medium** has four busier scenes (market day, lily pond, toy shop, dance class), always cut into
+  30 pieces. **Hard** has four scenes with the most detail (harbour, enchanted forest, kingdom fair, lantern
+  festival), always 50 pieces. Medium opens after she finishes an Easy picture at 30 pieces, and Hard after any
+  Medium picture. A closed group is faded with a padlock, and tapping it says what opens it.
 - **Ladder (J2).** No square or rectangle pieces (Shrikant, 2026-11-03: too easy); every piece has tabs from the
   first puzzle. One knob changes per step: 10 with tabs → 20 → faint guide → 30 → mixed edges → 40 →
   turning pieces → no guide → 50 → wavy cuts. Four easy puzzles in a row move up one step; a stuck puzzle (third

@@ -511,6 +511,11 @@ final class AppModel: ObservableObject {
         switch name {
         case "cupsTutorialDone":
             state.cupShuffle.tutorialDone = true
+        case "jigsawMediumOpen":
+            // J16: an Easy picture finished at 30 pieces opens the Medium group.
+            state.jigsaw.introsHeard.formUnion(["picture", "size"])
+            state.jigsaw.finishPicture(JigsawResult(kind: "picture", pictureID: "castle", pieces: 30, firstFits: 25,
+                                                    hintsUsed: 1, maxHintStep: 1, strategy: nil, date: now))
         case "cupsThreeFinds":
             // C9: three finds in a row at 3 cups, speed 1, so speed 2 is suggested.
             state.cupShuffle.tutorialDone = true
