@@ -65,7 +65,7 @@ J16); the memory game with 10 characters and Easy 3-4, Medium 4-6, Hard 6-8 pair
    even if Shrikant has already described it in words.
 6. **Test time.** Every shared change replayed all of Kingdom (about 75 min). Shrikant asked why we test chapters
    we didn't change. *Changed with his agreement:* suites are named for what they cover (Kingdom1 to 7,
-   HubJigsaw, Cups, Memory). While building, a shared change runs a quick set of about 20 min (Kingdom1,
+   HubJigsaw, Cups, Memory). While building, a shared change runs a quick set of about 21 min (Kingdom1,
    KingdomSmoke, write it down, plus the games changed). The full run happens only before a merge.
 7. **Workflow question.** Shrikant asked why he kept needing `git pull`. *Decided:* code is still written in the
    cloud. The Mac session keeps his folder on the branch while a PR is open, and moves it to `main` after every

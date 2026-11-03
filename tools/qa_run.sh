@@ -4,7 +4,7 @@
 #                                   change runs the quick set (Kingdom1, KingdomSmoke, write it down) plus the
 #                                   widgets changed, about 20 minutes (Shrikant, 2026-11-03)
 #   tools/qa_run.sh all             every suite in full (always before a merge to main)
-#   tools/qa_run.sh Kingdom7,Cups   just those suites; Suite/testName runs one test
+#   tools/qa_run.sh Kingdom7,Cups   just those suites; Suite/testName runs one test, Suite!testName skips one
 # Suites are App/QATests/<name>QATests.swift; tools/qa_plan.py lists what each covers.
 # When every picked suite passes, the commit is written to .qa-last-pass (not committed), so the next run
 # only covers what changed after it.
@@ -35,7 +35,8 @@ failed=()
 all_ran() {  # $1 suite or Suite/test, $2 log
   local want got
   if [[ "$1" == */* ]]; then want=1
-  else want=$(grep -cE "^[[:space:]]*func test" "App/QATests/${1}QATests.swift"); fi
+  else want=$(grep -cE "^[[:space:]]*func test" "App/QATests/${1%%!*}QATests.swift")
+    [[ "$1" == *!* ]] && want=$((want - 1)); fi
   got=$(grep -oE "Executed [0-9]+ tests?" "$2" | tail -1 | grep -oE "[0-9]+")
   if [ "${got:-0}" -lt "$want" ]; then
     echo "$1 ran ${got:-0} of $want tests" >> "$2"
@@ -44,15 +45,18 @@ all_ran() {  # $1 suite or Suite/test, $2 log
 }
 for suite in ${chapters//,/ }; do
   start=$(date +%s)
-  [ -f "App/QATests/${suite%%/*}QATests.swift" ] || { echo "No suite ${suite%%/*} (App/QATests/${suite%%/*}QATests.swift)"; exit 2; }
-  target="KingdomOfNumbersQA/${suite%%/*}QATests"
+  base="${suite%%[/!]*}"
+  [ -f "App/QATests/${base}QATests.swift" ] || { echo "No suite $base (App/QATests/${base}QATests.swift)"; exit 2; }
+  target="KingdomOfNumbersQA/${base}QATests"
+  skip=()
   [[ "$suite" == */* ]] && target="$target/${suite#*/}"
-  name="${suite//\//-}"
+  [[ "$suite" == *!* ]] && skip=(-skip-testing:"$target/${suite#*!}")
+  name="${suite//[\/!]/-}"
   bundle="$out/$name.xcresult"
   log="$out/$name.log"
   rm -rf "$bundle"
   if xcodebuild test -project App/KingdomOfNumbers.xcodeproj -scheme KingdomOfNumbers -destination "$dest" \
-       -only-testing:"$target" CODE_SIGNING_ALLOWED=NO \
+       -only-testing:"$target" ${skip[@]+"${skip[@]}"} CODE_SIGNING_ALLOWED=NO \
        -resultBundlePath "$bundle" > "$log" 2>&1 \
      && grep -qE "Executed [1-9][0-9]* tests?" "$log" \
      && all_ran "$suite" "$log"; then

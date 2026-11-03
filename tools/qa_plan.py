@@ -15,8 +15,8 @@ Suites (App/QATests/<name>QATests.swift), named for what they cover (Shrikant, 2
   KingdomSmoke  one short scene from each place after the Garden (the quick check)
 
 While building (the default), a change to shared code (speech, the app model, saved progress...) runs the quick
-set: Kingdom1, KingdomSmoke and the write-it-down test, plus the suites of any widget files changed. That is about
-20 minutes instead of 75. --full (and `tools/qa_run.sh all`, always before a merge to main) runs every suite in full.
+set: Kingdom1 (minus its full Garden replay), KingdomSmoke and the write-it-down test, plus the suites of any
+widget files changed. That is about 21 minutes instead of 75. --full (and `tools/qa_run.sh all`, always before a merge to main) runs every suite in full.
 Anything not listed in RULES is shared: a missed suite costs an escaped bug, an extra one only costs minutes.
 """
 import subprocess
@@ -26,7 +26,8 @@ from pathlib import Path
 
 ALL = ["Kingdom1", "Kingdom2", "Kingdom3", "Kingdom4", "Kingdom5", "Kingdom6", "Kingdom7", "HubJigsaw", "Cups",
        "Memory"]
-QUICK = ["Kingdom1", "KingdomSmoke", "Kingdom7/test01_WriteItDown_Garden"]
+# Kingdom1 without its 6.5-minute full Garden replay (test03 and test05 still play Garden scenes): about 21 min.
+QUICK = ["Kingdom1!test04_Garden_G1toG5", "KingdomSmoke", "Kingdom7/test01_WriteItDown_Garden"]
 
 # First matching pattern wins. [] means no play-through is needed (unit tests still run).
 RULES = [
@@ -101,11 +102,11 @@ def main() -> None:
         else:
             picked += [c for c in got if c not in picked]
     if shared:
-        picked = ALL if full else QUICK + [c for c in picked if c not in QUICK and c not in ("Kingdom1",)]
+        picked = ALL if full else QUICK + [c for c in picked if c not in QUICK]
     # A suite running in full already covers its single tests.
-    picked = [c for c in picked if "/" not in c or c.split("/")[0] not in picked]
+    picked = [c for c in picked if not any(x in c for x in "/!") or c.split("/")[0].split("!")[0] not in picked]
     order = ALL + ["KingdomSmoke"]
-    picked.sort(key=lambda c: order.index(c.split("/")[0]) if c.split("/")[0] in order else len(order))
+    picked.sort(key=lambda c: order.index(c.split("/")[0].split("!")[0]) if c.split("/")[0].split("!")[0] in order else len(order))
     print(",".join(picked) or "none")
 
 
