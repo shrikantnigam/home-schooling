@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Which chapters' play-throughs to run. A commit message with "[qa: 1,8]" runs just those (fast
-  # feedback while building); anything else, and every run on main, runs all of them.
+  # Which QA suites to run (App/QATests/<name>QATests.swift). A commit message with "[qa: Kingdom1,Cups]" runs just
+  # those (fast feedback while building); anything else, and every run on main, runs all of them.
   plan:
     name: Plan QA
     runs-on: ubuntu-latest
@@ -24,12 +24,10 @@ jobs:
       - id: pick
         run: |
           msg=$(git log -1 --format=%B)
-          sel=$(printf '%s' "$msg" | grep -oE '\[qa: *[0-9, ]+\]' | head -1 | tr -dc '0-9,')
-          if [ -n "$sel" ] && [ "${{ github.ref }}" != "refs/heads/main" ]; then
-            echo "chapters=[${sel}]" >> "$GITHUB_OUTPUT"
-          else
-            echo "chapters=[1,2,3,4,5,6,7,8,9,10]" >> "$GITHUB_OUTPUT"
-          fi
+          sel=$(printf '%s' "$msg" | grep -oE '\[qa: *[A-Za-z0-9, ]+\]' | head -1 | sed -E 's/\[qa: *//; s/\]//; s/ //g')
+          all="Kingdom1,Kingdom2,Kingdom3,Kingdom4,Kingdom5,Kingdom6,Kingdom7,HubJigsaw,Cups,Memory"
+          [ -n "$sel" ] && [ "${{ github.ref }}" != "refs/heads/main" ] || sel="$all"
+          echo "chapters=$(printf '%s' "$sel" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().split(",")))')" >> "$GITHUB_OUTPUT"
           cat "$GITHUB_OUTPUT"
 
   unit-tests:
@@ -51,14 +49,14 @@ jobs:
           path: unit-tests.log
 
   qa-playthrough:
-    name: QA play-through, chapter ${{ matrix.chapter }} (iPad simulator)
+    name: QA play-through, ${{ matrix.chapter }} (iPad simulator)
     runs-on: macos-15
     needs: [plan, unit-tests]
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        # One job per chapter, in parallel, so total CI time stays flat as chapters are added.
+        # One job per suite, in parallel, so total CI time stays flat as chapters are added.
         chapter: ${{ fromJSON(needs.plan.outputs.chapters) }}
     steps:
       - uses: actions/checkout@v4
@@ -87,7 +85,7 @@ jobs:
             -scheme KingdomOfNumbers \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -resultBundlePath ../QA.xcresult \
-            -only-testing:KingdomOfNumbersQA/Chapter${{ matrix.chapter }}PlaythroughTests \
+            -only-testing:KingdomOfNumbersQA/${{ matrix.chapter }}QATests \
             CODE_SIGNING_ALLOWED=NO > ../qa.log 2>&1 && status=0 || status=$?
           grep -E "error:|Test Case|\*\* " ../qa.log || true
           exit $status

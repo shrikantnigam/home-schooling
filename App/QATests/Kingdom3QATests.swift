@@ -1,7 +1,7 @@
 import XCTest
 
 /// QA play-through for Chapter 3: The Goblin's Gems (docs/chapters/chapter-3.md).
-final class Chapter3PlaythroughTests: XCTestCase {
+final class Kingdom3QATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-3a to AC-3d: all five scenes, one wrong path per activity kind, the full ladder once.

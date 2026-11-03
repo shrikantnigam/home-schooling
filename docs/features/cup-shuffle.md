@@ -44,6 +44,6 @@ finds the bird at each setting she has played, a "Show the tutorial again" butto
 
 ## QA
 
-`App/QATests/Chapter9PlaythroughTests.swift` (chapter 9): the tutorial on first open, then never again; 3 cups at
+`App/QATests/CupsQATests.swift` (suite Cups): the tutorial on first open, then never again; 3 cups at
 speed 1 found; 5 cups at speed 3 with a miss and the reveal; the chirp on a find; the suggestion ring; the
 grown-ups' page, including "Show the tutorial again".

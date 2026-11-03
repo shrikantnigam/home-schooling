@@ -51,5 +51,5 @@ puzzle.
 
 ## QA
 
-`App/QATests/Chapter8PlaythroughTests.swift` (chapter 8): hub, puzzle map, picture puzzle with a wrong drop and the
+`App/QATests/HubJigsawQATests.swift` (suite HubJigsaw): hub, puzzle map, picture puzzle with a wrong drop and the
 whole hint ladder, explain moment, the tick after finishing, quick check moving up, companion slip, parent range.

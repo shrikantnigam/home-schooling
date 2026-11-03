@@ -1,7 +1,7 @@
 import XCTest
 
 /// QA play-through for Chapter 4: The Royal Ball (docs/chapters/chapter-4.md).
-final class Chapter4PlaythroughTests: XCTestCase {
+final class Kingdom4QATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-4a to AC-4d: all four scenes, one wrong path per activity kind, the full ladder once.

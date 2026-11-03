@@ -1,8 +1,8 @@
 import XCTest
 
 /// QA play-through for the Home School hub (#30) and the jigsaw widget (#25, docs/features/jigsaw.md).
-/// The cup shuffle widget has its own chapter (Chapter9PlaythroughTests).
-final class Chapter8PlaythroughTests: XCTestCase {
+/// The cup shuffle widget has its own chapter (CupsQATests).
+final class HubJigsawQATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-H1 to AC-H4: the app opens on the home screen; the Kingdom tile opens the castle and the house

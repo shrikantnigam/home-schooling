@@ -2,7 +2,7 @@ import XCTest
 
 /// QA play-through for the cup shuffle widget (#27, docs/features/cup-shuffle.md, rules C1 to C10).
 /// The table's QA value reads "phase=...;bird=<position>;chirps=<n>;tutorial=<0|1>".
-final class Chapter9PlaythroughTests: XCTestCase {
+final class CupsQATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// C7, AC-H8: the tutorial shows the first time only. A wrong cup only wobbles and the hand points again;

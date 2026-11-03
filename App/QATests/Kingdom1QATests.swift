@@ -3,7 +3,7 @@ import XCTest
 /// QA play-through for Chapter 1 (Prologue: Counting Stars, and The Flower Garden).
 /// Each test plays the real app in the iPad simulator and saves screenshots.
 /// Test names carry the acceptance criteria they cover (docs/product-spec.md section 11).
-final class Chapter1PlaythroughTests: XCTestCase {
+final class Kingdom1QATests: XCTestCase {
     override func setUp() {
         continueAfterFailure = false
     }

@@ -2,7 +2,7 @@ import XCTest
 
 /// QA play-through for the problem-solving bridge (docs/features/problem-solving.md):
 /// Write it down, the Puzzle Board, making a puzzle, a puzzle scroll and the grown-ups' feedback.
-final class Chapter7PlaythroughTests: XCTestCase {
+final class Kingdom7QATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-W1 to AC-W5: the Garden's two sentences, one wrong tile, the balance levels, then the board opens.

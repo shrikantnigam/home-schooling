@@ -2,7 +2,7 @@ import XCTest
 
 /// QA play-through for the memory game (docs/features/memory.md, rules M1 to M10).
 /// Each card's QA value reads "<character>;<down|up|matched>"; the board's reads "found=<k>/<n>;tries=<t>".
-final class Chapter10PlaythroughTests: XCTestCase {
+final class MemoryQATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// M2, M3, M6: the memory tile opens the level chooser. Easy is open at 3 pairs; Medium and Hard are locked,
