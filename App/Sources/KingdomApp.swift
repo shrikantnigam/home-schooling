@@ -26,6 +26,7 @@ struct RootView: View {
             case .home: HomeView()
             case .jigsaw: JigsawView()
             case .cups: CupShuffleView()
+            case .memory: MemoryView()
             case .castle: CastleView()
             case .map: MapView()
             case .scene:

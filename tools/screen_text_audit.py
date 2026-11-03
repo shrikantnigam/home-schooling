@@ -36,6 +36,7 @@ LABELS = {
     "Cups": "label over cup pictures (3 or 5 drawn cups)",
     "Speed": "label over 1-3 speed cards; the suggested one glows",
     "Jigsaw": "title; the map is pictures with ticks",
+    "Memory": "title; memory.intro is spoken the first time and the ear replays it",
     "Easy": "group label over picture cards; always open",
     "Medium": "group label; while closed it shows a padlock and a tap says what opens it",
     "Hard": "group label; while closed it shows a padlock and a tap says what opens it",

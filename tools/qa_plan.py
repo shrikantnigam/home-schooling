@@ -14,7 +14,7 @@ import sys
 from fnmatch import fnmatch
 from pathlib import Path
 
-ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 # First matching pattern wins. [] means no play-through is needed (unit tests still run).
 RULES = [
@@ -30,7 +30,10 @@ RULES = [
     ("App/QATests/QAPlayer.swift", ALL),
     ("App/QATests/Chapter*PlaythroughTests.swift", "own"),
     # Home School hub and jigsaw widget
-    ("App/Sources/HomeView.swift", [1, 8, 9]),         # every chapter taps the Kingdom tile, chapter 8 tests the hub
+    ("App/Sources/HomeView.swift", [1, 8, 9, 10]),
+    # Memory game
+    ("App/Sources/MemoryView.swift", [10]),
+    ("Sources/KingdomCore/Memory.swift", [10]),         # every chapter taps the Kingdom tile, chapter 8 tests the hub
     # Cup shuffle widget
     ("App/Sources/CupShuffleView.swift", [9]),
     ("App/Sources/ChirpPlayer.swift", [9]),
@@ -46,7 +49,7 @@ RULES = [
     ("Sources/KingdomCore/Problems.swift", [7]),
     ("Sources/KingdomCore/Worksheets.swift", [7]),
     # Grown-ups' area and first-launch setup
-    ("App/Sources/ParentViews.swift", [1, 7, 8, 9]),
+    ("App/Sources/ParentViews.swift", [1, 7, 8, 9, 10]),
     ("Sources/KingdomCore/ParentGate.swift", [1, 7, 8]),
     ("App/Sources/SetupView.swift", [1]),
     ("Sources/KingdomCore/Setup.swift", [1]),

@@ -4194,6 +4194,22 @@
    "speaker": "sparkle",
    "text": "Hmm, look again. The edges don't match, so it doesn't fit. Good thing we checked!"
   },
+  "memory.intro": {
+   "speaker": "sparkle",
+   "text": "Find two the same. Tap a card to turn it over."
+  },
+  "memory.done": {
+   "speaker": "sparkle",
+   "text": "You found them all!"
+  },
+  "memory.locked.medium": {
+   "speaker": "sparkle",
+   "text": "Finish an easy game first. Then this one opens!"
+  },
+  "memory.locked.hard": {
+   "speaker": "sparkle",
+   "text": "Finish a medium game first. Then this one opens!"
+  },
   "cup.intro": {
    "speaker": "sparkle",
    "text": "Watch the cup with the bird. When the cups stop, tap the one it's under."

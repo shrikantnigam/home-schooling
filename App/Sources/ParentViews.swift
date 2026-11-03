@@ -202,6 +202,7 @@ struct ParentAreaView: View {
         case scrolls = "Puzzle scrolls"
         case jigsaw = "Jigsaw"
         case cups = "Cup shuffle"
+        case memory = "Memory"
         var id: String { rawValue }
     }
 
@@ -217,6 +218,7 @@ struct ParentAreaView: View {
             ("Kingdom of Numbers", [.progress, .scrolls]),
             ("Jigsaw", [.jigsaw]),
             ("Cup shuffle", [.cups]),
+            ("Memory", [.memory]),
         ]
     }()
 
@@ -260,6 +262,7 @@ struct ParentAreaView: View {
                     case .scrolls: scrolls
                     case .jigsaw: jigsaw
                     case .cups: cups
+                    case .memory: memoryPage
                     case .time: time
                     case .sound: sound
                     case .screenTime: screenTime
@@ -446,6 +449,40 @@ struct ParentAreaView: View {
                 Text("Try at home").font(Theme.body(17).bold())
                 Text(j.homeIdea).font(Theme.body())
                     .accessibilityIdentifier("parent.jig.homeIdea")
+            }
+        }
+    }
+
+    // MARK: Memory (docs/features/memory.md, M9)
+
+    private var memoryPage: some View {
+        let m = model.state.memory
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("Memory").font(Theme.title(32))
+            Text("Trains memory: keeping where each character is in mind. Easy has 3 to 4 pairs, Medium 4 to 6, Hard 6 to 8. Medium opens after an Easy game and Hard after a Medium one; each game grows by a pair when the last one went well.")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+            card {
+                Text("Last ten games").font(Theme.body(17).bold())
+                if m.recent.isEmpty {
+                    Text("No games played yet.").font(Theme.body()).foregroundStyle(Theme.muted)
+                } else {
+                    ForEach(Array(m.recent.reversed().enumerated()), id: \.offset) { _, r in
+                        Text("\(r.level.title): \(r.pairs) pairs in \(r.tries) tries").font(Theme.body())
+                    }
+                }
+                Text("Games played: \(m.gamesPlayed)").font(Theme.body())
+            }
+            .accessibilityIdentifier("parent.memory.recent")
+            card {
+                Text("Next game size").font(Theme.body(17).bold())
+                ForEach(MemoryLevel.allCases, id: \.self) { l in
+                    Text("\(l.title): \(m.pairs(for: l)) pairs\(m.isOpen(l) ? "" : " (not open yet)")").font(Theme.body())
+                }
+            }
+            card {
+                Text("Try at home").font(Theme.body(17).bold())
+                Text(m.homeIdea).font(Theme.body())
+                    .accessibilityIdentifier("parent.memory.homeIdea")
             }
         }
     }

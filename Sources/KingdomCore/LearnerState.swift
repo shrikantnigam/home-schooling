@@ -74,6 +74,8 @@ public struct LearnerState: Codable, Equatable, Sendable {
     /// The grown-ups' PIN (salted hash). Nil on installs from before 2026-11-03: they keep the two-finger gate
     /// until a grown-up sets one.
     public var parentPin: ParentPin?
+    /// The memory game (docs/features/memory.md).
+    public var memory = MemoryRecord()
 
     public init() {}
 
@@ -93,7 +95,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
              timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup, wroteDown, board, sheets, jigsaw,
-             cupShuffle, parentPin
+             cupShuffle, parentPin, memory
     }
 
     public init(from decoder: Decoder) throws {
@@ -118,6 +120,7 @@ public struct LearnerState: Codable, Equatable, Sendable {
         jigsaw = try c.decodeIfPresent(JigsawRecord.self, forKey: .jigsaw) ?? JigsawRecord()
         cupShuffle = try c.decodeIfPresent(CupShuffleRecord.self, forKey: .cupShuffle) ?? CupShuffleRecord()
         parentPin = try c.decodeIfPresent(ParentPin.self, forKey: .parentPin)
+        memory = try c.decodeIfPresent(MemoryRecord.self, forKey: .memory) ?? MemoryRecord()
     }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }

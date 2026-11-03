@@ -11,6 +11,8 @@ final class AppModel: ObservableObject {
         case jigsaw
         /// The cup shuffle widget (#27).
         case cups
+        /// The memory game (docs/features/memory.md).
+        case memory
         case castle
         case map
         case scene
@@ -27,7 +29,7 @@ final class AppModel: ObservableObject {
         /// Screens where play time counts toward the daily limit.
         var isPlay: Bool {
             switch self {
-            case .scene, .writeItDown, .board, .sheet, .jigsaw, .cups: return true
+            case .scene, .writeItDown, .board, .sheet, .jigsaw, .cups, .memory: return true
             default: return false
             }
         }
@@ -168,7 +170,7 @@ final class AppModel: ObservableObject {
         if state.time.limitReached(at: now, settings: state.timeSettings, calendar: calendar) {
             if route == .scene {
                 scene?.beginWrapUp()
-            } else if route == .jigsaw || route == .cups {
+            } else if route == .jigsaw || route == .cups || route == .memory {
                 goHome()
             } else {
                 // Off the story path there is no scene to wrap up: back to the sleeping castle.
@@ -196,6 +198,7 @@ final class AppModel: ObservableObject {
         case "kingdom": route = .castle
         case "jigsaw": if block == nil { route = .jigsaw }
         case "cups": if block == nil { route = .cups }
+        case "memory": if block == nil { route = .memory }
         default: break
         }
     }
@@ -207,6 +210,20 @@ final class AppModel: ObservableObject {
     }
 
     /// Records a finished cup shuffle round (C4, C5) and remembers her setting (C1).
+    /// Records a finished memory game (M5: the next game's size).
+    func finishMemory(_ r: MemoryResult) {
+        state.memory.finish(r)
+        save()
+    }
+
+    /// M6: true the first time only; she has heard the intro after that.
+    func memoryFirstTime() -> Bool {
+        guard !state.memory.introHeard else { return false }
+        state.memory.introHeard = true
+        save()
+        return true
+    }
+
     func finishCupRound(_ settings: CupSettings, found: Bool) {
         state.cupShuffle.finish(settings, found: found, at: now)
         save()
@@ -403,7 +420,7 @@ final class AppModel: ObservableObject {
 
     func openParentGate() {
         speech.stop()
-        returnRoute = (route == .home || route == .jigsaw || route == .cups) ? .home : .castle
+        returnRoute = (route == .home || route == .jigsaw || route == .cups || route == .memory) ? .home : .castle
         scene?.saveResume()
         scene = nil
         route = .gate
@@ -453,7 +470,7 @@ final class AppModel: ObservableObject {
     }
 
     enum DebugTarget: String, CaseIterable, Identifiable {
-        case home, castle, map, board, jigsaw, cups
+        case home, castle, map, board, jigsaw, cups, memory
         var id: String { rawValue }
     }
 
@@ -471,6 +488,7 @@ final class AppModel: ObservableObject {
         case .board: route = .board
         case .jigsaw: route = .jigsaw
         case .cups: route = .cups
+        case .memory: route = .memory
         }
     }
 
@@ -511,6 +529,10 @@ final class AppModel: ObservableObject {
         switch name {
         case "cupsTutorialDone":
             state.cupShuffle.tutorialDone = true
+        case "memoryEasyDone":
+            // M3: one Easy game finished, so Medium is open.
+            state.memory.introHeard = true
+            state.memory.finish(MemoryResult(level: .easy, pairs: 3, tries: 5, date: now))
         case "jigsawMediumOpen":
             // J16: an Easy picture finished at 30 pieces opens the Medium group.
             state.jigsaw.introsHeard.formUnion(["picture", "size"])
