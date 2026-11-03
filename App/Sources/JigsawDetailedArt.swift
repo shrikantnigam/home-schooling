@@ -53,6 +53,12 @@ struct DetailedJigsawScene: View {
     }
 
     private let palette: [Color] = [Theme.rose, Theme.sun, Theme.river, Theme.sage, Theme.poppy, Theme.lavender, Theme.ochre]
+    private let three: [Color] = [Theme.rose, Theme.river, Theme.sun]
+    private let fruit: [Color] = [Theme.poppy, Theme.sun, Theme.sage, Theme.rose]
+    private let greens: [Color] = [Theme.sage, Theme.sageDeep, Theme.garden]
+    private let lanternColours: [Color] = [Theme.poppy, Theme.sun, Theme.rose]
+    private let hairs: [Color] = [Theme.ink, Theme.clay, Theme.ochre]
+    private let hulls: [Color] = [Theme.clay, Theme.river, Theme.rose, Theme.ochre]
 
     private func bunting(_ w: CGFloat, _ h: CGFloat, y: CGFloat, count: Int) -> some View {
         ZStack {
@@ -65,7 +71,7 @@ struct DetailedJigsawScene: View {
     }
 
     private func person(_ w: CGFloat, _ h: CGFloat, x: CGFloat, y: CGFloat, s: CGFloat, shirt: Color, hair: Color) -> some View {
-        let u = min(w, h) * s
+        let u: CGFloat = min(w, h) * s
         return ZStack {
             Capsule().fill(shirt).frame(width: u * 0.5, height: u * 0.7).offset(y: u * 0.35)
             Circle().fill(Color(hex: 0xC98B62)).frame(width: u * 0.38)
@@ -87,7 +93,7 @@ struct DetailedJigsawScene: View {
             rect(Theme.ochre.opacity(0.5), w, h, x: 0.5, y: 0.82, width: 1, height: 0.36)
             bunting(w, h, y: 0.2, count: 14)
             ForEach(0..<3, id: \.self) { s in
-                let x0 = 0.18 + CGFloat(s) * 0.32
+                let x0: CGFloat = 0.18 + CGFloat(s) * 0.32
                 // Striped awning.
                 ForEach(0..<6, id: \.self) { k in
                     rect(k % 2 == 0 ? palette[s] : Color.white, w, h, x: x0 - 0.125 + CGFloat(k) * 0.05, y: 0.38,
@@ -97,7 +103,7 @@ struct DetailedJigsawScene: View {
                 rect(Theme.woodDark, w, h, x: x0, y: 0.49, width: 0.29, height: 0.03)
                 // Fruit and bread on the counter.
                 ForEach(0..<7, id: \.self) { f in
-                    dot([Theme.poppy, Theme.sun, Theme.sage, Theme.rose][(f + s) % 4], w, h,
+                    dot(fruit[(f + s) % 4], w, h,
                         x: x0 - 0.11 + CGFloat(f) * 0.036, y: 0.465 - CGFloat(f % 2) * 0.02, d: 0.045)
                 }
                 rect(Theme.woodDark, w, h, x: x0 - 0.12, y: 0.66, width: 0.012, height: 0.34)
@@ -117,9 +123,9 @@ struct DetailedJigsawScene: View {
         ZStack {
             rect(Theme.daySky, w, h, x: 0.5, y: 0.25, width: 1, height: 0.5)
             ForEach(0..<5, id: \.self) { i in
-                let x = 0.08 + CGFloat(i) * 0.21
+                let x: CGFloat = 0.08 + CGFloat(i) * 0.21
                 rect(Theme.woodDark, w, h, x: x, y: 0.38, width: 0.025, height: 0.2)
-                dot([Theme.sage, Theme.sageDeep][i % 2], w, h, x: x, y: 0.26, d: 0.2)
+                dot(greens[i % 2], w, h, x: x, y: 0.26, d: 0.2)
             }
             rect(Theme.sage, w, h, x: 0.5, y: 0.75, width: 1, height: 0.5)
             Ellipse().fill(Theme.water).frame(width: w * 0.8, height: h * 0.42).position(x: w * 0.5, y: h * 0.7)
@@ -127,15 +133,15 @@ struct DetailedJigsawScene: View {
                 .position(x: w * 0.45, y: h * 0.7)
             // Lily pads with flowers.
             ForEach(0..<6, id: \.self) { i in
-                let x = 0.2 + spot(i, 1) * 0.6
-                let y = 0.58 + spot(i, 2) * 0.22
+                let x: CGFloat = 0.2 + spot(i, 1) * 0.6
+                let y: CGFloat = 0.58 + spot(i, 2) * 0.22
                 Circle().fill(Theme.sageDeep).frame(width: min(w, h) * 0.1).position(x: w * x, y: h * y)
                 if i % 2 == 0 { FlowerSprite(color: Theme.rose, size: min(w, h) * 0.06).position(x: w * x, y: h * (y - 0.02)) }
             }
             // Fish.
             ForEach(0..<4, id: \.self) { i in
-                let x = 0.25 + CGFloat(i) * 0.15
-                let y = 0.66 + CGFloat(i % 2) * 0.12
+                let x: CGFloat = 0.25 + CGFloat(i) * 0.15
+                let y: CGFloat = 0.66 + CGFloat(i % 2) * 0.12
                 Ellipse().fill(Theme.poppy).frame(width: w * 0.06, height: h * 0.04).position(x: w * x, y: h * y)
                 tri(Theme.poppy, w, h, x: x - 0.035, y: y, width: 0.025, height: 0.04)
             }
@@ -161,10 +167,10 @@ struct DetailedJigsawScene: View {
             rect(Theme.woodDark, w, h, x: 0.82, y: 0.3, width: 0.01, height: 0.36)
             rect(Theme.woodDark, w, h, x: 0.82, y: 0.3, width: 0.26, height: 0.01)
             ForEach(0..<3, id: \.self) { r in
-                let y = 0.28 + CGFloat(r) * 0.25
+                let y: CGFloat = 0.28 + CGFloat(r) * 0.25
                 rect(Theme.wood, w, h, x: 0.34, y: y, width: 0.62, height: 0.025)
                 ForEach(0..<6, id: \.self) { k in
-                    let x = 0.08 + CGFloat(k) * 0.105
+                    let x: CGFloat = 0.08 + CGFloat(k) * 0.105
                     switch (k + r) % 3 {
                     case 0:
                         rect(palette[(k + r) % palette.count], w, h, x: x, y: y - 0.05, width: 0.07, height: 0.09, corner: 3)
@@ -205,9 +211,9 @@ struct DetailedJigsawScene: View {
                 rect(Theme.woodDark.opacity(0.4), w, h, x: CGFloat(k) / 8 + 0.06, y: 0.85, width: 0.004, height: 0.3)
             }
             ForEach(0..<3, id: \.self) { d in
-                let x = 0.22 + CGFloat(d) * 0.28
-                person(w, h, x: x, y: 0.6, s: 0.15, shirt: [Theme.rose, Theme.river, Theme.sun][d], hair: Theme.ink)
-                tri([Theme.rose, Theme.river, Theme.sun][d], w, h, x: x, y: 0.72, width: 0.12, height: 0.08)
+                let x: CGFloat = 0.22 + CGFloat(d) * 0.28
+                person(w, h, x: x, y: 0.6, s: 0.15, shirt: three[d], hair: Theme.ink)
+                tri(three[d], w, h, x: x, y: 0.72, width: 0.12, height: 0.08)
                 Capsule().fill(Color(hex: 0xC98B62)).frame(width: 5, height: h * 0.1).position(x: w * (x - 0.015), y: h * 0.8)
                 Capsule().fill(Color(hex: 0xC98B62)).frame(width: 5, height: h * 0.1).rotationEffect(.degrees(d == 1 ? -50 : 20))
                     .position(x: w * (x + 0.02), y: h * 0.79)
@@ -230,7 +236,7 @@ struct DetailedJigsawScene: View {
             // Gulls.
             ForEach(0..<5, id: \.self) { g in
                 Path { p in
-                    let x = w * (0.2 + spot(g, 6) * 0.6), y = h * (0.12 + spot(g, 7) * 0.12)
+                    let x: CGFloat = w * (0.2 + spot(g, 6) * 0.6), y = h * (0.12 + spot(g, 7) * 0.12)
                     p.move(to: CGPoint(x: x - 9, y: y)); p.addQuadCurve(to: CGPoint(x: x, y: y), control: CGPoint(x: x - 5, y: y - 6))
                     p.addQuadCurve(to: CGPoint(x: x + 9, y: y), control: CGPoint(x: x + 5, y: y - 6))
                 }
@@ -238,8 +244,8 @@ struct DetailedJigsawScene: View {
             }
             // Houses along the quay, each with windows and a roof.
             ForEach(0..<7, id: \.self) { i in
-                let x = 0.07 + CGFloat(i) * 0.12
-                let ht = 0.16 + spot(i, 8) * 0.1
+                let x: CGFloat = 0.07 + CGFloat(i) * 0.12
+                let ht: CGFloat = 0.16 + spot(i, 8) * 0.1
                 rect(palette[i % palette.count].opacity(0.85), w, h, x: x, y: 0.5 - ht / 2, width: 0.11, height: ht)
                 tri(Theme.clay, w, h, x: x, y: 0.5 - ht - 0.03, width: 0.12, height: 0.06)
                 ForEach(0..<4, id: \.self) { k in
@@ -263,9 +269,9 @@ struct DetailedJigsawScene: View {
             }
             // Boats with sails and flags.
             ForEach(0..<4, id: \.self) { b in
-                let x = 0.16 + CGFloat(b) * 0.23
-                let y = 0.72 + CGFloat(b % 2) * 0.12
-                rect([Theme.clay, Theme.river, Theme.rose, Theme.ochre][b], w, h, x: x, y: y, width: 0.15, height: 0.05, corner: 8)
+                let x: CGFloat = 0.16 + CGFloat(b) * 0.23
+                let y: CGFloat = 0.72 + CGFloat(b % 2) * 0.12
+                rect(hulls[b], w, h, x: x, y: y, width: 0.15, height: 0.05, corner: 8)
                 rect(Theme.woodDark, w, h, x: x, y: y - 0.11, width: 0.006, height: 0.18)
                 tri(Color.white, w, h, x: x + 0.035, y: y - 0.11, width: 0.07, height: 0.15)
                 tri(palette[(b + 3) % palette.count], w, h, x: x - 0.02, y: y - 0.2, width: 0.035, height: 0.03)
@@ -280,12 +286,12 @@ struct DetailedJigsawScene: View {
             // Three rows of trees, back to front.
             ForEach(0..<3, id: \.self) { row in
                 ForEach(0..<6, id: \.self) { t in
-                    let x = (CGFloat(t) + (row % 2 == 0 ? 0.3 : 0.8)) / 6
-                    let y = 0.32 + CGFloat(row) * 0.14
+                    let x: CGFloat = (CGFloat(t) + (row % 2 == 0 ? 0.3 : 0.8)) / 6
+                    let y: CGFloat = 0.32 + CGFloat(row) * 0.14
                     rect(Theme.woodDark, w, h, x: x, y: y + 0.1, width: 0.018, height: 0.1)
-                    tri([Theme.sage, Theme.sageDeep, Theme.garden][row].opacity(row == 0 ? 0.7 : 1), w, h,
+                    tri(greens[row].opacity(row == 0 ? 0.7 : 1), w, h,
                         x: x, y: y, width: 0.13, height: 0.22)
-                    tri([Theme.sage, Theme.sageDeep, Theme.garden][row].opacity(row == 0 ? 0.7 : 1), w, h,
+                    tri(greens[row].opacity(row == 0 ? 0.7 : 1), w, h,
                         x: x, y: y - 0.07, width: 0.1, height: 0.16)
                 }
             }
@@ -298,7 +304,7 @@ struct DetailedJigsawScene: View {
             .stroke(Theme.ochre.opacity(0.7), style: StrokeStyle(lineWidth: w * 0.06, lineCap: .round))
             // Mushrooms.
             ForEach(0..<5, id: \.self) { m in
-                let x = 0.08 + CGFloat(m) * 0.2 + (m > 1 ? 0.08 : 0)
+                let x: CGFloat = 0.08 + CGFloat(m) * 0.2 + (m > 1 ? CGFloat(0.08) : CGFloat(0))
                 rect(Theme.cream, w, h, x: x, y: 0.89, width: 0.02, height: 0.05)
                 Ellipse().fill(Theme.poppy).frame(width: w * 0.06, height: h * 0.05).position(x: w * x, y: h * 0.86)
                 dot(Color.white, w, h, x: x - 0.01, y: 0.855, d: 0.015)
@@ -317,41 +323,35 @@ struct DetailedJigsawScene: View {
     }
 
     private func fair(_ w: CGFloat, _ h: CGFloat) -> some View {
-        let wheel = min(w, h) * 0.5
+        let wheel: CGFloat = min(w, h) * 0.5
         return ZStack {
             rect(Theme.daySky, w, h, x: 0.5, y: 0.35, width: 1, height: 0.7)
             // Big wheel with cabins.
             Circle().stroke(Theme.woodDark, lineWidth: 4).frame(width: wheel).position(x: w * 0.25, y: h * 0.38)
-            ForEach(0..<8, id: \.self) { k in
-                let a = Double(k) / 8 * 2 * .pi
-                Rectangle().fill(Theme.woodDark).frame(width: 2, height: wheel / 2)
-                    .offset(y: -wheel / 4).rotationEffect(.radians(a)).position(x: w * 0.25, y: h * 0.38)
-                RoundedRectangle(cornerRadius: 3).fill(palette[k % palette.count]).frame(width: wheel * 0.12, height: wheel * 0.1)
-                    .position(x: w * 0.25 + CGFloat(sin(a)) * wheel / 2, y: h * 0.38 - CGFloat(cos(a)) * wheel / 2)
-            }
+            ForEach(0..<8, id: \.self) { k in wheelSpoke(k, centre: CGPoint(x: w * 0.25, y: h * 0.38), size: wheel) }
             tri(Theme.woodDark, w, h, x: 0.25, y: 0.62, width: 0.2, height: 0.24)
             // Striped tents.
             ForEach(0..<3, id: \.self) { t in
-                let x = 0.52 + CGFloat(t) * 0.17
+                let x: CGFloat = 0.52 + CGFloat(t) * 0.17
                 ForEach(0..<4, id: \.self) { k in
-                    rect(k % 2 == 0 ? [Theme.rose, Theme.river, Theme.sun][t] : Color.white, w, h,
+                    rect(k % 2 == 0 ? three[t] : Color.white, w, h,
                          x: x - 0.06 + CGFloat(k) * 0.04, y: 0.6, width: 0.04, height: 0.16)
                 }
-                tri([Theme.rose, Theme.river, Theme.sun][t], w, h, x: x, y: 0.46, width: 0.18, height: 0.13)
+                tri(three[t], w, h, x: x, y: 0.46, width: 0.18, height: 0.13)
                 tri(palette[t + 3], w, h, x: x + 0.012, y: 0.37, width: 0.025, height: 0.03)
             }
             rect(Theme.sage, w, h, x: 0.5, y: 0.85, width: 1, height: 0.3)
             // Balloons on strings.
             ForEach(0..<9, id: \.self) { b in
-                let x = 0.42 + spot(b, 13) * 0.55
-                let y = 0.1 + spot(b, 14) * 0.18
+                let x: CGFloat = 0.42 + spot(b, 13) * 0.55
+                let y: CGFloat = 0.1 + spot(b, 14) * 0.18
                 Rectangle().fill(Theme.ink.opacity(0.5)).frame(width: 1, height: h * 0.1).position(x: w * x, y: h * (y + 0.07))
                 Ellipse().fill(palette[b % palette.count]).frame(width: w * 0.035, height: h * 0.06).position(x: w * x, y: h * y)
             }
             // The crowd.
             ForEach(0..<8, id: \.self) { p in
                 person(w, h, x: 0.06 + CGFloat(p) * 0.125, y: 0.82 + CGFloat(p % 2) * 0.04, s: 0.11,
-                       shirt: palette[(p + 2) % palette.count], hair: [Theme.ink, Theme.clay, Theme.ochre][p % 3])
+                       shirt: palette[(p + 2) % palette.count], hair: hairs[p % 3])
             }
         }
     }
@@ -363,28 +363,12 @@ struct DetailedJigsawScene: View {
                 dot(Color.white.opacity(0.8), w, h, x: spot(s, 15), y: spot(s, 16) * 0.4, d: 0.01 + spot(s, 17) * 0.012)
             }
             // Fireworks.
-            ForEach(0..<3, id: \.self) { f in
-                let cx = 0.2 + CGFloat(f) * 0.3, cy = 0.14 + CGFloat(f % 2) * 0.08
-                ForEach(0..<10, id: \.self) { k in
-                    Capsule().fill(palette[(f + k) % palette.count]).frame(width: 3, height: min(w, h) * 0.06)
-                        .offset(y: -min(w, h) * 0.05).rotationEffect(.degrees(Double(k) * 36))
-                        .position(x: w * cx, y: h * cy)
-                }
-            }
+            ForEach(0..<3, id: \.self) { f in firework(w, h, f) }
             CastleArt(night: true).frame(width: 420, height: 300)
                 .scaleEffect(w * 0.36 / 420).frame(width: w * 0.36, height: 300 * w * 0.36 / 420)
                 .position(x: w * 0.72, y: h * 0.5)
             // Strings of lanterns.
-            ForEach(0..<2, id: \.self) { r in
-                let y = 0.3 + CGFloat(r) * 0.16
-                Rectangle().fill(Theme.tan).frame(width: w, height: 1.5).position(x: w / 2, y: h * y)
-                ForEach(0..<9, id: \.self) { k in
-                    RoundedRectangle(cornerRadius: 5).fill([Theme.poppy, Theme.sun, Theme.rose][(k + r) % 3])
-                        .frame(width: w * 0.04, height: h * 0.06)
-                        .shadow(color: Theme.sun.opacity(0.7), radius: 6)
-                        .position(x: w * (0.05 + CGFloat(k) * 0.11 + CGFloat(r) * 0.04), y: h * (y + 0.04))
-                }
-            }
+            ForEach(0..<2, id: \.self) { r in lanternString(w, h, r) }
             // River with reflections and little boats with candles.
             rect(Theme.nightPaperLow, w, h, x: 0.5, y: 0.85, width: 1, height: 0.3)
             ForEach(0..<12, id: \.self) { k in
@@ -392,12 +376,58 @@ struct DetailedJigsawScene: View {
                     .position(x: w * spot(k, 18), y: h * (0.74 + spot(k, 19) * 0.22))
             }
             ForEach(0..<5, id: \.self) { b in
-                let x = 0.1 + CGFloat(b) * 0.2
+                let x: CGFloat = 0.1 + CGFloat(b) * 0.2
                 Ellipse().fill(Theme.cream).frame(width: w * 0.06, height: h * 0.025).position(x: w * x, y: h * 0.86)
                 dot(Theme.sun, w, h, x: x, y: 0.835, d: 0.02)
             }
             person(w, h, x: 0.18, y: 0.62, s: 0.13, shirt: Theme.lavender, hair: Theme.ink)
             person(w, h, x: 0.3, y: 0.63, s: 0.12, shirt: Theme.river, hair: Theme.clay)
+        }
+    }
+
+    private func firework(_ w: CGFloat, _ h: CGFloat, _ f: Int) -> some View {
+        let s: CGFloat = min(w, h)
+        let cx: CGFloat = w * (0.2 + CGFloat(f) * 0.3)
+        let cy: CGFloat = h * (0.14 + CGFloat(f % 2) * 0.08)
+        return ForEach(0..<10, id: \.self) { k in
+            spark(palette[(f + k) % palette.count], length: s * 0.06, reach: s * 0.05, degrees: Double(k) * 36)
+                .position(x: cx, y: cy)
+        }
+    }
+
+    private func spark(_ c: Color, length: CGFloat, reach: CGFloat, degrees: Double) -> some View {
+        Capsule().fill(c).frame(width: 3, height: length).offset(y: -reach).rotationEffect(.degrees(degrees))
+    }
+
+    private func lanternString(_ w: CGFloat, _ h: CGFloat, _ r: Int) -> some View {
+        let y: CGFloat = 0.3 + CGFloat(r) * 0.16
+        return ZStack {
+            Rectangle().fill(Theme.tan).frame(width: w, height: 1.5).position(x: w / 2, y: h * y)
+            ForEach(0..<9, id: \.self) { k in
+                lantern(lanternColours[(k + r) % 3], width: w * 0.04, height: h * 0.06)
+                    .position(x: lanternX(w, k, r), y: h * (y + 0.04))
+            }
+        }
+    }
+
+    private func lanternX(_ w: CGFloat, _ k: Int, _ r: Int) -> CGFloat {
+        let base: CGFloat = 0.05 + CGFloat(k) * 0.11
+        return w * (base + CGFloat(r) * 0.04)
+    }
+
+    private func lantern(_ c: Color, width: CGFloat, height: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: 5).fill(c).frame(width: width, height: height).shadow(color: Theme.sun.opacity(0.7), radius: 6)
+    }
+
+    private func wheelSpoke(_ k: Int, centre: CGPoint, size: CGFloat) -> some View {
+        let a: Double = Double(k) / 8 * 2 * Double.pi
+        let r: CGFloat = size / 2
+        let cabin = CGPoint(x: centre.x + CGFloat(sin(a)) * r, y: centre.y - CGFloat(cos(a)) * r)
+        return ZStack {
+            Rectangle().fill(Theme.woodDark).frame(width: 2, height: r)
+                .offset(y: -r / 2).rotationEffect(.radians(a)).position(centre)
+            RoundedRectangle(cornerRadius: 3).fill(palette[k % palette.count]).frame(width: size * 0.12, height: size * 0.1)
+                .position(cabin)
         }
     }
 }
