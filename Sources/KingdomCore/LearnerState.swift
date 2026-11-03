@@ -32,6 +32,10 @@ public struct SoundSettings: Codable, Equatable, Sendable {
     /// 0.5 is AVSpeechUtteranceDefaultSpeechRate; a little slower suits a 6-year-old.
     public var speechRate: Double = 0.42
     public var subtitles = false
+    /// Voices a grown-up picked in Sound and voice (AVSpeechSynthesisVoice identifiers). Nil means the app picks
+    /// the best downloaded voice itself. Optional, so saves from before this decode unchanged.
+    public var narratorVoiceID: String?
+    public var companionVoiceID: String?
     public init() {}
 }
 
@@ -65,6 +69,13 @@ public struct LearnerState: Codable, Equatable, Sendable {
     public var sheets: [String: SheetRecord] = [:]
     /// The jigsaw widget (issue #25).
     public var jigsaw = JigsawRecord()
+    /// The cup shuffle widget (issue #27).
+    public var cupShuffle = CupShuffleRecord()
+    /// The grown-ups' PIN (salted hash). Nil on installs from before 2026-11-03: they keep the two-finger gate
+    /// until a grown-up sets one.
+    public var parentPin: ParentPin?
+    /// The memory game (docs/features/memory.md).
+    public var memory = MemoryRecord()
 
     public init() {}
 
@@ -83,7 +94,8 @@ public struct LearnerState: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case version, skills, completedScenes, unlockedChapters, needsPractice, lastSeen, resume, time,
-             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup, wroteDown, board, sheets, jigsaw
+             timeSettings, sound, hasMetSparkle, chapterGate, testedOutSkills, setup, wroteDown, board, sheets, jigsaw,
+             cupShuffle, parentPin, memory
     }
 
     public init(from decoder: Decoder) throws {
@@ -106,6 +118,9 @@ public struct LearnerState: Codable, Equatable, Sendable {
         board = try c.decodeIfPresent(BoardRecord.self, forKey: .board) ?? BoardRecord()
         sheets = try c.decodeIfPresent([String: SheetRecord].self, forKey: .sheets) ?? [:]
         jigsaw = try c.decodeIfPresent(JigsawRecord.self, forKey: .jigsaw) ?? JigsawRecord()
+        cupShuffle = try c.decodeIfPresent(CupShuffleRecord.self, forKey: .cupShuffle) ?? CupShuffleRecord()
+        parentPin = try c.decodeIfPresent(ParentPin.self, forKey: .parentPin)
+        memory = try c.decodeIfPresent(MemoryRecord.self, forKey: .memory) ?? MemoryRecord()
     }
 
     public func record(for skill: SkillID) -> SkillRecord { skills[skill] ?? SkillRecord() }
@@ -135,14 +150,16 @@ public struct LearnerState: Codable, Equatable, Sendable {
         needsPractice.subtract(ids)
     }
 
-    /// AC-P7: back to a fresh install, keeping the sound settings, quiet hours and gate. Setup starts again,
+    /// AC-P7: back to a fresh install, keeping the sound settings, quiet hours, gate and grown-ups' PIN. Setup starts again,
     /// since it is the only way to change the name, companion and daily limit (charter v1.3).
     public mutating func resetAllProgress() {
         var keepTime = timeSettings
         keepTime.setDailyLimit(TimeSettings.defaultLimit)
         let keepSound = sound
         let keepGate = chapterGate
+        let keepPin = parentPin
         self = LearnerState()
+        parentPin = keepPin
         timeSettings = keepTime
         sound = keepSound
         chapterGate = keepGate
@@ -152,8 +169,13 @@ public struct LearnerState: Codable, Equatable, Sendable {
 /// Saves the learner state as JSON in Application Support. Nothing leaves the device.
 public struct StateStore: Sendable {
     public let url: URL
+    /// False for short-lived files (the debug snapshot) that don't need a backup copy.
+    public let keepsBackup: Bool
 
-    public init(url: URL) { self.url = url }
+    public init(url: URL, keepsBackup: Bool = true) {
+        self.url = url
+        self.keepsBackup = keepsBackup
+    }
 
     public static func defaultStore() -> StateStore {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
@@ -161,11 +183,30 @@ public struct StateStore: Sendable {
         return StateStore(url: dir.appendingPathComponent("KingdomOfNumbers/learner.json"))
     }
 
-    public func load() -> LearnerState {
-        guard let data = try? Data(contentsOf: url) else { return LearnerState() }
+    /// The copy of the last save that read back correctly, kept next to the main file.
+    public var backupURL: URL { url.deletingPathExtension().appendingPathExtension("backup.json") }
+
+    /// Loads her progress. Her saved play must never be lost to an app update (Shrikant, 2026-11-02), so a
+    /// file that can't be read is never overwritten: it is moved aside to `learner-unreadable-<time>.json`
+    /// and the last good backup is used instead. Only when neither can be read does she start fresh.
+    public func load(now: Date = Date()) -> LearnerState {
+        let fm = FileManager.default
+        guard fm.fileExists(atPath: url.path) else {
+            return keepsBackup ? (Self.decode(backupURL) ?? LearnerState()) : LearnerState()
+        }
+        if let state = Self.decode(url) { return state }
+        let stamp = Int(now.timeIntervalSince1970)
+        let aside = url.deletingLastPathComponent()
+            .appendingPathComponent("\(url.deletingPathExtension().lastPathComponent)-unreadable-\(stamp).json")
+        try? fm.moveItem(at: url, to: aside)
+        return keepsBackup ? (Self.decode(backupURL) ?? LearnerState()) : LearnerState()
+    }
+
+    static func decode(_ url: URL) -> LearnerState? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        return (try? decoder.decode(LearnerState.self, from: data)) ?? LearnerState()
+        return try? decoder.decode(LearnerState.self, from: data)
     }
 
     public func save(_ state: LearnerState) throws {
@@ -173,7 +214,13 @@ public struct StateStore: Sendable {
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = [.sortedKeys]
         let data = try encoder.encode(state)
-        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let fm = FileManager.default
+        try fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        // Before replacing the main file, keep it as the backup, but only if it still reads back.
+        if keepsBackup, Self.decode(url) != nil {
+            try? fm.removeItem(at: backupURL)
+            try? fm.copyItem(at: url, to: backupURL)
+        }
         try data.write(to: url, options: .atomic)
     }
 }

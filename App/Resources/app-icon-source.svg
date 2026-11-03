@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 240 240" xmlns:c2pa="http://c2pa.org/manifest">
+  <!-- Home School app icon, option 2 "Building blocks". iPadOS masks the corners itself, so the exported PNG should be a full square: drop rx for the asset. -->
+  <rect width="240" height="240" fill="#FFD44D"/>
+  <path d="M120 46 L178 104 H62 Z" fill="#E5487A" stroke="#E5487A" stroke-width="10" stroke-linejoin="round"/>
+  <rect x="60" y="112" width="56" height="56" rx="10" fill="#2F7DE1"/>
+  <rect x="124" y="112" width="56" height="56" rx="10" fill="#3BB37A"/>
+  <rect x="60" y="174" width="120" height="22" rx="8" fill="#1E2A3A"/>
+  <text x="88" y="152" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="34" fill="#FFFFFF">1</text>
+  <text x="152" y="152" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="34" fill="#FFFFFF">A</text>
+</svg>

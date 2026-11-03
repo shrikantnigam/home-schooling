@@ -1,7 +1,7 @@
 import XCTest
 
 /// QA play-through for Chapter 2: The Bridge of Tens (docs/chapters/chapter-2.md).
-final class Chapter2PlaythroughTests: XCTestCase {
+final class Kingdom2QATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-2d: the bridge is under mist until the Garden is mastered.

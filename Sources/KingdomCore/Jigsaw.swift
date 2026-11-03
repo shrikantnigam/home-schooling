@@ -1,11 +1,28 @@
 import Foundation
 
-// Jigsaw widget (issue #25, rules J1 to J12: docs/features/jigsaw.md).
-// Picture puzzles build spatial reasoning, part and whole, and strategy. The number-line puzzle builds number order
-// and follows the full charter (concrete, then pictures, then numerals).
+// Jigsaw widget (issue #25, rules J1 to J14: docs/features/jigsaw.md).
+// Picture puzzles build spatial reasoning, part and whole, and strategy. The number-line puzzle (J12) was removed on
+// 2026-11-02 at Shrikant's request; old saves may still hold its results, which are ignored.
 
 public enum JigsawCut: String, Codable, CaseIterable, Sendable { case squares, tabs, wavy }
 public enum JigsawGuide: String, Codable, CaseIterable, Sendable { case full, faint, none }
+
+/// Puzzle groups on the map (Shrikant, 2026-11-03, J16). Easy holds the first eight pictures and the 10/20/30
+/// picker. Medium pictures have more detail and are always 30 pieces; Hard pictures more still, at 50 pieces.
+public enum JigsawGroup: String, Codable, CaseIterable, Sendable {
+    case easy, medium, hard
+
+    /// The fixed piece count, or nil when she picks (Easy).
+    public var pieces: Int? {
+        switch self {
+        case .easy: return nil
+        case .medium: return 30
+        case .hard: return 50
+        }
+    }
+
+    public var title: String { rawValue.capitalized }
+}
 
 /// One rung of the picture-puzzle ladder. Each rung moves exactly one knob from the rung below (J2).
 public struct JigsawLevel: Codable, Equatable, Sendable {
@@ -33,10 +50,10 @@ public struct JigsawLevel: Codable, Equatable, Sendable {
 public enum JigsawLadder {
     /// Easiest first. Sizes go 10 to 50 in steps of 10 (Shrikant, Nov 2).
     public static let rungs: [JigsawLevel] = {
-        var l = JigsawLevel(pieces: 10, cut: .squares, turning: false, guide: .full, edgesSorted: true)
+        // No square pieces (Shrikant, 2026-11-03: "way too easy"): every puzzle starts with tabs.
+        var l = JigsawLevel(pieces: 10, cut: .tabs, turning: false, guide: .full, edgesSorted: true)
         var out = [l]
         func step(_ change: (inout JigsawLevel) -> Void) { change(&l); out.append(l) }
-        step { $0.cut = .tabs }
         step { $0.pieces = 20 }
         step { $0.guide = .faint }
         step { $0.pieces = 30 }
@@ -50,6 +67,9 @@ public enum JigsawLadder {
     }()
 
     public static let sizes = [10, 20, 30, 40, 50]
+
+    /// 2 since the square-pieces rung was removed (2026-11-03). Saves at version 1 move down one rung.
+    public static let version = 2
 
     /// Columns and rows for a piece count, wider than tall like the iPad.
     public static func grid(_ pieces: Int) -> (cols: Int, rows: Int) {
@@ -83,7 +103,7 @@ public struct JigsawCutPlan: Equatable, Sendable {
         self.init(cols: g.cols, rows: g.rows, seed: seed)
     }
 
-    /// A plan with its own shape, e.g. the number line's single row of ten.
+    /// A plan with its own number of columns and rows.
     public init(cols: Int, rows: Int, seed: UInt64) {
         let g = (cols: max(1, cols), rows: max(1, rows))
         self.cols = g.cols
@@ -140,82 +160,84 @@ public struct JigsawResult: Codable, Equatable, Sendable {
     public var isStuck: Bool { maxHintStep >= 3 || firstFitRate < 0.5 }
 }
 
-/// Number-line puzzle rungs (J12): concrete dots, then pictures (hops), then numerals; counting by 1, 2, 5, 10.
-public struct NumberLineLevel: Codable, Equatable, Sendable {
-    public enum Look: String, Codable, Sendable { case dots, hops, numerals }
-    public let step: Int
-    public let look: Look
-
-    public init(step: Int, look: Look) {
-        self.step = step
-        self.look = look
-    }
-
-    public static let rungs: [NumberLineLevel] = [
-        .init(step: 1, look: .dots), .init(step: 1, look: .hops), .init(step: 1, look: .numerals),
-        .init(step: 2, look: .dots), .init(step: 2, look: .numerals),
-        .init(step: 5, look: .hops), .init(step: 5, look: .numerals),
-        .init(step: 10, look: .hops), .init(step: 10, look: .numerals),
-    ]
-
-    /// The ten values, in order: 1 to 10, 2 to 20, 5 to 50 or 10 to 100.
-    public var values: [Int] { (1...10).map { $0 * step } }
-}
-
 /// What the jigsaw widget remembers.
 public struct JigsawRecord: Codable, Equatable, Sendable {
     public var rung = 0
     /// False until the quick check (J10) has found her starting size.
     public var calibrated = false
     public var easyStreak = 0
-    public var lineRung = 0
-    public var lineCalibrated = false
-    public var lineStreak = 0
-    /// Picture id or "line", so the same puzzle never comes twice in a row (J9).
+    /// The last picture played.
     public var lastPuzzle: String?
+    /// Pictures she has finished at least once, with the most pieces she has done each in (J14).
+    public var completed: [String: Int] = [:]
     public var results: [JigsawResult] = []
     public var introsHeard: Set<String> = []
     public var puzzlesDone = 0
-    /// Grown-up limits on the size she is offered.
+    /// Grown-up limits from before J15 (the picker is now fixed at 10, 20, 30). Kept so old saves round-trip.
+    /// Which ladder `rung` counts on (JigsawLadder.version).
+    public var ladder = JigsawLadder.version
     public var minPieces = 10
     public var maxPieces = 50
 
     public init() {}
 
     enum CodingKeys: String, CodingKey {
-        case rung, calibrated, easyStreak, lineRung, lineCalibrated, lineStreak, lastPuzzle, results, introsHeard,
-             puzzlesDone, minPieces, maxPieces
+        case rung, calibrated, easyStreak, lastPuzzle, results, introsHeard, puzzlesDone, minPieces, maxPieces,
+             completed, ladder
     }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        rung = try c.decodeIfPresent(Int.self, forKey: .rung) ?? 0
+        let savedRung = try c.decodeIfPresent(Int.self, forKey: .rung) ?? 0
+        let savedLadder = try c.decodeIfPresent(Int.self, forKey: .ladder) ?? 1
+        // Ladder 1 had a square-pieces rung at the bottom; the same level is one rung lower now.
+        rung = savedLadder < 2 ? max(0, savedRung - 1) : savedRung
+        ladder = JigsawLadder.version
         calibrated = try c.decodeIfPresent(Bool.self, forKey: .calibrated) ?? false
         easyStreak = try c.decodeIfPresent(Int.self, forKey: .easyStreak) ?? 0
-        lineRung = try c.decodeIfPresent(Int.self, forKey: .lineRung) ?? 0
-        lineCalibrated = try c.decodeIfPresent(Bool.self, forKey: .lineCalibrated) ?? false
-        lineStreak = try c.decodeIfPresent(Int.self, forKey: .lineStreak) ?? 0
         lastPuzzle = try c.decodeIfPresent(String.self, forKey: .lastPuzzle)
         results = try c.decodeIfPresent([JigsawResult].self, forKey: .results) ?? []
         introsHeard = try c.decodeIfPresent(Set<String>.self, forKey: .introsHeard) ?? []
         puzzlesDone = try c.decodeIfPresent(Int.self, forKey: .puzzlesDone) ?? 0
         minPieces = try c.decodeIfPresent(Int.self, forKey: .minPieces) ?? 10
         maxPieces = try c.decodeIfPresent(Int.self, forKey: .maxPieces) ?? 50
+        // Saves from before J14 have no ticks yet: rebuild them from the puzzles in her history.
+        completed = try c.decodeIfPresent([String: Int].self, forKey: .completed) ?? Self.completed(from: results)
     }
+
+    static func completed(from results: [JigsawResult]) -> [String: Int] {
+        results.reduce(into: [:]) { done, r in
+            guard r.kind == "picture", let id = r.pictureID else { return }
+            done[id] = max(done[id] ?? 0, r.pieces)
+        }
+    }
+
+    /// True once she has finished this picture at any size (J14).
+    public func isCompleted(_ picture: String) -> Bool { completed[picture] != nil }
 
     public var level: JigsawLevel { JigsawLadder.rungs[min(max(0, rung), JigsawLadder.rungs.count - 1)] }
-    public var lineLevel: NumberLineLevel {
-        NumberLineLevel.rungs[min(max(0, lineRung), NumberLineLevel.rungs.count - 1)]
+
+    /// The sizes on the picker (Shrikant, 2026-11-02, J15): always 10, 20 and 30, so she sees what's coming.
+    public static let pickerSizes = [10, 20, 30]
+
+    /// 10 is always open. 20 and 30 open once she has finished a puzzle (her first one is always a 10, so this
+    /// means "after a 10"; saves that already finished a bigger one keep them open).
+    public func isOpen(_ size: Int) -> Bool { size <= 10 || !completed.isEmpty }
+
+    /// Her level's size on the picker, for the sun ring: never above 30, and never a locked size.
+    public var levelSize: Int {
+        let s = min(max(level.pieces, 10), Self.pickerSizes.last ?? 30)
+        return isOpen(s) ? s : 10
     }
 
-    /// The level size kept inside the grown-up's range.
-    public var levelSize: Int { min(max(level.pieces, minPieces), maxPieces) }
-
-    /// Two or three sizes around her level for her to pick from. The quick check offers only its size (J10).
-    public var offeredSizes: [Int] {
-        let s = levelSize
-        guard calibrated else { return [s] }
-        return [s - 10, s, s + 10].filter { $0 >= minPieces && $0 <= maxPieces && JigsawLadder.sizes.contains($0) }
+    /// J16: Easy is always open. Medium opens once she has finished an Easy picture at 30 pieces; Hard opens once
+    /// she has finished any Medium picture. `groups` maps picture ids to their group.
+    public func isOpen(_ group: JigsawGroup, groups: [String: JigsawGroup]) -> Bool {
+        switch group {
+        case .easy: return true
+        case .medium: return completed.contains { groups[$0.key] == .easy && $0.value >= 30 }
+        case .hard: return completed.keys.contains { groups[$0] == .medium }
+        }
     }
 
     /// The level she plays at a chosen size: her rung's knobs with that piece count.
@@ -225,17 +247,12 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
         return l
     }
 
-    /// Sets the grown-up's range, keeping lowest at or below highest.
-    public mutating func setRange(min lo: Int, max hi: Int) {
-        minPieces = min(max(10, lo), 50)
-        maxPieces = max(min(50, hi), minPieces)
-    }
-
     /// A finished picture puzzle moves the level by at most one knob (J2), or by size during the quick check (J10).
     public mutating func finishPicture(_ r: JigsawResult) {
         record(r)
+        if let id = r.pictureID { completed[id] = max(completed[id] ?? 0, r.pieces) }
         if !calibrated {
-            if r.isEasy && rung < JigsawLadder.rungs.count - 1 && level.pieces < maxPieces {
+            if r.isEasy && rung < JigsawLadder.rungs.count - 1 && level.pieces < (Self.pickerSizes.last ?? 30) {
                 rung = JigsawLadder.nextSizeRung(after: rung)
             } else {
                 calibrated = true
@@ -256,37 +273,18 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
         }
     }
 
-    public mutating func finishNumberLine(_ r: JigsawResult) {
-        record(r)
-        if !lineCalibrated {
-            if r.isEasy && lineRung < NumberLineLevel.rungs.count - 1 { lineRung += 1 } else { lineCalibrated = true }
-            return
-        }
-        if r.isStuck {
-            lineRung = max(0, lineRung - 1)
-            lineStreak = 0
-        } else if r.isEasy {
-            lineStreak += 1
-            if lineStreak >= 4 {
-                lineRung = min(NumberLineLevel.rungs.count - 1, lineRung + 1)
-                lineStreak = 0
-            }
-        } else {
-            lineStreak = 0
-        }
-    }
-
     private mutating func record(_ r: JigsawResult) {
         results.append(r)
         if results.count > 60 { results.removeFirst(results.count - 60) }
-        lastPuzzle = r.kind == "line" ? "line" : r.pictureID
+        lastPuzzle = r.pictureID
         puzzlesDone += 1
     }
 
     /// J5: the companion slips on every third puzzle (the 2nd, 5th, 8th...).
     public var companionSlipDue: Bool { puzzlesDone % 3 == 1 }
 
-    /// The next picture: never the one just played (J9), otherwise the least recently played.
+    /// The picture the map suggests with a sun ring (J13): never the one just played, otherwise the least recently
+    /// played. She can still pick any picture.
     public func nextPicture(from ids: [String]) -> String? {
         let candidates = ids.filter { $0 != lastPuzzle }
         guard !candidates.isEmpty else { return ids.first }
@@ -311,7 +309,7 @@ public struct JigsawRecord: Codable, Equatable, Sendable {
         "Fold a square of paper into two triangles, then four. Can she make the square again?",
         "Do a real jigsaw together. Sort the flat-edged pieces first and talk about corners and edges.",
         "Draw a picture, cut it into 4 strips, mix them up and rebuild it.",
-        "Write 1 to 10 on sticky notes, mix them up and line them up along the floor.",
+        "Tear a magazine page into 8 pieces and swap with her: you each rebuild the other's page.",
     ]
 
     public var homeIdea: String { Self.homeIdeas[puzzlesDone % Self.homeIdeas.count] }

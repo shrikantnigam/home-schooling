@@ -10,7 +10,9 @@ struct HubWidget: Identifiable, Equatable {
 
     static let all: [HubWidget] = [
         HubWidget(id: "kingdom", name: "Kingdom of Numbers", skill: "Numbers through a story"),
-        HubWidget(id: "jigsaw", name: "Jigsaw", skill: "Shapes, parts and wholes, and number order"),
+        HubWidget(id: "jigsaw", name: "Jigsaw", skill: "Shapes, and parts of a whole"),
+        HubWidget(id: "cups", name: "Cup shuffle", skill: "Attention: following one moving thing"),
+        HubWidget(id: "memory", name: "Memory", skill: "Memory: keeping where things are in mind"),
     ]
 }
 
@@ -34,7 +36,7 @@ struct HomeView: View {
                     .foregroundStyle(block == nil ? Theme.ink : .white)
                     .padding(.top, 104)
                     .accessibilityIdentifier("home.title")
-                HStack(alignment: .bottom, spacing: 40) {
+                HStack(alignment: .bottom, spacing: 26) {
                     ForEach(HubWidget.all) { w in tile(w, resting: block != nil) }
                 }
                 if let block {
@@ -67,7 +69,7 @@ struct HomeView: View {
                     RoundedRectangle(cornerRadius: 28).fill(Theme.card).paperCut()
                     art(w).padding(18)
                 }
-                .frame(width: 280, height: 230)
+                .frame(width: 236, height: 210)
                 Text(w.name).font(Theme.title(28)).foregroundStyle(resting ? .white : Theme.ink)
             }
             // Kingdom still opens while resting, to its sleeping castle; other widgets wait for tomorrow.
@@ -92,6 +94,10 @@ struct HomeView: View {
                 }
                 .offset(y: 70)
             }
+        case "cups":
+            CupTileArt()
+        case "memory":
+            MemoryTileArt()
         default:
             JigsawTileArt()
         }
@@ -118,5 +124,30 @@ struct JigsawTileArt: View {
             .overlay(shape.stroke(Theme.ink.opacity(0.45), lineWidth: 2))
             .frame(width: 120, height: 120)
             .offset(x: c == 0 ? -40 : 40, y: r == 0 ? -40 : 40)
+    }
+}
+
+/// Three cards, one turned over, for the memory tile.
+struct MemoryTileArt: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            card(up: false).rotationEffect(.degrees(-8))
+            ZStack {
+                RoundedRectangle(cornerRadius: 12).fill(Theme.cream)
+                MemoryCharacterArt(character: .bird, companion: .unicorn).padding(10)
+            }
+            .frame(width: 58, height: 76)
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.tan, lineWidth: 2))
+            card(up: false).rotationEffect(.degrees(8))
+        }
+        .frame(width: 200, height: 160)
+    }
+
+    private func card(up: Bool) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 12).fill(Theme.deepLavender)
+            StarSprite(lit: false, size: 26)
+        }
+        .frame(width: 58, height: 76)
     }
 }

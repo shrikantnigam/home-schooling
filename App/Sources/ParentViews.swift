@@ -1,12 +1,17 @@
+import AVFoundation
 import KingdomCore
 import SwiftUI
 import UIKit
 
-/// Two steps a pre-reader can't do: hold two fingers for 3 seconds, then type this year.
+/// The way into the grown-ups' area. With a PIN set (Shrikant, 2026-11-03), a number pad. Without one (installs
+/// from before), or after "Forgot PIN?", the old two steps: hold two fingers for 3 seconds, then type this year.
 /// Nothing here is spoken (Gate mock).
 struct ParentGateView: View {
     @EnvironmentObject var model: AppModel
     @State private var gate = ParentGate()
+    @State private var pinGate = PinGate()
+    @State private var forgot = false
+    @State private var pinMessage: String?
     @State private var year = ""
     @State private var wrong = false
     @FocusState private var focused: Bool
@@ -15,52 +20,133 @@ struct ParentGateView: View {
         ZStack {
             Theme.paper.ignoresSafeArea()
             VStack(spacing: 26) {
-                Text("For grown-ups").font(Theme.title(34)).foregroundStyle(Theme.ink)
-                switch gate.step {
-                case .hold:
-                    Text("Hold two fingers on the circle for 3 seconds.")
-                        .font(Theme.body(20)).foregroundStyle(Theme.muted)
-                    ZStack {
-                        Circle().fill(Theme.lilac).frame(width: 220, height: 220)
-                        Image(systemName: "hand.raised.fingers.spread.fill").font(.system(size: 70)).foregroundStyle(Theme.lavender)
-                        TwoFingerHold { fingers, seconds in gate.holdEnded(fingers: fingers, seconds: seconds) }
-                            .frame(width: 220, height: 220)
-                            .accessibilityIdentifier("gate.hold")
-                    }
-                    if model.env.uiTesting {
-                        // XCUITest can't do a two-finger long press; the gate rule itself is unit tested.
-                        Button("QA: simulate two-finger hold") { gate.holdEnded(fingers: 2, seconds: 3) }
-                            .accessibilityIdentifier("gate.qaHold")
-                    }
-                case .typeYear:
-                    Text("Type the current year.").font(Theme.body(20)).foregroundStyle(Theme.muted)
-                    TextField("Year", text: $year)
-                        .keyboardType(.numberPad)
-                        .font(Theme.title(40))
-                        .multilineTextAlignment(.center)
-                        .frame(width: 220)
-                        .padding(12)
-                        .background(RoundedRectangle(cornerRadius: 14).fill(Color.white))
-                        .focused($focused)
-                        .onAppear { focused = true }
-                        .accessibilityIdentifier("gate.year")
-                    if wrong { Text("That's not it. Try again.").font(Theme.body()).foregroundStyle(Theme.muted) }
-                    Button("Continue") {
-                        wrong = !gate.submitYear(year, now: model.now, calendar: model.calendar)
-                        year = ""
-                        if gate.step == .open { model.route = .parent }
-                    }
-                    .font(Theme.body(20).bold())
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.deepLavender)
-                    .accessibilityIdentifier("gate.continue")
-                case .open:
-                    ProgressView()
+                Text("Parent dashboard").font(Theme.title(34)).foregroundStyle(Theme.ink)
+                if let pin = model.state.parentPin, !forgot {
+                    pinPad(pin)
+                } else {
+                    holdAndYear
                 }
                 Button("Cancel") { model.leaveParentArea() }
                     .font(Theme.body(18))
                     .accessibilityIdentifier("gate.cancel")
             }
+        }
+    }
+
+    // MARK: PIN
+
+    private func pinPad(_ pin: ParentPin) -> some View {
+        VStack(spacing: 18) {
+            Text("Enter your PIN").font(Theme.body(20)).foregroundStyle(Theme.muted)
+            HStack(spacing: 18) {
+                ForEach(0..<ParentPin.length, id: \.self) { i in
+                    Circle()
+                        .fill(i < pinGate.entered.count ? Theme.deepLavender : Color.clear)
+                        .overlay(Circle().stroke(Theme.deepLavender, lineWidth: 2))
+                        .frame(width: 22, height: 22)
+                }
+            }
+            .accessibilityElement()
+            .accessibilityIdentifier("gate.pin.dots")
+            .accessibilityValue("\(pinGate.entered.count)")
+            if let pinMessage {
+                Text(pinMessage).font(Theme.body()).foregroundStyle(Theme.muted)
+                    .accessibilityIdentifier("gate.pin.message")
+            }
+            let rows: [[String]] = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["", "0", "⌫"]]
+            VStack(spacing: 14) {
+                ForEach(rows, id: \.self) { row in
+                    HStack(spacing: 14) {
+                        ForEach(row, id: \.self) { key in padKey(key, pin: pin) }
+                    }
+                }
+            }
+            Button("Forgot PIN?") { forgot = true; pinGate = PinGate(); pinMessage = nil }
+                .font(Theme.body(17))
+                .accessibilityIdentifier("gate.pin.forgot")
+        }
+    }
+
+    @ViewBuilder
+    private func padKey(_ key: String, pin: ParentPin) -> some View {
+        if key.isEmpty {
+            Color.clear.frame(width: 84, height: 84)
+        } else {
+            Button {
+                if key == "⌫" { pinGate.deleteLast(); return }
+                switch pinGate.type(Character(key), pin: pin, now: Date()) {
+                case .open: model.route = .parent
+                case .wrong: pinMessage = "That's not it. Try again."
+                case .locked: pinMessage = "Too many tries. Wait a minute, or use Forgot PIN."
+                case .typing: pinMessage = nil
+                }
+            } label: {
+                Group {
+                    if key == "⌫" { Image(systemName: "delete.left").font(.system(size: 28)) }
+                    else { Text(key).font(Theme.title(34)) }
+                }
+                .foregroundStyle(Theme.ink)
+                .frame(width: 84, height: 84)
+                .background(Circle().fill(Color.white))
+                .overlay(Circle().stroke(Theme.tan, lineWidth: 2))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(key == "⌫" ? "gate.pin.delete" : "gate.pin.\(key)")
+        }
+    }
+
+    // MARK: Hold and year (no PIN yet, or a forgotten PIN)
+
+    @ViewBuilder
+    private var holdAndYear: some View {
+        if forgot {
+            Text("Forgot your PIN? Do these two steps, then set a new PIN in Parent PIN.")
+                .font(Theme.body(17)).foregroundStyle(Theme.muted)
+                .accessibilityIdentifier("gate.forgotHelp")
+        }
+        switch gate.step {
+        case .hold:
+            Text("Hold two fingers on the circle for 3 seconds.")
+                .font(Theme.body(20)).foregroundStyle(Theme.muted)
+            ZStack {
+                Circle().fill(Theme.lilac).frame(width: 220, height: 220)
+                Image(systemName: "hand.raised.fingers.spread.fill").font(.system(size: 70)).foregroundStyle(Theme.lavender)
+                TwoFingerHold { fingers, seconds in gate.holdEnded(fingers: fingers, seconds: seconds) }
+                    .frame(width: 220, height: 220)
+                    .accessibilityIdentifier("gate.hold")
+            }
+            if model.env.uiTesting {
+                // XCUITest can't do a two-finger long press; the gate rule itself is unit tested.
+                Button("QA: simulate two-finger hold") { gate.holdEnded(fingers: 2, seconds: 3) }
+                    .accessibilityIdentifier("gate.qaHold")
+            }
+        case .typeYear:
+            Text("Type the current year.").font(Theme.body(20)).foregroundStyle(Theme.muted)
+            TextField("Year", text: $year)
+                .keyboardType(.numberPad)
+                .font(Theme.title(40))
+                .multilineTextAlignment(.center)
+                .frame(width: 220)
+                .padding(12)
+                .background(RoundedRectangle(cornerRadius: 14).fill(Color.white))
+                .focused($focused)
+                .onAppear { focused = true }
+                .accessibilityIdentifier("gate.year")
+            if wrong { Text("That's not it. Try again.").font(Theme.body()).foregroundStyle(Theme.muted) }
+            Button("Continue") {
+                wrong = !gate.submitYear(year, now: model.now, calendar: model.calendar)
+                year = ""
+                if gate.step == .open {
+                    model.openPinPageNext = forgot
+                    model.route = .parent
+                }
+            }
+            .font(Theme.body(20).bold())
+            .buttonStyle(.borderedProminent)
+            .tint(Theme.deepLavender)
+            .accessibilityIdentifier("gate.continue")
+        case .open:
+            ProgressView()
         }
     }
 }
@@ -95,57 +181,93 @@ struct TwoFingerHold: UIViewRepresentable {
 /// Parent area: progress, time limits, sound, Screen Time help, reset (Parent mock).
 struct ParentAreaView: View {
     @EnvironmentObject var model: AppModel
-    @State private var section: ParentTab = .progress
+    @State private var section: ParentTab = .overview
+    @State private var newPin = ""
+    @State private var newPinAgain = ""
+    @State private var pinSaved: String?
     @State private var confirmReset = false
     @State private var skillToReset: Skill?
 
     enum ParentTab: String, CaseIterable, Identifiable {
-        case progress = "Progress"
-        case scrolls = "Puzzle scrolls"
-        case jigsaw = "Jigsaw"
+        case overview = "Today"
         case time = "Time limits"
         case sound = "Sound and voice"
+        case pin = "Parent PIN"
         case screenTime = "Screen Time help"
         case reset = "Reset progress"
         #if DEBUG
         case debug = "Jump to (testing)"
         #endif
+        case progress = "Progress"
+        case scrolls = "Puzzle scrolls"
+        case jigsaw = "Jigsaw"
+        case cups = "Cup shuffle"
+        case memory = "Memory"
         var id: String { rawValue }
     }
 
+    /// The dashboard's sidebar (Shrikant, 2026-11-03): General first, then one group per widget that has
+    /// something to show or set. A widget with nothing to set gets no group.
+    static let groups: [(title: String, tabs: [ParentTab])] = {
+        var general: [ParentTab] = [.overview, .time, .sound, .pin, .screenTime, .reset]
+        #if DEBUG
+        general.append(.debug)
+        #endif
+        return [
+            ("General", general),
+            ("Kingdom of Numbers", [.progress, .scrolls]),
+            ("Jigsaw", [.jigsaw]),
+            ("Cup shuffle", [.cups]),
+            ("Memory", [.memory]),
+        ]
+    }()
+
     var body: some View {
         HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 6) {
-                Button { model.leaveParentArea() } label: {
-                    Label("Back", systemImage: "chevron.left").font(Theme.body(17).bold())
-                }
-                .accessibilityIdentifier("parent.back")
-                .padding(.bottom, 20)
-                ForEach(ParentTab.allCases) { s in
-                    Button { section = s } label: {
-                        Text(s.rawValue).font(Theme.body(18)).foregroundStyle(section == s ? .white : Theme.ink)
-                            .padding(.horizontal, 14).padding(.vertical, 10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(RoundedRectangle(cornerRadius: 10).fill(section == s ? Theme.deepLavender : .clear))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 6) {
+                    Button { model.leaveParentArea() } label: {
+                        Label("Back", systemImage: "chevron.left").font(Theme.body(17).bold())
                     }
-                    .accessibilityIdentifier("parent.tab.\(s)")
+                    .accessibilityIdentifier("parent.back")
+                    .padding(.bottom, 8)
+                    Text("Parent dashboard").font(Theme.title(24))
+                        .accessibilityIdentifier("parent.title")
+                        .padding(.bottom, 8)
+                    ForEach(Self.groups, id: \.title) { group in
+                        Text(group.title.uppercased()).font(Theme.body(13).bold()).foregroundStyle(Theme.muted)
+                            .padding(.top, 12).padding(.leading, 4)
+                            .accessibilityIdentifier("parent.group.\(group.title)")
+                        ForEach(group.tabs) { s in
+                            Button { section = s } label: {
+                                Text(s.rawValue).font(Theme.body(18)).foregroundStyle(section == s ? .white : Theme.ink)
+                                    .padding(.horizontal, 14).padding(.vertical, 9)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(RoundedRectangle(cornerRadius: 10).fill(section == s ? Theme.deepLavender : .clear))
+                            }
+                            .accessibilityIdentifier("parent.tab.\(s)")
+                        }
+                    }
                 }
-                Spacer()
+                .padding(24)
             }
-            .padding(24)
-            .frame(width: 260)
+            .frame(width: 270)
             .background(Theme.lilac)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     switch section {
+                    case .overview: overview
                     case .progress: progress
                     case .scrolls: scrolls
                     case .jigsaw: jigsaw
+                    case .cups: cups
+                    case .memory: memoryPage
                     case .time: time
                     case .sound: sound
                     case .screenTime: screenTime
                     case .reset: reset
+                    case .pin: pinPage
                     #if DEBUG
                     case .debug: debugJump
                     #endif
@@ -158,9 +280,35 @@ struct ParentAreaView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .foregroundStyle(Theme.ink)
+        .onAppear {
+            if model.openPinPageNext { section = .pin; model.openPinPageNext = false }
+        }
     }
 
     // MARK: Progress (AC-P5)
+
+    // MARK: General: today at a glance
+
+    private var overview: some View {
+        VStack(alignment: .leading, spacing: 22) {
+            Text("Parent dashboard").font(Theme.title(32))
+            if model.state.parentPin == nil {
+                card {
+                    Text("Set a parent PIN").font(Theme.body(17).bold())
+                    Text("A 4-digit PIN replaces the two-finger hold and the year.")
+                        .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                    Button("Set a PIN") { section = .pin }
+                        .buttonStyle(.borderedProminent).tint(Theme.deepLavender)
+                        .accessibilityIdentifier("parent.pin.setup")
+                }
+            }
+            card { week }
+            Text("Settings are grouped on the left: General for the whole app, then one group for each game.")
+                .font(Theme.body(15)).foregroundStyle(Theme.muted)
+        }
+    }
+
+    // MARK: Kingdom of Numbers
 
     private var progress: some View {
         VStack(alignment: .leading, spacing: 22) {
@@ -205,7 +353,6 @@ struct ParentAreaView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 18) {
-                    card { week }
                     card { stuck }
                 }
             }
@@ -271,16 +418,10 @@ struct ParentAreaView: View {
         let strategies = j.strategyCounts.sorted { $0.value > $1.value }
         return VStack(alignment: .leading, spacing: 18) {
             Text("Jigsaw").font(Theme.title(32))
-            Text("Picture puzzles train shapes and parts of a whole; the number-line puzzle trains number order. The app picks the size from how she plays; you can set the range.")
+            Text("Picture puzzles train shapes and parts of a whole. She picks 10, 20 or 30 pieces; 20 and 30 open after her first 10-piece puzzle, and a sun ring marks the size that fits how she plays. Medium pictures (30 pieces, busier scenes) open after an Easy picture at 30; Hard pictures (50 pieces) open after a Medium one. Finished pictures get a green tick on her puzzle map.")
                 .font(Theme.body(16)).foregroundStyle(Theme.muted)
             card {
-                Text("Pieces she can be offered").font(Theme.body(17).bold())
-                rangeRow("Lowest", value: j.minPieces, id: "min") { d in
-                    model.state.jigsaw.setRange(min: j.minPieces + d, max: max(j.maxPieces, j.minPieces + d))
-                }
-                rangeRow("Highest", value: j.maxPieces, id: "max") { d in
-                    model.state.jigsaw.setRange(min: min(j.minPieces, j.maxPieces + d), max: j.maxPieces + d)
-                }
+                Text("Puzzle size").font(Theme.body(17).bold())
                 Text("Her level now: \(j.levelSize) pieces\(j.calibrated ? "" : " (still finding her level)")")
                     .font(Theme.body(15)).foregroundStyle(Theme.muted)
                     .accessibilityIdentifier("parent.jig.level")
@@ -312,16 +453,98 @@ struct ParentAreaView: View {
         }
     }
 
-    private func rangeRow(_ label: String, value: Int, id: String, change: @escaping (Int) -> Void) -> some View {
-        HStack(spacing: 14) {
-            Text(label).font(Theme.body()).frame(width: 90, alignment: .leading)
-            Button { change(-10); model.save() } label: { Image(systemName: "minus.circle.fill").font(.system(size: 30)) }
-                .accessibilityIdentifier("parent.jig.\(id).minus")
-            Text("\(value)").font(Theme.body(20).bold()).frame(width: 44)
-                .accessibilityIdentifier("parent.jig.\(id)")
-                .accessibilityValue("\(value)")
-            Button { change(10); model.save() } label: { Image(systemName: "plus.circle.fill").font(.system(size: 30)) }
-                .accessibilityIdentifier("parent.jig.\(id).plus")
+    // MARK: Memory (docs/features/memory.md, M9)
+
+    private var memoryPage: some View {
+        let m = model.state.memory
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("Memory").font(Theme.title(32))
+            Text("Trains memory: keeping where each character is in mind. Easy has 3 to 4 pairs, Medium 4 to 6, Hard 6 to 8. Medium opens after an Easy game and Hard after a Medium one; each game grows by a pair when the last one went well.")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+            card {
+                Text("Last ten games").font(Theme.body(17).bold())
+                if m.recent.isEmpty {
+                    Text("No games played yet.").font(Theme.body()).foregroundStyle(Theme.muted)
+                } else {
+                    ForEach(Array(m.recent.reversed().enumerated()), id: \.offset) { _, r in
+                        Text("\(r.level.title): \(r.pairs) pairs in \(r.tries) tries").font(Theme.body())
+                    }
+                }
+                Text("Games played: \(m.gamesPlayed)").font(Theme.body())
+            }
+            .accessibilityIdentifier("parent.memory.recent")
+            card {
+                Text("Next game size").font(Theme.body(17).bold())
+                ForEach(MemoryLevel.allCases, id: \.self) { l in
+                    Text("\(l.title): \(m.pairs(for: l)) pairs\(m.isOpen(l) ? "" : " (not open yet)")").font(Theme.body())
+                }
+            }
+            card {
+                Text("Try at home").font(Theme.body(17).bold())
+                Text(m.homeIdea).font(Theme.body())
+                    .accessibilityIdentifier("parent.memory.homeIdea")
+            }
+        }
+    }
+
+    // MARK: Cup shuffle (#27, C10)
+
+    private var cups: some View {
+        let c = model.state.cupShuffle
+        let recent = Array(c.rounds.suffix(10))
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("Cup shuffle").font(Theme.title(32))
+            Text("Trains attention: keeping her eyes on one moving cup until it stops. She chooses 3 or 5 cups and speed 1 to 3; after three finds in a row the next setting gets a gentle sun ring.")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+            card {
+                Text("Last ten rounds").font(Theme.body(17).bold())
+                if recent.isEmpty {
+                    Text("No rounds played yet.").font(Theme.body()).foregroundStyle(Theme.muted)
+                } else {
+                    Text("Found the bird: \(recent.filter(\.found).count) of \(recent.count)").font(Theme.body())
+                        .accessibilityIdentifier("parent.cups.recent")
+                    HStack(spacing: 6) {
+                        ForEach(Array(recent.enumerated()), id: \.offset) { _, r in
+                            Text("\(r.cups)·\(r.speed)").font(Theme.body(13).bold())
+                                .foregroundStyle(.white)
+                                .frame(width: 44, height: 30)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(r.found ? Theme.sageDeep : Theme.muted))
+                        }
+                    }
+                    Text("Each box is cups · speed. Green means she found the bird.").font(Theme.body(14))
+                        .foregroundStyle(Theme.muted)
+                }
+                Text("Rounds played: \(c.roundsPlayed)").font(Theme.body())
+            }
+            if !c.bySetting.isEmpty {
+                card {
+                    Text("By setting").font(Theme.body(17).bold())
+                    ForEach(Array(c.bySetting.enumerated()), id: \.offset) { _, row in
+                        Text("\(row.settings.cups) cups, speed \(row.settings.speed): found \(row.found) of \(row.played)")
+                            .font(Theme.body())
+                    }
+                }
+            }
+            card {
+                Text("First-time tutorial").font(Theme.body(17).bold())
+                Text(c.tutorialDone ? "She has done it. Show it again next time she opens the cups?"
+                                    : "It will show the next time she opens the cups.")
+                    .font(Theme.body()).foregroundStyle(Theme.muted)
+                if c.tutorialDone {
+                    Button {
+                        model.state.cupShuffle.tutorialDone = false
+                        model.save()
+                    } label: {
+                        Text("Show the tutorial again").font(Theme.body(17).bold())
+                    }
+                    .accessibilityIdentifier("parent.cups.tutorialAgain")
+                }
+            }
+            card {
+                Text("Try at home").font(Theme.body(17).bold())
+                Text(c.homeIdea).font(Theme.body())
+                    .accessibilityIdentifier("parent.cups.homeIdea")
+            }
         }
     }
 
@@ -525,6 +748,17 @@ struct ParentAreaView: View {
                 .buttonStyle(.bordered)
             }
             card {
+                Text("Voices").font(Theme.body(17).bold())
+                Text("Pick from the English voices downloaded on this iPad. Siri voices can't be used by apps. To add more, open Settings > Accessibility > Spoken Content > Voices > English and download an Enhanced or Premium voice; it shows up here straight away.")
+                    .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                voiceRow("Narrator", id: "narrator", current: model.speech.narratorVoice,
+                         choice: model.state.sound.narratorVoiceID, pitch: 1) { model.state.sound.narratorVoiceID = $0 }
+                voiceRow(model.state.companion.name, id: "companion", current: model.speech.sparkleVoice,
+                         choice: model.state.sound.companionVoiceID, pitch: model.state.companion.voicePitch) {
+                    model.state.sound.companionVoiceID = $0
+                }
+            }
+            card {
                 if model.speech.hasEnhancedVoices {
                     Label("Enhanced voices are installed.", systemImage: "checkmark.circle.fill").foregroundStyle(Theme.garden)
                 } else {
@@ -533,6 +767,61 @@ struct ParentAreaView: View {
                         .font(Theme.body(15)).foregroundStyle(Theme.muted)
                         .accessibilityIdentifier("parent.voiceHelp")
                 }
+            }
+        }
+    }
+
+    /// One speaker's voice: a menu of downloaded English voices ("Automatic" lets the app choose) and Play.
+    private func voiceRow(_ who: String, id: String, current: AVSpeechSynthesisVoice?, choice: String?, pitch: Float,
+                          set: @escaping (String?) -> Void) -> some View {
+        HStack(spacing: 14) {
+            Text(who).font(Theme.body()).frame(width: 110, alignment: .leading)
+            Menu {
+                Button("Automatic (best downloaded)") { set(nil); model.applySound(); model.save() }
+                ForEach(SpeechPlayer.englishVoices, id: \.identifier) { v in
+                    Button(SpeechPlayer.describe(v)) { set(v.identifier); model.applySound(); model.save() }
+                }
+            } label: {
+                Text(current.map(SpeechPlayer.describe) ?? "Basic system voice")
+                    .font(Theme.body(16)).lineLimit(1)
+                Text(choice == nil ? "(automatic)" : "").font(Theme.body(14)).foregroundStyle(Theme.muted)
+            }
+            .accessibilityIdentifier("parent.voice.\(id)")
+            Spacer()
+            Button("Play") {
+                model.speech.sample("Hello! This is how I sound.", voice: current, pitch: pitch)
+            }
+            .buttonStyle(.bordered)
+            .accessibilityIdentifier("parent.voice.\(id).play")
+        }
+    }
+
+    // MARK: Grown-ups' PIN (Shrikant, 2026-11-03)
+
+    private var pinPage: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Parent PIN").font(Theme.title(32))
+            Text(model.state.parentPin == nil
+                 ? "No PIN yet: the gate asks for a two-finger hold and the year. Set a 4-digit PIN to use a number pad instead."
+                 : "The gate asks for this PIN. If you forget it, tap Forgot PIN? on the gate, do the two-finger hold and the year, then set a new one here.")
+                .font(Theme.body(16)).foregroundStyle(Theme.muted)
+                .accessibilityIdentifier("parent.pin.status")
+            card {
+                Text(model.state.parentPin == nil ? "New PIN" : "Change PIN").font(Theme.body(17).bold())
+                PinFields(first: $newPin, again: $newPinAgain, idPrefix: "parent.pin")
+                if let pinSaved {
+                    Text(pinSaved).font(Theme.body(15)).foregroundStyle(Theme.garden)
+                        .accessibilityIdentifier("parent.pin.saved")
+                }
+                Button("Save PIN") {
+                    if model.setParentPin(newPin) {
+                        pinSaved = "PIN saved."
+                        newPin = ""; newPinAgain = ""
+                    }
+                }
+                .buttonStyle(.borderedProminent).tint(Theme.deepLavender)
+                .disabled(!PinFields.ready(newPin, newPinAgain))
+                .accessibilityIdentifier("parent.pin.save")
             }
         }
     }
@@ -578,5 +867,42 @@ struct ParentAreaView: View {
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
+    }
+}
+
+/// Two secure number fields for a new PIN: type it, then type it again (setup and the grown-ups' PIN page).
+struct PinFields: View {
+    @Binding var first: String
+    @Binding var again: String
+    let idPrefix: String
+
+    static func ready(_ a: String, _ b: String) -> Bool { ParentPin.isValid(a) && a == b }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 14) {
+                field("4 digits", $first, id: "\(idPrefix).new")
+                field("Again", $again, id: "\(idPrefix).again")
+            }
+            if again.count == ParentPin.length && first != again {
+                Text("The two PINs don't match.").font(Theme.body(15)).foregroundStyle(Theme.clay)
+            } else if !first.isEmpty && !ParentPin.isValid(first) && first.count >= ParentPin.length {
+                Text("Use 4 digits.").font(Theme.body(15)).foregroundStyle(Theme.clay)
+            }
+        }
+    }
+
+    private func field(_ prompt: String, _ text: Binding<String>, id: String) -> some View {
+        SecureField(prompt, text: Binding(get: { text.wrappedValue },
+                                          set: { text.wrappedValue = String($0.filter(\.isNumber).prefix(ParentPin.length)) }))
+            .keyboardType(.numberPad)
+            .textContentType(.oneTimeCode)
+            .font(Theme.title(28))
+            .multilineTextAlignment(.center)
+            .frame(width: 180)
+            .padding(10)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.tan, lineWidth: 2))
+            .accessibilityIdentifier(id)
     }
 }

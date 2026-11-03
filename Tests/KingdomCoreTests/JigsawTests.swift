@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import KingdomCore
 
-/// Jigsaw widget rules J1 to J12 (docs/features/jigsaw.md).
+/// Jigsaw widget rules J1 to J14 (docs/features/jigsaw.md).
 final class JigsawTests: XCTestCase {
     private func result(pieces: Int, firstFits: Int, hints: Int = 0, maxStep: Int = 0, kind: String = "picture",
                         picture: String? = "castle") -> JigsawResult {
@@ -14,7 +14,8 @@ final class JigsawTests: XCTestCase {
     func testLadderMovesOneKnobAtATime() {
         let r = JigsawLadder.rungs
         XCTAssertEqual(r.first?.pieces, 10)
-        XCTAssertEqual(r.first?.cut, .squares)
+        XCTAssertEqual(r.first?.cut, .tabs, "no square pieces (2026-11-03)")
+        XCTAssertFalse(r.contains { $0.cut == .squares })
         XCTAssertEqual(r.first?.turning, false)
         XCTAssertEqual(r.last?.pieces, 50)
         for i in 1..<r.count { XCTAssertEqual(r[i].knobsChanged(from: r[i - 1]), 1, "rung \(i)") }
@@ -48,7 +49,7 @@ final class JigsawTests: XCTestCase {
     // J10: the quick check moves up a size after each easy puzzle, and stops at the first one that isn't easy.
     func testQuickCheckSetsStartingSize() {
         var j = JigsawRecord()
-        XCTAssertEqual(j.offeredSizes, [10])
+        XCTAssertEqual(j.levelSize, 10)
         j.finishPicture(result(pieces: 10, firstFits: 10))
         XCTAssertEqual(j.level.pieces, 20)
         XCTAssertFalse(j.calibrated)
@@ -57,7 +58,7 @@ final class JigsawTests: XCTestCase {
         j.finishPicture(result(pieces: 30, firstFits: 20, hints: 2, picture: "castle"))
         XCTAssertTrue(j.calibrated)
         XCTAssertEqual(j.level.pieces, 30)
-        XCTAssertEqual(j.offeredSizes, [20, 30, 40])
+        XCTAssertEqual(j.levelSize, 30)
     }
 
     // J2, J9: four easy wins step up one knob; being stuck steps down one; a middling puzzle resets the streak.
@@ -75,21 +76,23 @@ final class JigsawTests: XCTestCase {
         XCTAssertEqual(j.rung, 3)
     }
 
-    // The grown-up's range bounds what she is offered.
-    func testParentRange() {
+    // J15: the picker is always 10, 20, 30; 20 and 30 open after her first (10-piece) puzzle; the sun ring never
+    // sits on a locked size or above 30.
+    func testPickerLocksUntilFirstTen() {
         var j = JigsawRecord()
-        j.calibrated = true
+        XCTAssertEqual(JigsawRecord.pickerSizes, [10, 20, 30])
+        XCTAssertEqual(JigsawRecord.pickerSizes.map(j.isOpen), [true, false, false])
+        j.rung = 4
+        XCTAssertEqual(j.levelSize, 10, "a locked size is never suggested")
+        j.rung = 0
+        j.finishPicture(result(pieces: 10, firstFits: 6, hints: 3))
+        XCTAssertEqual(JigsawRecord.pickerSizes.map(j.isOpen), [true, true, true])
         j.rung = JigsawLadder.rungs.count - 1
-        j.setRange(min: 20, max: 30)
         XCTAssertEqual(j.levelSize, 30)
-        XCTAssertEqual(j.offeredSizes, [20, 30])
-        j.setRange(min: 40, max: 20)
-        XCTAssertEqual(j.minPieces, 40)
-        XCTAssertEqual(j.maxPieces, 40)
-        XCTAssertEqual(j.level(pieces: 40).cut, .wavy)
+        XCTAssertEqual(j.level(pieces: 30).cut, .wavy)
     }
 
-    // J9: never the same picture twice in a row; otherwise the least recently played.
+    // J13: the map's suggestion is never the picture just played; otherwise the least recently played.
     func testNextPictureNeverRepeats() {
         var j = JigsawRecord()
         let ids = ["a", "b", "c"]
@@ -103,19 +106,24 @@ final class JigsawTests: XCTestCase {
         XCTAssertEqual(Set(seen.prefix(3)), Set(ids))
     }
 
-    // J12: the number line goes concrete, then pictures, then numerals, and counts by 1, 2, 5 and 10.
-    func testNumberLineLadder() {
-        let r = NumberLineLevel.rungs
-        XCTAssertEqual(r.first, NumberLineLevel(step: 1, look: .dots))
-        XCTAssertEqual(r.map(\.step), r.map(\.step).sorted())
-        XCTAssertEqual(Set(r.map(\.step)), [1, 2, 5, 10])
-        XCTAssertEqual(NumberLineLevel(step: 5, look: .numerals).values, [5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+    // J14: a finished picture gets a tick, with the most pieces she has done it in. Old saves rebuild the ticks.
+    func testCompletedPictures() throws {
         var j = JigsawRecord()
-        j.finishNumberLine(result(pieces: 10, firstFits: 10, kind: "line", picture: nil))
-        XCTAssertEqual(j.lineRung, 1)
-        XCTAssertEqual(j.lastPuzzle, "line")
-        j.finishNumberLine(result(pieces: 10, firstFits: 6, kind: "line", picture: nil))
-        XCTAssertTrue(j.lineCalibrated)
+        XCTAssertFalse(j.isCompleted("castle"))
+        j.finishPicture(result(pieces: 20, firstFits: 15, picture: "castle"))
+        j.finishPicture(result(pieces: 10, firstFits: 10, picture: "castle"))
+        XCTAssertTrue(j.isCompleted("castle"))
+        XCTAssertEqual(j.completed["castle"], 20)
+        XCTAssertFalse(j.isCompleted("garden"))
+
+        // A save from before J14 has results but no ticks; number-line results don't count.
+        var old = JigsawRecord()
+        old.results = [result(pieces: 30, firstFits: 20, picture: "ballet"),
+                       result(pieces: 10, firstFits: 10, kind: "line", picture: nil)]
+        var obj = try JSONSerialization.jsonObject(with: JSONEncoder().encode(old)) as! [String: Any]
+        obj.removeValue(forKey: "completed")
+        let decoded = try JSONDecoder().decode(JigsawRecord.self, from: JSONSerialization.data(withJSONObject: obj))
+        XCTAssertEqual(decoded.completed, ["ballet": 30])
     }
 
     // J5: the companion slips on every third puzzle.
@@ -138,16 +146,38 @@ final class JigsawTests: XCTestCase {
         let s = try JSONDecoder().decode(LearnerState.self, from: old)
         XCTAssertEqual(s.jigsaw, JigsawRecord())
         let partial = try JSONDecoder().decode(JigsawRecord.self, from: Data("{\"rung\":4}".utf8))
-        XCTAssertEqual(partial.rung, 4)
+        XCTAssertEqual(partial.rung, 3, "a ladder-1 save moves down past the removed square rung")
+        let current = try JSONDecoder().decode(JigsawRecord.self, from: Data("{\"rung\":4,\"ladder\":2}".utf8))
+        XCTAssertEqual(current.rung, 4)
+        var j = JigsawRecord()
+        j.rung = 5
+        XCTAssertEqual(try JSONDecoder().decode(JigsawRecord.self, from: JSONEncoder().encode(j)).rung, 5)
         XCTAssertEqual(partial.maxPieces, 50)
     }
 
     // J7: every jigsaw line exists and is companion-neutral.
     func testLines() throws {
         let content = try Content.bundled()
-        for id in ["home.hello", "jig.intro.picture", "jig.intro.line", "jig.hint.edges", "jig.hint.area", "jig.hint.outline",
-                   "jig.hint.slide", "jig.hint.line", "jig.explain", "jig.slip.ask", "jig.slip.caught"] {
+        for id in ["home.hello", "jig.intro.picture", "jig.hint.edges", "jig.hint.area", "jig.hint.outline",
+                   "jig.hint.slide", "jig.explain", "jig.slip.ask", "jig.slip.caught"] {
             XCTAssertNotNil(content.lines[id], id)
         }
+    }
+
+    // J16: Medium opens after an Easy picture at 30 pieces; Hard after any Medium picture.
+    func testGroupsOpenInOrder() {
+        let groups: [String: JigsawGroup] = ["castle": .easy, "market": .medium, "harbour": .hard]
+        var j = JigsawRecord()
+        XCTAssertEqual(JigsawGroup.allCases.map { j.isOpen($0, groups: groups) }, [true, false, false])
+        j.finishPicture(result(pieces: 20, firstFits: 20))
+        XCTAssertFalse(j.isOpen(.medium, groups: groups), "20 pieces is not enough")
+        j.finishPicture(result(pieces: 30, firstFits: 20, hints: 2))
+        XCTAssertTrue(j.isOpen(.medium, groups: groups))
+        XCTAssertFalse(j.isOpen(.hard, groups: groups))
+        j.finishPicture(result(pieces: 30, firstFits: 20, picture: "market"))
+        XCTAssertTrue(j.isOpen(.hard, groups: groups))
+        XCTAssertEqual(JigsawGroup.medium.pieces, 30)
+        XCTAssertEqual(JigsawGroup.hard.pieces, 50)
+        XCTAssertNil(JigsawGroup.easy.pieces)
     }
 }

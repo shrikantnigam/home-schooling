@@ -1,4 +1,4 @@
-# Home School: product charter (v1.6)
+# Home School: product charter (v1.7)
 
 Date: 2026-11-01 · Owners: PM (keeper), child learning expert (learning rules), story director (story rules)
 Status: proposed, waiting for Shrikant's approval
@@ -122,7 +122,8 @@ companions must be recognisable in silhouette (a unicorn has its horn, mane, a l
 
 ## Home School hub and widgets (Shrikant, 2026-11-02)
 
-The app is **Home School**: a home screen of widgets. Kingdom of Numbers is one widget; the jigsaw is the second.
+The app is **Home School**: a home screen of widgets. Kingdom of Numbers is one widget, the jigsaw the second and the
+cup shuffle the third.
 
 - AC-H1: The app opens on the home screen (after first-launch setup). Each widget is a large tile with its name.
 - AC-H2: Setup, the companion, the daily time limit and the parent gate belong to the app, not to one widget.
@@ -130,9 +131,13 @@ The app is **Home School**: a home screen of widgets. Kingdom of Numbers is one 
 - AC-H3: Every widget screen has a way home (the house button, or the castle's own corner on Kingdom screens).
 - AC-H4: When the limit is reached, the Kingdom tile opens its sleeping castle; other widgets wait for tomorrow.
 - AC-H5: The bundle ID stays the same, so her saved progress carries over.
-- AC-H6: One or two number variations per widget follow this whole charter. Every other variation trains one
-  named skill (memory, shapes and space, letters and words, logic, attention). No variation exists only to fill
-  time.
+- AC-H6: A widget may have up to two number variations, and those follow this whole charter. Every other variation
+  trains one named skill (memory, shapes and space, letters and words, logic, attention). No variation exists only
+  to fill time. (Shrikant removed the jigsaw's number line on 2026-11-02, so number variations are optional.)
+- AC-H7: A widget with several puzzles shows them all on one screen, like the kingdom map, and marks the ones she
+  has finished with a green tick. Finished puzzles stay open to play again.
+- AC-H8: A widget whose rules aren't obvious teaches itself once, the first time it opens, with a short guided
+  round. After that it starts straight away; the ear button repeats the one-line intro.
 - Adding a widget means one entry in the widget list, a route, and a feature brief in `docs/features/`.
 
 ## How the team improves (Shrikant, 2026-11-01)
@@ -141,6 +146,9 @@ After every build, all seven agents hold a retro (went well, went wrong, learnin
 and formula files in `studio/` and, where needed, this charter, before the next build starts.
 
 ## Changelog
+
+- v1.7 (2026-11-02): AC-H6 makes number variations optional (the jigsaw's number line is removed); AC-H7 a map of
+  every puzzle with ticks; AC-H8 a first-time tutorial. Third widget: cup shuffle (`docs/features/cup-shuffle.md`).
 
 - v1.6 (2026-11-02): the app becomes Home School, a hub of widgets (AC-H1 to AC-H6). Kingdom of Numbers is the first widget and the jigsaw the second (`docs/features/jigsaw.md`).
 

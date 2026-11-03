@@ -4110,13 +4110,25 @@
    "speaker": "sparkle",
    "text": "Hi! What shall we play today?"
   },
+  "jig.intro.size": {
+   "speaker": "sparkle",
+   "text": "Pick your puzzle size. More pieces make a harder puzzle."
+  },
+  "jig.locked": {
+   "speaker": "sparkle",
+   "text": "Finish a 10 piece puzzle first. Then this one opens!"
+  },
+  "jig.locked.medium": {
+   "speaker": "sparkle",
+   "text": "Finish an easy puzzle with 30 pieces. Then these open!"
+  },
+  "jig.locked.hard": {
+   "speaker": "sparkle",
+   "text": "Finish a medium puzzle. Then these open!"
+  },
   "jig.intro.picture": {
    "speaker": "sparkle",
    "text": "Drag each piece to where it belongs in the picture. Flat edges go around the outside."
-  },
-  "jig.intro.line": {
-   "speaker": "sparkle",
-   "text": "These pieces make a number line. They only fit in order. Which number comes first?"
   },
   "jig.intro.turning": {
    "speaker": "sparkle",
@@ -4146,14 +4158,6 @@
    "speaker": "sparkle",
    "text": "Watch where it goes. Then try the next one!"
   },
-  "jig.hint.line": {
-   "speaker": "sparkle",
-   "text": "Count on from {n}. Which number comes next?"
-  },
-  "jig.hint.lineFirst": {
-   "speaker": "sparkle",
-   "text": "Which number comes first on the line?"
-  },
   "jig.explain": {
    "speaker": "sparkle",
    "text": "How did you find that one? Tap the picture."
@@ -4174,10 +4178,6 @@
    "speaker": "sparkle",
    "text": "You turned it until it fit. Good thinking!"
   },
-  "jig.explain.order": {
-   "speaker": "sparkle",
-   "text": "You counted on to find the next number!"
-  },
   "jig.slip.ask": {
    "speaker": "sparkle",
    "text": "Let me try one! Does my piece fit here?"
@@ -4193,6 +4193,50 @@
   "jig.slip.missed": {
    "speaker": "sparkle",
    "text": "Hmm, look again. The edges don't match, so it doesn't fit. Good thing we checked!"
+  },
+  "memory.intro": {
+   "speaker": "sparkle",
+   "text": "Find two the same. Tap a card to turn it over."
+  },
+  "memory.done": {
+   "speaker": "sparkle",
+   "text": "You found them all!"
+  },
+  "memory.locked.medium": {
+   "speaker": "sparkle",
+   "text": "Finish an easy game first. Then this one opens!"
+  },
+  "memory.locked.hard": {
+   "speaker": "sparkle",
+   "text": "Finish a medium game first. Then this one opens!"
+  },
+  "cup.intro": {
+   "speaker": "sparkle",
+   "text": "Watch the cup with the bird. When the cups stop, tap the one it's under."
+  },
+  "cup.tut.hide": {
+   "speaker": "sparkle",
+   "text": "A little bird is hiding under a cup."
+  },
+  "cup.tut.watch": {
+   "speaker": "sparkle",
+   "text": "Watch its cup move."
+  },
+  "cup.tut.tap": {
+   "speaker": "sparkle",
+   "text": "Tap the cup with the bird!"
+  },
+  "cup.tut.point": {
+   "speaker": "sparkle",
+   "text": "The bird is under this cup. Tap it!"
+  },
+  "cup.tut.done": {
+   "speaker": "sparkle",
+   "text": "You found it! Now you try."
+  },
+  "cup.miss": {
+   "speaker": "sparkle",
+   "text": "Here it is! Keep your eyes on its cup."
   },
   "sheet.make": {
    "speaker": "sparkle",

@@ -241,6 +241,14 @@ Each criterion is testable. IDs are referenced in test cases.
 
 ### Parent controls
 - **AC-P1** The parent area cannot be opened without passing the parent gate.
+  - **AC-P1a (Shrikant, 2026-11-03)** The gate is a 4-digit grown-ups' PIN, set during first-launch setup and changed in
+    the parent area under Grown-ups' PIN. Only a salted hash is saved. Five wrong PINs lock the pad for a minute.
+    "Forgot PIN?" falls back to the two-finger hold and the year, then opens the PIN page to set a new one. Installs
+    from before the PIN keep the hold-and-year gate, and the parent area offers to set a PIN. Reset everything keeps it.
+  - **AC-P1b (Shrikant, 2026-11-03)** The parent area is called the **Parent dashboard**. Its sidebar groups pages
+    into General (Today, Time limits, Sound and voice, Parent PIN, Screen Time help, Reset progress) and one group
+    per widget (Kingdom of Numbers: Progress, Puzzle scrolls; Jigsaw; Cup shuffle). A widget with nothing to show
+    or set gets no group. It opens on General > Today.
 - **AC-P2** Daily limit defaults to 20 minutes and can be set from 5 to 30 in 5-minute steps.
 - **AC-P3** When the daily limit is reached mid-item, the child can finish that item and see the payoff; then the sleeping screen appears and blocks play until local midnight.
 - **AC-P4** Quiet hours, when set, block starting a scene in that window.

@@ -1,7 +1,7 @@
 import XCTest
 
 /// QA play-through for Chapter 5: The Fair Feast (docs/chapters/chapter-5.md).
-final class Chapter5PlaythroughTests: XCTestCase {
+final class Kingdom5QATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-5a to AC-5d: all four scenes, one wrong path per activity kind, the full ladder once.

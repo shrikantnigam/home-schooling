@@ -9,6 +9,10 @@ final class AppModel: ObservableObject {
         case home
         /// The jigsaw widget (#25).
         case jigsaw
+        /// The cup shuffle widget (#27).
+        case cups
+        /// The memory game (docs/features/memory.md).
+        case memory
         case castle
         case map
         case scene
@@ -25,7 +29,7 @@ final class AppModel: ObservableObject {
         /// Screens where play time counts toward the daily limit.
         var isPlay: Bool {
             switch self {
-            case .scene, .writeItDown, .board, .sheet, .jigsaw: return true
+            case .scene, .writeItDown, .board, .sheet, .jigsaw, .cups, .memory: return true
             default: return false
             }
         }
@@ -75,7 +79,7 @@ final class AppModel: ObservableObject {
             : StateStore.defaultStore()
         var loaded = env.reset ? LearnerState() : store.load()
         // A debug jump session that was never ended (app killed): put her real progress back.
-        let snap = StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+        let snap = StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"), keepsBackup: false)
         if FileManager.default.fileExists(atPath: snap.url.path) {
             if !env.reset { loaded = snap.load() }
             try? FileManager.default.removeItem(at: snap.url)
@@ -111,8 +115,21 @@ final class AppModel: ObservableObject {
     }
 
     /// First-launch setup (charter v1.3): saved once, then locked.
-    func completeSetup(name: String, companion: Companion, minutes: Int) {
+    /// After "Forgot PIN?" and the hold-and-year steps, the grown-ups' area opens on the PIN page.
+    var openPinPageNext = false
+
+    /// Saves a new grown-ups' PIN. False if it isn't 4 digits.
+    @discardableResult
+    func setParentPin(_ digits: String) -> Bool {
+        guard let pin = ParentPin(pin: digits) else { return false }
+        state.parentPin = pin
+        save()
+        return true
+    }
+
+    func completeSetup(name: String, companion: Companion, minutes: Int, pin: String? = nil) {
         guard state.completeSetup(SetupChoices(heroName: name, companion: companion, dailyLimitMinutes: minutes)) else { return }
+        if let pin, let p = ParentPin(pin: pin) { state.parentPin = p }
         catalog = LineCatalog(lines: content.lines, heroName: state.heroName, companion: state.companion)
         applySound()
         save()
@@ -123,6 +140,7 @@ final class AppModel: ObservableObject {
         speech.companionPitch = state.companion.voicePitch
         speech.rate = Float(state.sound.speechRate)
         speech.volume = Float(state.sound.narrationVolume)
+        speech.chooseVoices(narrator: state.sound.narratorVoiceID, companion: state.sound.companionVoiceID)
     }
 
     // MARK: Time limit
@@ -152,7 +170,7 @@ final class AppModel: ObservableObject {
         if state.time.limitReached(at: now, settings: state.timeSettings, calendar: calendar) {
             if route == .scene {
                 scene?.beginWrapUp()
-            } else if route == .jigsaw {
+            } else if route == .jigsaw || route == .cups || route == .memory {
                 goHome()
             } else {
                 // Off the story path there is no scene to wrap up: back to the sleeping castle.
@@ -179,13 +197,41 @@ final class AppModel: ObservableObject {
         switch widget.id {
         case "kingdom": route = .castle
         case "jigsaw": if block == nil { route = .jigsaw }
+        case "cups": if block == nil { route = .cups }
+        case "memory": if block == nil { route = .memory }
         default: break
         }
     }
 
     /// Records a finished jigsaw and moves the levels (J10 quick check, J2 adapts).
-    func finishJigsaw(_ r: JigsawResult, line: Bool) {
-        if line { state.jigsaw.finishNumberLine(r) } else { state.jigsaw.finishPicture(r) }
+    func finishJigsaw(_ r: JigsawResult) {
+        state.jigsaw.finishPicture(r)
+        save()
+    }
+
+    /// Records a finished cup shuffle round (C4, C5) and remembers her setting (C1).
+    /// Records a finished memory game (M5: the next game's size).
+    func finishMemory(_ r: MemoryResult) {
+        state.memory.finish(r)
+        save()
+    }
+
+    /// M6: true the first time only; she has heard the intro after that.
+    func memoryFirstTime() -> Bool {
+        guard !state.memory.introHeard else { return false }
+        state.memory.introHeard = true
+        save()
+        return true
+    }
+
+    func finishCupRound(_ settings: CupSettings, found: Bool) {
+        state.cupShuffle.finish(settings, found: found, at: now)
+        save()
+    }
+
+    /// Marks the first-time tutorial as done (C7).
+    func finishCupTutorial() {
+        state.cupShuffle.tutorialDone = true
         save()
     }
 
@@ -374,7 +420,7 @@ final class AppModel: ObservableObject {
 
     func openParentGate() {
         speech.stop()
-        returnRoute = (route == .home || route == .jigsaw) ? .home : .castle
+        returnRoute = (route == .home || route == .jigsaw || route == .cups || route == .memory) ? .home : .castle
         scene?.saveResume()
         scene = nil
         route = .gate
@@ -402,7 +448,7 @@ final class AppModel: ObservableObject {
     // MARK: Debug jump (grown-ups' area, Debug builds only)
 
     private var debugSnapshotStore: StateStore {
-        StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"))
+        StateStore(url: store.url.deletingLastPathComponent().appendingPathComponent("debug-snapshot.json"), keepsBackup: false)
     }
 
     /// True while a grown-up is testing with jumps; her real progress is saved aside until they end it.
@@ -424,7 +470,7 @@ final class AppModel: ObservableObject {
     }
 
     enum DebugTarget: String, CaseIterable, Identifiable {
-        case home, castle, map, board, jigsaw
+        case home, castle, map, board, jigsaw, cups, memory
         var id: String { rawValue }
     }
 
@@ -441,6 +487,8 @@ final class AppModel: ObservableObject {
         case .map: route = .map
         case .board: route = .board
         case .jigsaw: route = .jigsaw
+        case .cups: route = .cups
+        case .memory: route = .memory
         }
     }
 
@@ -479,6 +527,21 @@ final class AppModel: ObservableObject {
 
     private func applyPreset(_ name: String) {
         switch name {
+        case "cupsTutorialDone":
+            state.cupShuffle.tutorialDone = true
+        case "memoryEasyDone":
+            // M3: one Easy game finished, so Medium is open.
+            state.memory.introHeard = true
+            state.memory.finish(MemoryResult(level: .easy, pairs: 3, tries: 5, date: now))
+        case "jigsawMediumOpen":
+            // J16: an Easy picture finished at 30 pieces opens the Medium group.
+            state.jigsaw.introsHeard.formUnion(["picture", "size"])
+            state.jigsaw.finishPicture(JigsawResult(kind: "picture", pictureID: "castle", pieces: 30, firstFits: 25,
+                                                    hintsUsed: 1, maxHintStep: 1, strategy: nil, date: now))
+        case "cupsThreeFinds":
+            // C9: three finds in a row at 3 cups, speed 1, so speed 2 is suggested.
+            state.cupShuffle.tutorialDone = true
+            for _ in 0..<3 { state.cupShuffle.finish(.first, found: true, at: now) }
         case "prologueDone":
             for s in content.chapter("prologue")?.scenes ?? [] { state.completedScenes.insert(s) }
             masterChapter("prologue")

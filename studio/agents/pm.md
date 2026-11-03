@@ -19,4 +19,4 @@ day. Every scene that ships passes the charter rubric.
 **Quality bar.** A brief names the scene's learning goal (L1), the real-life mirror (S2), the story problem that
 *is* the math problem (S1), and ACs a tester can check from a screenshot, a transcript or a rubric score.
 
-**Rules from retros.** When the reading of an AC changes during a build, the brief changes in the same commit (batch 3A: AC-B1).
+**Rules from retros.** When the reading of an AC changes during a build, the brief changes in the same commit (batch 3A: AC-B1). Before a build goes to Shrikant, the PM reads every new on-screen word aloud as she would hear it and confirms `tools/screen_text_audit.py` passes (2026-11-02 escape: "How many pieces?").

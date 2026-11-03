@@ -7,6 +7,8 @@ final class QAPlayer {
     let test: XCTestCase
     private var shot = 0
     let prefix: String
+    /// Taps made through `tap` and `tapNext` since launch (charter project rule 4: tap counts).
+    private(set) var taps = 0
 
     init(_ test: XCTestCase, prefix: String) {
         self.test = test
@@ -18,6 +20,14 @@ final class QAPlayer {
         XCUIDevice.shared.orientation = .landscapeLeft
         app.launch()
         XCUIDevice.shared.orientation = .landscapeLeft
+        taps = 0
+    }
+
+    /// Prints a number for the QA report, e.g. "QA-METRIC c9-02 taps-home-to-first-guess=3".
+    /// With `resetTaps`, the tap count starts again from zero.
+    func metric(_ name: String, _ value: CustomStringConvertible, resetTaps: Bool = false) {
+        print("QA-METRIC \(prefix) \(name)=\(value)")
+        if resetTaps { taps = 0 }
     }
 
     /// Launches like a real install on her iPad: no QA flags, real speech, real animations, the real saved state.
@@ -66,12 +76,14 @@ final class QAPlayer {
     func tap(_ id: String, file: StaticString = #filePath, line: UInt = #line) {
         let e = wait(id, file: file, line: line)
         e.tap()
+        taps += 1
     }
 
     func tapNext(file: StaticString = #filePath, line: UInt = #line) {
         let n = el("next")
         XCTAssertTrue(n.waitForExistence(timeout: 10), "next button never appeared", file: file, line: line)
         n.tap()
+        taps += 1
     }
 
     // MARK: Items
@@ -240,5 +252,19 @@ final class QAPlayer {
         el("gate.year").typeText("\(year)")
         tap("gate.continue")
         wait("parent.back")
+    }
+
+    /// Types the grown-ups' PIN twice on the setup screen, when setup asks for one (2026-11-03).
+    func fillSetupPin(_ pin: String = "2580") {
+        guard el("setup.pin.new").waitForExistence(timeout: 2) else { return }
+        el("setup.pin.new").tap()
+        el("setup.pin.new").typeText(pin)
+        el("setup.pin.again").tap()
+        el("setup.pin.again").typeText(pin)
+    }
+
+    /// Taps a PIN on the gate's number pad.
+    func enterPin(_ pin: String) {
+        for d in pin { tap("gate.pin.\(d)") }
     }
 }

@@ -2,13 +2,18 @@ import KingdomCore
 import SwiftUI
 
 /// First-launch setup (charter v1.3), done by a grown-up with the child: her name, her companion and the
-/// daily time limit. Saved once and then locked; only "Reset everything" in the parent area starts it again.
+/// daily time limit, plus the grown-ups' PIN (changeable later in the parent area). Saved once and then locked; only "Reset everything" in the parent area starts it again.
 struct SetupView: View {
     @EnvironmentObject var model: AppModel
     @State private var name = SetupChoices.defaultName
     @State private var companion: Companion = .unicorn
     @State private var minutes = TimeSettings.defaultLimit
     @State private var confirming = false
+    @State private var pin = ""
+    @State private var pinAgain = ""
+
+    /// A PIN is asked for only when none is set (a reset keeps the PIN).
+    private var needsPin: Bool { model.state.parentPin == nil }
 
     var body: some View {
         ZStack {
@@ -51,12 +56,22 @@ struct SetupView: View {
                             .font(Theme.body(15)).foregroundStyle(Theme.muted)
                     }
 
+                    if needsPin {
+                        step("4", "A parent PIN") {
+                            PinFields(first: $pin, again: $pinAgain, idPrefix: "setup.pin")
+                            Text("Four digits she doesn't know. It opens the parent dashboard, and you can change it there later.")
+                                .font(Theme.body(15)).foregroundStyle(Theme.muted)
+                        }
+                    }
+
                     Button { confirming = true } label: {
                         Text("Start the story").font(Theme.title(28)).foregroundStyle(Theme.ink)
                             .padding(.horizontal, 40).padding(.vertical, 18)
                             .background(Capsule().fill(Theme.sun))
                             .paperCut()
                     }
+                    .disabled(needsPin && !PinFields.ready(pin, pinAgain))
+                    .opacity(needsPin && !PinFields.ready(pin, pinAgain) ? 0.5 : 1)
                     .accessibilityIdentifier("setup.start")
                     .padding(.bottom, 40)
                 }
@@ -66,7 +81,7 @@ struct SetupView: View {
         }
         .alert("Start with these choices?", isPresented: $confirming) {
             Button("Change", role: .cancel) {}
-            Button("Start") { model.completeSetup(name: name, companion: companion, minutes: minutes) }
+            Button("Start") { model.completeSetup(name: name, companion: companion, minutes: minutes, pin: needsPin ? pin : nil) }
         } message: {
             Text("\(SetupChoices.cleanName(name)) plays with \(companion.name) the \(companion.kind), \(minutes) minutes a day. You can't change these later.")
         }

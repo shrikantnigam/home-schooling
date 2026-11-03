@@ -95,6 +95,6 @@ important in the top 100 pt.
   fade up and down, the companion's planned mistakes, worksheet composition, answer checking, parent feedback
   reaching the practice list, mixed scroll weighting.
 - Narration audit over the new lines (0 fail).
-- QA play-through (`Chapter7PlaythroughTests`): write it down after the Garden, a scroll answered with the keys, the
+- QA play-through (`Kingdom7QATests`): write it down after the Garden, a scroll answered with the keys, the
   board (wrong sign then right, a helper, the answer, a lantern), level 3, make a puzzle and catch a mistake, and
   parent feedback.

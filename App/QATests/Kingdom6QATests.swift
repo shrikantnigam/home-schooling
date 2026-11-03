@@ -1,7 +1,7 @@
 import XCTest
 
 /// QA play-through for Chapter 6: The Moon Crystal (docs/chapters/chapter-6.md).
-final class Chapter6PlaythroughTests: XCTestCase {
+final class Kingdom6QATests: XCTestCase {
     override func setUp() { continueAfterFailure = false }
 
     /// AC-6a to AC-6d: all four scenes, one wrong path per activity kind, the full ladder once.
