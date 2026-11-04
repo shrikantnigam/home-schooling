@@ -85,3 +85,8 @@ schemes:
       gatherCoverageData: false
     run:
       config: Debug
+      # Shrikant, 2026-11-03: under Xcode's debugger on his iPad (iPadOS 26) the app aborts in system code before
+      # any app code runs ("-[OS_dispatch_mach_msg _setContext:]: unrecognized selector", 3.6 MB, no app frames),
+      # while the same build opened from its icon works. Run installs and launches without attaching the debugger,
+      # so it behaves like tapping the icon. To debug, tick Edit Scheme > Run > Info > Debug executable.
+      debugEnabled: false
